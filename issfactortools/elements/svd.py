@@ -12,13 +12,15 @@ def exponentialdecay(time, amplitude, tau):  # calculate exponential decay of da
     return amplitude * np.exp(-time / tau)
 
 
-def newplots(matrix, t, x, y, *args):  # takes in matrix, title, xlabel, ylabel, and potenteial args to make plot
+def creategraph(matrix, t, x, y, *args, fig = None):  # takes in matrix, title, xlabel, ylabel, and potenteial args to make plot
     plt.xlabel(x)
     plt.ylabel(y)
     plt.title(t)
     plt.plot(matrix)
     if args:  # potential args are number of data points to plot, oriented by colums or rows, and a label
         num, orientation, lab = args
+        if fig is not None:
+            plt.figure(fig.numner)
         if (orientation == "c"):
             i = 0
             for i in range(num):
@@ -64,7 +66,7 @@ def getchisq(An):  # takes in matrix A of rank N, and calculates chi squared for
     return chiSq
 
 
-def plots(name, matrix):
+def plots(name, matrix): #create a basic graph and imshow plot for a matrix
     plt.figure()
     plt.title(name)
     plt.imshow(matrix)
@@ -112,14 +114,14 @@ def LRA(uMatrix, sMatrix, vMatrix, n, A, noiseLevel = None, fig = None): # metho
     # optional paremeters noiseLevel and a figure
     chiSq = []
     i = 1
-    while i < n:
+    while i < n:    # perform LRA for every rank n
         uN = getrankedmatrices(i, uMatrix, "c")
         sN = getrankedmatrices(i, sMatrix, "d")
         vN = getrankedmatrices(i, vMatrix, "r")
-        An, residuals = getresiduals(uN, sN, vN, A)
-        chiSq.append(getchisq(residuals))
+        An, residuals = getresiduals(uN, sN, vN, A)   # calculate residuals
+        chiSq.append(getchisq(residuals)) # calculate chi squared at rank n
         i = i+1
-    nArr = np.arange(1, len(chiSq)+1)
+    nArr = np.arange(1, len(chiSq)+1) # create an array ranging from 1 to rank n to plot chi squared against
     if fig is not None:
         plt.figure(fig.number)
         plt.plot(nArr, chiSq)
