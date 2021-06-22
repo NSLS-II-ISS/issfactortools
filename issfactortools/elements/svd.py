@@ -80,7 +80,7 @@ def svdnoise(A, noiseLevel, noise):  # pass original matrix A, a noise level, an
     return noiseA, u, s, v #return a copy of matrix A with that noise Level applied, and u, s, and v
 
 
-def plotsingvalues(s): # plot a matrix of singular values
+def plotsingvalues(s, fig = None): # plot a matrix of singular values
     sMatrix = s
     i = 0
     j = 0
@@ -95,41 +95,43 @@ def plotsingvalues(s): # plot a matrix of singular values
                 list.append(sDiags[i][j])
             j = j + 1
         i = i + 1
-    #label the plot
-    plt.plot(list, "o-", label="sN")
-    plt.xlabel("Index")
-    plt.ylabel("Singular Value")
-    plt.legend()
-    plt.title("Singular Values vs Index")
-    plt.show()
+    if fig is not None: # if the user has passed in their own figure, use that
+        plt.figure(fig.number)
+        plt.plot(list, "o-", label="sN")
+    else: # otherwise design a new plot for them
+        plt.plot(list, "o-", label="sN")
+        plt.xlabel("Index")
+        plt.ylabel("Singular Value")
+        plt.legend()
+        plt.title("Singular Values vs Index")
+        plt.show()
 
 
-def lra(uMatrix, sMatrix, vMatrix, n, A, *args): #computer the lra of a matrix
-    # pass in matrix u, s, and v
-    # pass in the number of times to run LRA, n
-    # pass in the original matrix A
-    # pass in potential extra arguments, args, that can be used to title the plot
+def LRA(uMatrix, sMatrix, vMatrix, n, A, noiseLevel = None, fig = None): # method to calculate LRA
+    # takes in u, s, v, rank n, matrix A
+    # optional paremeters noiseLevel and a figure
     chiSq = []
     i = 1
-    while i < n: # compute LRA for each n rank
+    while i < n:
         uN = getrankedmatrices(i, uMatrix, "c")
         sN = getrankedmatrices(i, sMatrix, "d")
         vN = getrankedmatrices(i, vMatrix, "r")
-        An, residuals = getresiduals(uN, sN, vN, A) # calculate the residuals
-        chiSq.append(getchisq(residuals))  # append the chi squared at this rank to the chi squared list
-        i = i + 1
-    nArr = np.arange(1, len(chiSq) + 1) # create a matrix from 1 to the maximum rank
-    plt.plot(nArr, chiSq) # plot chiSquared against it
-    # label the plot
-    plt.xlabel("Rank(n)")
-    plt.ylabel("Chi Squared")
-    # if additional arguments were passed in, use them for the title of the plot
-    if args:
-        plt.title("Rank vs Chi Squared for a noise level of " + str(args))
+        An, residuals = getresiduals(uN, sN, vN, A)
+        chiSq.append(getchisq(residuals))
+        i = i+1
+    nArr = np.arange(1, len(chiSq)+1)
+    if fig is not None:
+        plt.figure(fig.number)
+        plt.plot(nArr, chiSq)
     else:
-        plt.title("Rank vs Chi Squared")
+        plt.plot(nArr, chiSq)
+        plt.xlabel("Rank(n)")
+        plt.ylabel("Chi Squared")
+        if noiseLevel is not None:
+            plt.title("Rank vs Chi Squared for a noise level of "+str(noiseLevel))
+        else:
+            plt.title("Rank vs Chi Squared")
     plt.show()
     plotsingvalues(sMatrix)
-
 
 
