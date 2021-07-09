@@ -1,3 +1,7 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+
 def gaussian(x, amplitude, center, sigma):
     return amplitude * np.exp(-np.power(x - center, 2) / np.power(np.sqrt(2) * sigma, 2))
 
@@ -55,14 +59,20 @@ def getChiSq(x):
     return np.sum((x ** 2))
 
 
-def plots(name, matrix, fig=None, font=None):
+def plots(name, matrix, fig=None, font=None, fmt='ks-', semilogy=False):
     if fig is not None:
         fig.set_title(name, fontsize=font)
-        fig.plot(matrix, ".-")
+        if semilogy:
+            fig.semilogy(matrix, fmt)
+        else:
+            fig.plot(matrix, fmt)
     else:
         plt.figure()
         plt.title(name)
-        plt.plot(matrix, ".-")
+        if semilogy:
+            fig.semilogy(matrix, fmt)
+        else:
+            fig.plot(matrix, fmt)
         plt.show()
 
 
@@ -127,7 +137,12 @@ def LRA(uMatrix, sMatrix, vMatrix, n, A, noiseLevel=None, fig=None, font=None):
             plt.title("Rank vs Chi Squared for a noise level of " + str(noiseLevel))
 
         else:
-            plt.set_text("Rank vs Chi Squared")
+            # plt.set_text("Rank vs Chi Squared")
+            pass
+
+
+
+    return np.array(chiSqS), np.array(chiSq)
 
 
 def plotsingvalues(s, fig=None, font=None):  # plot a matrix of singular values
@@ -149,8 +164,19 @@ def plotsingvalues(s, fig=None, font=None):  # plot a matrix of singular values
         plt.title("Singular Values vs Index")
 
 
-def getAutocorrelation(matrix, lag, title=None, fig=None, font=None):
+def _getAutocorrelation(matrix, lag=1):
     autocorrelation = []
+    rows, cols = np.shape(matrix)
+    for i in range(cols):
+        vec = matrix[:, i]
+        x1 = vec[lag:]
+        x2 = vec[:-lag]
+        ac = np.sum(x1 * x2)
+        autocorrelation.append(ac)
+    return np.array(autocorrelation)
+
+def getAutocorrelation(matrix, lag=1, title=None, fig=None, font=None):
+    autocorrelation = _getAutocorrelation(matrix, lag=lag)
     rows, cols = np.shape(matrix)
     k = lag
     for i in range(cols):
@@ -173,68 +199,96 @@ def getAutocorrelation(matrix, lag, title=None, fig=None, font=None):
             plt.title("Autocorrelation of " + title)
 
 
-def doSVD(matrixA, noiseLevel, noiseArray, f=None):
-    if f is not None:
-        fig = plt.figure(f.number)
-        font = (fig.get_figwidth() + fig.get_figheight()) / 2
-        # fig.set_figheight(20)
-        # fig.set_figwidth(20)
+def _get_lra_chisq(s):
+    chisq = (np.cumsum((s ** 2)[::-1])[::-1])[1:]
+    return np.hstack((chisq, 0))
 
-        ax1 = fig.add_subplot(3, 3, 1)
-        ax2 = fig.add_subplot(3, 3, 2)
-        ax3 = fig.add_subplot(3, 3, 3)
-        ax4 = fig.add_subplot(3, 3, 4)
-        ax5 = fig.add_subplot(3, 3, 5)
-        ax6 = fig.add_subplot(3, 3, 6)
-        ax7 = fig.add_subplot(3, 3, 7)
-        subplotList = [ax1, ax2, ax3, ax4, ax5, ax6, ax7]
-        plt.subplots_adjust(left=0.125,
-                            bottom=0.1,
-                            right=0.9,
-                            top=0.9,
-                            wspace=10,
-                            hspace=10)
-        for sub in subplotList:
-            for label in (sub.get_xticklabels() + sub.get_yticklabels()):
-                label.set_fontsize(font)
 
-        fig.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=0.25, hspace=0.5)
-        noiseA, noiseu, noises, noisev = SVDNoise(matrixA, noiseLevel, noiseArray)
-        noiseAx, u, s, v = SVDNoise(matrixA, 0, noiseArray)
 
-        plots("Representation of Matrix A", A, ax1, font)  # 1
+def doSVD(A):
+    u, s, vT = np.linalg.svd(A)
+    v = vT.T
 
-        subsetu = getSubset(0, 3, u)
-        subsetnu = getSubset(0, 3, noiseu)
-        plots("Representations of Subset of Matrix U", subsetu, ax2, font)  # 2
+    lra_chisq = _get_lra_chisq(s)
+    ac_u = _getAutocorrelation(u)
+    ac_v = _getAutocorrelation(v)
 
-        subsetv = getSubset(0, 3, v.T)
-        subnoisev = getSubset(0, 3, noisev.T)
-        plots("Representation of subset V", subsetv, ax3, font)  # 3
-        getAutocorrelation(noiseu, 1, "u", ax4, font)  # 4
-        getAutocorrelation(noisev.T, 1, "v", ax5, font)  # 5
-        LRA(noiseu, noises, noisev, len(noises) + 1, noiseA, noiseLevel, ax6, font)  # 6
-        plotsingvalues(noises, ax7, font)  # 7
-    else:
-        noiseA, noiseu, noises, noisev = SVDNoise(matrixA, noiseLevel, noiseArray)
-        noiseAx, u, s, v = SVDNoise(matrixA, 0, noiseArray)
-        print("XXXX")
-        print(noises.shape)
-        fullFTest(np.diag(noises), 647, 209)
+    # more methods for significance testing
+    # F test etc
 
-        plots("Representation of Matrix A", A)  # 1
+    return u, s, v, lra_chisq, ac_u, ac_v
 
-        subsetu = getSubset(0, 3, u)
-        subsetnu = getSubset(0, 3, noiseu)
-        plots("Representations of Subset of Matrix U", subsetu)
 
-        subsetv = getSubset(0, 3, v.T)
-        subnoisev = getSubset(0, 3, noisev.T)
-        plots("Representation of subset V", subsetv)
-        getAutocorrelation(noiseu, 1, "u")
-        getAutocorrelation(noisev.T, 1, "v")
-        LRA(noiseu, noises, noisev, len(noises) + 1, noiseA, noiseLevel)
-        plotsingvalues(noises)
+
+def plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, figure, n_cmp_show=3):
+    fig = plt.figure(figure.number)
+    font = (fig.get_figwidth() + fig.get_figheight()) / 2
+    # fig.set_figheight(20)
+    # fig.set_figwidth(20)
+
+    ax_u = fig.add_subplot(2, 2, 1)
+    ax_v = fig.add_subplot(2, 2, 3)
+    ax_s = fig.add_subplot(2, 2, 2)
+    ax_ac = fig.add_subplot(2, 2, 4)
+
+    # ax3 = fig.add_subplot(3, 3, 3)
+    # ax4 = fig.add_subplot(3, 3, 4)
+    # ax5 = fig.add_subplot(3, 3, 5)
+    # ax6 = fig.add_subplot(3, 3, 6)
+    # ax7 = fig.add_subplot(3, 3, 7)
+    subplotList = [ax_u, ax_v, ax_s, ax_ac]
+    plt.subplots_adjust(left=0.125,
+                        bottom=0.1,
+                        right=0.9,
+                        top=0.9,
+                        wspace=10,
+                        hspace=10)
+    for sub in subplotList:
+        for label in (sub.get_xticklabels() + sub.get_yticklabels()):
+            label.set_fontsize(font)
+
+    fig.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=0.25, hspace=0.5)
+
+    subsetu = getSubset(0, n_cmp_show, u)
+    subsetv = getSubset(0, n_cmp_show, v)
+
+    plots("subset of U", subsetu, ax_u, font, fmt='-')  # 2
+    plots("subset of V", subsetv, ax_v, font, fmt='-')  # 3
+
+    plots("Singular values", s, ax_s, font, fmt='k.-', semilogy=True)  # 7
+    plots("Singular values", lra_chisq, ax_s,  font, fmt='bs-', semilogy=True)  # 7
+
+    plots("autocorrelation of U", ac_u, ax_ac, font, fmt='ks-')  # 3
+    plots("autocorrelation of V", ac_v, ax_ac, font, fmt='r.-')  # 3
+
+    plt.tight_layout()
+
+
+    #
+    #     # getAutocorrelation(noiseu, 1, "u", ax4, font)  # 4
+    #     # getAutocorrelation(noisev.T, 1, "v", ax5, font)  # 5
+    #     LRA(noiseu, noises, noisev, len(noises) + 1, noiseA, noiseLevel, ax6, font)  # 6
+    #
+    # else:
+    #     noiseA, noiseu, noises, noisev = SVDNoise(A, noiseLevel, noiseArray)
+    #     noiseAx, u, s, v = SVDNoise(A, 0, noiseArray)
+    #     print("XXXX")
+    #     print(noises.shape)
+    #     fullFTest(np.diag(noises), 647, 209)
+    #
+    #     plots("Representation of Matrix A", A)  # 1
+    #
+    #     subsetu = getSubset(0, 3, u)
+    #     subsetnu = getSubset(0, 3, noiseu)
+    #     plots("Representations of Subset of Matrix U", subsetu)
+    #
+    #     subsetv = getSubset(0, 3, v.T)
+    #     subnoisev = getSubset(0, 3, noisev.T)
+    #     plots("Representation of subset V", subsetv)
+    #     getAutocorrelation(noiseu, 1, "u")
+    #     getAutocorrelation(noisev.T, 1, "v")
+    #     LRA(noiseu, noises, noisev, len(noises) + 1, noiseA, noiseLevel)
+    #     plotsingvalues(noises)
 
 
 def eigen(sValue, m):
