@@ -1,15 +1,36 @@
-from matplotlib import pyplot as plt
-import numpy as np
-np.set_printoptions(threshold=np.inf)
-
-def gaussian(x, amplitude, center, sigma): #calculate gaussian function
+def gaussian(x, amplitude, center, sigma):
     return amplitude * np.exp(-np.power(x - center, 2) / np.power(np.sqrt(2) * sigma, 2))
 
 
-def exponentialDecay(time, amplitude, tau): #calculate exponential decay
+def exponentialDecay(time, amplitude, tau):
     return amplitude * np.exp(-time / tau)
 
-def getRankedMatrices(number, matrix, rcd): #get matrices of a certain rank from a certain orientation
+
+def creategraph(matrix, t, x, y, *args,
+                fig=None):  # takes in matrix, title, xlabel, ylabel, and potenteial args to make plot
+    plt.xlabel(x)
+    plt.ylabel(y)
+    plt.title(t)
+    plt.plot(matrix)
+    if args:  # potential args are number of data points to plot, oriented by colums or rows, and a label
+        num, orientation, lab = args
+        if fig is not None:
+            plt.figure(fig.numner)
+        if (orientation == "c"):
+            i = 0
+            for i in range(num):
+                plt.plot(matrix[:, i], label=(lab + str(i + 1)))
+        elif (orientation == "r"):
+            i = 0
+            for i in range(num):
+                plt.plot(matrix[i, :], label=(lab + str(i + 1)))
+        plt.legend()
+    else:
+        plt.plot(matrix)
+    plt.show()
+
+
+def getRankedMatrices(number, matrix, rcd):
     if rcd == "r":
         # print("Row")
         return matrix[:number, :]
@@ -20,32 +41,32 @@ def getRankedMatrices(number, matrix, rcd): #get matrices of a certain rank from
         return m[:number, :number]
 
 
-def getResiduals(uN, sN, vN, A): #calculate residual matrix
+def getResiduals(uN, sN, vN, A):
     An = uN @ sN @ vN
     residuals = A - An
     return An, residuals
 
 
-def getChiSqS(S): #get chi squared using singular values
+def getChiSqS(S):
     return np.sum((S ** 2))
 
 
-def getChiSq(x): #get chi squared using residuals
+def getChiSq(x):
     return np.sum((x ** 2))
 
 
-def plots(name, matrix, fig=None, font=None): #generate a plot of a matrix
+def plots(name, matrix, fig=None, font=None):
     if fig is not None:
         fig.set_title(name, fontsize=font)
-        fig.plot(matrix)
+        fig.plot(matrix, ".-")
     else:
         plt.figure()
         plt.title(name)
-        plt.plot(matrix)
+        plt.plot(matrix, ".-")
         plt.show()
 
 
-def getPicture(name, matrix, fig=None, font=None): #generate a picture of a matrix
+def getPicture(name, matrix, fig=None, font=None):
     if fig is not None:
         fig.set_title(name, fontsize=font)
         fig.imshow(matrix)
@@ -56,17 +77,17 @@ def getPicture(name, matrix, fig=None, font=None): #generate a picture of a matr
         plt.show()
 
 
-def getSubset(startcolumns, endcolumns, matrix): #get a subset of a matrix
+def getSubset(startcolumns, endcolumns, matrix):
     return matrix[:, startcolumns:endcolumns]
 
 
-def SVDNoise(A, noiseLevel, noise):  #calculate SVD with some noise for a matrix
+def SVDNoise(A, noiseLevel, noise):
     noiseA = A + (noiseLevel * noise)
     u, s, v, = np.linalg.svd(noiseA)
     return noiseA, u, s, v
 
 
-def LRA(uMatrix, sMatrix, vMatrix, n, A, noiseLevel=None, fig=None, font=None): #calculate and graph LRA
+def LRA(uMatrix, sMatrix, vMatrix, n, A, noiseLevel=None, fig=None, font=None):
     chiSq = []
     chiSqS = []
     placeholder = np.copy(sMatrix)
@@ -87,7 +108,6 @@ def LRA(uMatrix, sMatrix, vMatrix, n, A, noiseLevel=None, fig=None, font=None): 
 
         i = i + 1
     nArr = np.arange(1, len(chiSq) + 1)
-
     if fig is not None:
         fig.plot(nArr, chiSq, ".-", label="Residuals")
         fig.plot(nArr, chiSqS, ".-", label="Singular Values")
@@ -129,7 +149,7 @@ def plotsingvalues(s, fig=None, font=None):  # plot a matrix of singular values
         plt.title("Singular Values vs Index")
 
 
-def getAutocorrelation(matrix, lag, title=None, fig=None, font=None): #find the autocorrelation of a matrix and graph it
+def getAutocorrelation(matrix, lag, title=None, fig=None, font=None):
     autocorrelation = []
     rows, cols = np.shape(matrix)
     k = lag
@@ -139,6 +159,7 @@ def getAutocorrelation(matrix, lag, title=None, fig=None, font=None): #find the 
         x2 = vec[:-k]
         ac = np.sum(x1 * x2)
         autocorrelation.append(ac)
+
     if fig is not None:
         fig.plot(autocorrelation, "k.-")
         if title is not None:
@@ -147,32 +168,26 @@ def getAutocorrelation(matrix, lag, title=None, fig=None, font=None): #find the 
     else:
         plt.figure()
         plt.plot(autocorrelation, "k.-")
+        plt.plot([0, cols], [0.8, 0.8], color='r', linestyle='dashed')
         if title is not None:
             plt.title("Autocorrelation of " + title)
-        plt.plot([0, cols], [0.8, 0.8], color='r', linestyle='dashed')
 
 
-def doSVD(matrixA, noiseLevel, noiseArray, f=None): # take in a matrix, and perform all SVD operations, with their graphs
+def doSVD(matrixA, noiseLevel, noiseArray, f=None):
     if f is not None:
         fig = plt.figure(f.number)
         font = (fig.get_figwidth() + fig.get_figheight()) / 2
         # fig.set_figheight(20)
         # fig.set_figwidth(20)
 
-        ax1 = fig.add_subplot(7, 2, 1)
-        ax2 = fig.add_subplot(7, 2, 2)
-        ax3 = fig.add_subplot(7, 2, 3)
-        ax4 = fig.add_subplot(7, 2, 4)
-        ax5 = fig.add_subplot(7, 2, 5)
-        ax6 = fig.add_subplot(7, 2, 6)
-        ax7 = fig.add_subplot(7, 2, 7)
-        ax8 = fig.add_subplot(7, 2, 8)
-        ax9 = fig.add_subplot(7, 2, 9)
-        ax10 = fig.add_subplot(7, 2, 10)
-        ax11 = fig.add_subplot(7, 2, 11)
-        ax12 = fig.add_subplot(7, 2, 12)
-        ax13 = fig.add_subplot(7, 2, 13)
-        subplotList = [ax1, ax2, ax3, ax4, ax5, ax6, ax7, ax8, ax9, ax10, ax11, ax12, ax13]
+        ax1 = fig.add_subplot(3, 3, 1)
+        ax2 = fig.add_subplot(3, 3, 2)
+        ax3 = fig.add_subplot(3, 3, 3)
+        ax4 = fig.add_subplot(3, 3, 4)
+        ax5 = fig.add_subplot(3, 3, 5)
+        ax6 = fig.add_subplot(3, 3, 6)
+        ax7 = fig.add_subplot(3, 3, 7)
+        subplotList = [ax1, ax2, ax3, ax4, ax5, ax6, ax7]
         plt.subplots_adjust(left=0.125,
                             bottom=0.1,
                             right=0.9,
@@ -187,56 +202,102 @@ def doSVD(matrixA, noiseLevel, noiseArray, f=None): # take in a matrix, and perf
         noiseA, noiseu, noises, noisev = SVDNoise(matrixA, noiseLevel, noiseArray)
         noiseAx, u, s, v = SVDNoise(matrixA, 0, noiseArray)
 
-        plots("Representation of Matrix A(No noise)", A, ax1, font)  # 1
-        getPicture("Representation of Matrix A(No noise)", A, ax2, font)  # 2
-        plots("Representations of Matrix A(With noise)", noiseA, ax3, font)  # 3
-        getPicture("Representations of Matrix A(With noise)", noiseA, ax4, font)  # 4
+        plots("Representation of Matrix A", A, ax1, font)  # 1
 
         subsetu = getSubset(0, 3, u)
         subsetnu = getSubset(0, 3, noiseu)
-        plots("Representations of Subset of Matrix U(No noise)", subsetu, ax5, font)  # 5
-        plots("Representations of Subset of Matrix U(With noise)", subsetnu3, ax6, font)  # 6
-
-        diagonals = np.diag(s)
-        ax7.set_title("Representations of Matrix S With(O) and Without(B) noise", fontsize=font)  # 7
-        ax7.semilogy(s, "s-", label="noiseless")
-        ax7.semilogy(noises, ".-", label="with noise")
-        ax7.legend()
+        plots("Representations of Subset of Matrix U", subsetu, ax2, font)  # 2
 
         subsetv = getSubset(0, 3, v.T)
         subnoisev = getSubset(0, 3, noisev.T)
-        plots("Representation of subset V(No noise)", subsetv, ax8, font)  # 8
-        plots("Representation of subset V with noise", subnoisev, ax9, font)  # 9
-        getAutocorrelation(noiseu, 1, "u", ax10, font)  # 10
-        getAutocorrelation(noisev.T, 1, "v", ax11, font)  # 11
-        LRA(noiseu, noises, noisev, len(noises) + 1, noiseA, noiseLevel, ax12, font)  # 12
-        plotsingvalues(noises, ax13, font)  # 13
+        plots("Representation of subset V", subsetv, ax3, font)  # 3
+        getAutocorrelation(noiseu, 1, "u", ax4, font)  # 4
+        getAutocorrelation(noisev.T, 1, "v", ax5, font)  # 5
+        LRA(noiseu, noises, noisev, len(noises) + 1, noiseA, noiseLevel, ax6, font)  # 6
+        plotsingvalues(noises, ax7, font)  # 7
     else:
         noiseA, noiseu, noises, noisev = SVDNoise(matrixA, noiseLevel, noiseArray)
         noiseAx, u, s, v = SVDNoise(matrixA, 0, noiseArray)
+        print("XXXX")
+        print(noises.shape)
+        fullFTest(np.diag(noises), 647, 209)
 
-        plots("Representation of Matrix A(No noise)", A)  # 1
-        getPicture("Representation of Matrix A(No noise)", A)  # 2
-        plots("Representations of Matrix A(With noise)", noiseA)  # 3
-        getPicture("Representations of Matrix A(With noise)", noiseA)  # 4
+        plots("Representation of Matrix A", A)  # 1
 
         subsetu = getSubset(0, 3, u)
         subsetnu = getSubset(0, 3, noiseu)
-        plots("Representations of Subset of Matrix U(No noise)", subsetu)  # 5
-        plots("Representations of Subset of Matrix U(With noise)", subsetnu3)  # 6
-
-        diagonals = np.diag(s)
-        plt.title("Representations of Matrix S With(O) and Without(B) noise")  # 7
-        plt.semilogy(s, "s-", label="noiseless")
-        plt.semilogy(noises, ".-", label="with noise")
-        plt.legend()
+        plots("Representations of Subset of Matrix U", subsetu)
 
         subsetv = getSubset(0, 3, v.T)
         subnoisev = getSubset(0, 3, noisev.T)
-        plots("Representation of subset V(No noise)", subsetv)  # 8
-        plots("Representation of subset V with noise", subnoisev)  # 9
-        getAutocorrelation(noiseu, 1, "u")  # 10
-        getAutocorrelation(noisev.T, 1, "v")  # 11
-        LRA(noiseu, noises, noisev, len(noises) + 1, noiseA, noiseLevel)  # 12
-        plotsingvalues(noises)  # 13
+        plots("Representation of subset V", subsetv)
+        getAutocorrelation(noiseu, 1, "u")
+        getAutocorrelation(noisev.T, 1, "v")
+        LRA(noiseu, noises, noisev, len(noises) + 1, noiseA, noiseLevel)
+        plotsingvalues(noises)
+
+
+def eigen(sValue, m):
+    covariance = (sValue ** 2) / (m - 1)
+    return covariance
+
+
+def REV(eigen, i, m, n):
+    revi = eigen / ((m - i + 1) * (n - i + 1))
+    return revi
+
+
+def fTest(rev, eig, k, m, n):
+    bigSum = 0
+    j = k - 1
+    while j < n:
+        bigSum += (m - j + 1) * (n - j + 1)
+        j = j + 1
+
+    littleSum = 0
+    j = k + 1
+    while j < n:
+        # print(j)
+        littleSum += eig[j]
+
+        j = j + 1
+    F = (rev / littleSum) * (bigSum)
+    return F
+
+
+def fullFTest(sValues, m, n):
+    cov = []
+    rev = []
+    ans = []
+    index = 0
+    rows, cols = sValues.shape
+    print(sValues.shape)
+    while index < rows:
+        cov.append(eigen(sValues[index][index], m))
+        rev.append(REV(cov[index], index, m, n))
+        index = index + 1
+
+    k = 0
+    while k < rows:
+        ans.append(fTest(rev[k], cov, k, m, n))
+        k = k + 1
+
+    plt.figure()
+    plt.plot(cov, ".-")
+    plt.title("Eigen")
+    plt.xlabel("Index")
+    plt.ylabel("Eigenvalue")
+    plt.show()
+    plt.figure()
+    plt.title("Rev")
+    plt.xlabel("Index")
+    plt.ylabel("Value")
+    plt.plot(rev, ".-")
+    plt.show()
+    plt.figure()
+    plt.plot(ans, ".-")
+    plt.title("F")
+    plt.xlabel("Index")
+    plt.show()
+    return ans
 
