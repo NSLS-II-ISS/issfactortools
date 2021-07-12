@@ -18,3 +18,4 @@ class XliveGui(*uic.loadUiType(ui_path)):
         self.setupUi(self)
         self.abc = 1
 
+        self.layout_data_overview.addWidget(self.widget_data)
