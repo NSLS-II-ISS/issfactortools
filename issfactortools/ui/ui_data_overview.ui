@@ -60,7 +60,7 @@
      <height>911</height>
     </rect>
    </property>
-   <layout class="QHBoxLayout" name="layout_data_figure_2">
+   <layout class="QHBoxLayout" name="layout_svd_figure">
     <property name="sizeConstraint">
      <enum>QLayout::SetNoConstraint</enum>
     </property>
