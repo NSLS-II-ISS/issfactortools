@@ -26,6 +26,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
 
 
 
+
 def main_show():
     xfactor_gui = FactorAnalysisGUI()
     xfactor_gui.show()
