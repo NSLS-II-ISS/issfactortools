@@ -46,7 +46,7 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         self.figure_svd= plt.figure()
         self.canvas = FigureCanvas(self.figure_svd)
         self.toolbar = NavigationToolbar(self.canvas, self)
-        self.toolbar.resize(0, 1)
+        self.toolbar.resize(1, 10)
         self.layout_svd_figure.addWidget(self.toolbar)
         self.layout_svd_figure.addWidget(self.canvas)
         self.figure_svd.tight_layout()
@@ -62,7 +62,7 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
 
         self.dataset = np.genfromtxt(filename)
 
-        self.figure_data.ax.plot(self.dataset[:, 0], self.dataset[:, 1])
+        self.figure_data.ax.plot(self.dataset[:, 0], self.dataset[:, 1:])
         self.dataset = self.dataset[:, 1:]
 
         u, s, v, lra_chisq, ac_u, ac_v = doSVD(self.dataset)

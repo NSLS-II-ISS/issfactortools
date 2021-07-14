@@ -36,36 +36,6 @@
     </rect>
    </property>
   </widget>
-  <widget class="QWidget" name="horizontalLayoutWidget_10">
-   <property name="geometry">
-    <rect>
-     <x>350</x>
-     <y>10</y>
-     <width>521</width>
-     <height>911</height>
-    </rect>
-   </property>
-   <layout class="QHBoxLayout" name="layout_data_figure">
-    <property name="sizeConstraint">
-     <enum>QLayout::SetNoConstraint</enum>
-    </property>
-   </layout>
-  </widget>
-  <widget class="QWidget" name="horizontalLayoutWidget_11">
-   <property name="geometry">
-    <rect>
-     <x>880</x>
-     <y>10</y>
-     <width>811</width>
-     <height>911</height>
-    </rect>
-   </property>
-   <layout class="QHBoxLayout" name="layout_svd_figure">
-    <property name="sizeConstraint">
-     <enum>QLayout::SetNoConstraint</enum>
-    </property>
-   </layout>
-  </widget>
   <widget class="QPushButton" name="pushButton_2">
    <property name="geometry">
     <rect>
@@ -78,6 +48,28 @@
    <property name="text">
     <string>Sort by</string>
    </property>
+  </widget>
+  <widget class="QWidget" name="verticalLayoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>889</x>
+     <y>9</y>
+     <width>811</width>
+     <height>911</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="layout_svd_figure"/>
+  </widget>
+  <widget class="QWidget" name="verticalLayoutWidget_2">
+   <property name="geometry">
+    <rect>
+     <x>360</x>
+     <y>10</y>
+     <width>511</width>
+     <height>911</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="layout_data_figure"/>
   </widget>
  </widget>
  <resources/>
