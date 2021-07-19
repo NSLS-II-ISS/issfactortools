@@ -59,20 +59,26 @@ def getChiSq(x):
     return np.sum((x ** 2))
 
 
-def plots(name, matrix, fig=None, font=None, fmt='ks-', semilogy=False):
+def plots(name, matrix, fig=None, font=None, energy = None, fmt='ks-', semilogy=False):
     if fig is not None:
         fig.set_title(name, fontsize=font)
         if semilogy:
             fig.semilogy(matrix, fmt)
         else:
-            fig.plot(matrix, fmt)
+            if energy is None:
+                fig.plot(matrix, fmt)
+            else:
+                fig.plot(energy, matrix, fmt)
     else:
         plt.figure()
         plt.title(name)
         if semilogy:
             fig.semilogy(matrix, fmt)
         else:
-            fig.plot(matrix, fmt)
+            if energy is None:
+                fig.plot(matrix, fmt)
+            else:
+                fig.plot(matrix, energy, fmt)
         plt.show()
 
 
@@ -220,7 +226,7 @@ def doSVD(A):
 
 
 
-def plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, figure, n_cmp_show=3):
+def plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, figure, energy = None, n_cmp_show=3):
     fig = plt.figure(figure.number)
     font = (fig.get_figwidth() + fig.get_figheight()) / 2
     # fig.set_figheight(20)
@@ -252,7 +258,10 @@ def plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, figure, n_cmp_show=3):
     subsetu = getSubset(0, n_cmp_show, u)
     subsetv = getSubset(0, n_cmp_show, v)
 
-    plots("subset of U", subsetu, ax_u, font, fmt='-')  # 2
+    if energy is None:
+        plots("subset of U", subsetu, ax_u, font, fmt='-')  # 2
+    else:
+        plots("subset of U", subsetu, ax_u, font, energy, fmt='-')  # 2
     plots("subset of V", subsetv, ax_v, font, fmt='-')  # 3
 
     plots("Singular values", s, ax_s, font, fmt='k.-', semilogy=True)  # 7

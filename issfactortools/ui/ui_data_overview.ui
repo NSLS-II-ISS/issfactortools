@@ -71,6 +71,60 @@
    </property>
    <layout class="QVBoxLayout" name="layout_data_figure"/>
   </widget>
+  <widget class="QPushButton" name="pushButton_display_data">
+   <property name="geometry">
+    <rect>
+     <x>90</x>
+     <y>820</y>
+     <width>151</width>
+     <height>36</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Display Data</string>
+   </property>
+  </widget>
+  <widget class="QPlainTextEdit" name="rowsText">
+   <property name="geometry">
+    <rect>
+     <x>180</x>
+     <y>660</y>
+     <width>151</width>
+     <height>71</height>
+    </rect>
+   </property>
+   <property name="lineWrapMode">
+    <enum>QPlainTextEdit::NoWrap</enum>
+   </property>
+   <property name="plainText">
+    <string/>
+   </property>
+   <property name="placeholderText">
+    <string>Rows (Ex: 1, 10)</string>
+   </property>
+  </widget>
+  <widget class="QPlainTextEdit" name="columnsText">
+   <property name="geometry">
+    <rect>
+     <x>180</x>
+     <y>740</y>
+     <width>151</width>
+     <height>71</height>
+    </rect>
+   </property>
+   <property name="lineWrapMode">
+    <enum>QPlainTextEdit::WidgetWidth</enum>
+   </property>
+   <property name="plainText">
+    <string/>
+   </property>
+   <property name="overwriteMode">
+    <bool>false</bool>
+   </property>
+   <property name="placeholderText">
+    <string>Columns (Ex: 1, 10)</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>
