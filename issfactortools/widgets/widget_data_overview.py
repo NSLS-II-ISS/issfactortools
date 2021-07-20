@@ -93,6 +93,8 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
             except Exception as err:
                 QMessageBox.about(self, "INDEX ERROR", "The Rows and Columns Dimensions Are Invalid. Retry.")
 
+            self.rowsText.clear()
+            self.columnsText.clear()
 
 
             Mydataset = self.dataset[:, 1:]
