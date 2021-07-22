@@ -87,7 +87,7 @@
   <widget class="QTabWidget" name="tabWidget">
    <property name="geometry">
     <rect>
-     <x>-10</x>
+     <x>10</x>
      <y>690</y>
      <width>351</width>
      <height>121</height>
@@ -100,7 +100,7 @@
     </sizepolicy>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <property name="usesScrollButtons">
     <bool>true</bool>
@@ -153,6 +153,28 @@
       <string>Number of Componenets</string>
      </property>
     </widget>
+    <widget class="QPlainTextEdit" name="columnsText">
+     <property name="geometry">
+      <rect>
+       <x>170</x>
+       <y>50</y>
+       <width>201</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="lineWrapMode">
+      <enum>QPlainTextEdit::WidgetWidth</enum>
+     </property>
+     <property name="plainText">
+      <string/>
+     </property>
+     <property name="overwriteMode">
+      <bool>false</bool>
+     </property>
+     <property name="placeholderText">
+      <string>Columns (Ex: 1, 10)</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QWidget" name="rowscolsTab">
     <attribute name="title">
@@ -175,28 +197,6 @@
      </property>
      <property name="placeholderText">
       <string>Rows (Ex: 1, 10)</string>
-     </property>
-    </widget>
-    <widget class="QPlainTextEdit" name="columnsText">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>50</y>
-       <width>201</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="lineWrapMode">
-      <enum>QPlainTextEdit::WidgetWidth</enum>
-     </property>
-     <property name="plainText">
-      <string/>
-     </property>
-     <property name="overwriteMode">
-      <bool>false</bool>
-     </property>
-     <property name="placeholderText">
-      <string>Columns (Ex: 1, 10)</string>
      </property>
     </widget>
     <widget class="QPlainTextEdit" name="componentsText2">

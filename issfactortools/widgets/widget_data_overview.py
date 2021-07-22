@@ -142,34 +142,44 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
                     print(self.dataset[:,0])
                     print(Mydataset[1:3, 1:3])
 
+
+#            try:
+ #               if rows_text == "" and cols_text == "":
+  #                  self.figure_data.ax.plot(Myenergy, Mydataset)
+   #             elif rows_text == "" and cols_text != "":
+    #                cols = cols_text.split(",")
+     #               if energy_text == "":
+      #                  self.figure_data.ax.plot(self.dataset[:, 0], self.dataset[:, int(cols[0]):int(cols[1])])
+       #             else:
+        #                self.figure_data.ax.plot(Myenergy[:, 0], Mydataset[:, int(cols[0]):int(cols[1])])
+         #       elif rows_text != "" and cols_text == "":
+          #          rows = rows_text.split(",")
+           #         if energy_text == "":
+            #            self.figure_data.ax.plot(self.dataset[int(rows[0]):int(rows[1]), 0], self.dataset[int(rows[0]):int(rows[1]), 1:])
+             #       else:
+              #          self.figure_data.ax.plot(Myenergy[int(rows[0]):int(rows[1]), 0],   Mydataset[int(rows[0]):int(rows[1]), 1:])
+               # else:
+                #    rows = rows_text.split(",")
+                 #   cols = cols_text.split(",")
+                  #  if energy_text == "":
+                   #     self.figure_data.ax.plot(self.dataset[int(rows[0]):int(rows[1]), 0], self.dataset[int(rows[0]):int(rows[1]), int(cols[0]):int(cols[1])])
+                    #else:
+                     #   self.figure_data.ax.plot(Myenergy[int(rows[0]):int(rows[1]), 0],  Mydataset[int(rows[0]):int(rows[1]), int(cols[0]):int(cols[1])])
+            #except Exception as err:
+             #   print(err)
+              #  QMessageBox.about(self, "INDEX ERROR", "The Rows and Columns Dimensions Are Invalid. Retry.")
+
+
             try:
-                if rows_text == "" and cols_text == "":
+                if cols_text == "":
                     self.figure_data.ax.plot(Myenergy, Mydataset)
-                elif rows_text == "" and cols_text != "":
+                elif cols_text != "":
                     cols = cols_text.split(",")
-                    if energy_text == "":
-                        self.figure_data.ax.plot(self.dataset[:, 0], self.dataset[:, int(cols[0]):int(cols[1])])
-                    else:
-                        self.figure_data.ax.plot(Myenergy[:, 0], Mydataset[:, int(cols[0]):int(cols[1])])
-                elif rows_text != "" and cols_text == "":
-                    rows = rows_text.split(",")
-                    if energy_text == "":
-                        self.figure_data.ax.plot(self.dataset[int(rows[0]):int(rows[1]), 0], self.dataset[int(rows[0]):int(rows[1]), 1:])
-                    else:
-                        self.figure_data.ax.plot(Myenergy[int(rows[0]):int(rows[1]), 0],   Mydataset[int(rows[0]):int(rows[1]), 1:])
-                else:
-                    rows = rows_text.split(",")
-                    cols = cols_text.split(",")
-                    if energy_text == "":
-                        self.figure_data.ax.plot(self.dataset[int(rows[0]):int(rows[1]), 0], self.dataset[int(rows[0]):int(rows[1]), int(cols[0]):int(cols[1])])
-                    else:
-                        self.figure_data.ax.plot(Myenergy[int(rows[0]):int(rows[1]), 0],  Mydataset[int(rows[0]):int(rows[1]), int(cols[0]):int(cols[1])])
+                    self.figure_data.ax.plot(Myenergy, Mydataset[:, int(cols[0]):int(cols[1])])
+                    Mydataset = Mydataset[:, int(cols[0]):int(cols[1])]
             except Exception as err:
                 print(err)
                 QMessageBox.about(self, "INDEX ERROR", "The Rows and Columns Dimensions Are Invalid. Retry.")
-
-
-
 
 
             self.rowsText.clear()
