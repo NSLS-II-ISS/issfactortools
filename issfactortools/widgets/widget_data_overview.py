@@ -10,7 +10,8 @@ import math
 import isstools.widgets
 from PyQt5 import uic, QtWidgets, QtGui, QtCore
 from PyQt5.QtCore import QThread, QSettings
-from PyQt5.QtWidgets import QMessageBox, QApplication, QWidget, QPushButton
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QMessageBox, QApplication, QWidget, QPushButton, QVBoxLayout
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas, \
     NavigationToolbar2QT as NavigationToolbar
@@ -28,20 +29,49 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         super().__init__(*args, **kwargs)
         self.setupUi(self)
 
-        self.addCanvas()
+        self.data_graph = None
 
         self.dataset = None
+        self.mouseCoords = 0,0
 
+        self.addCanvas()
         self.pushButton_import_data.clicked.connect(self.import_data)
 
         self.pushButton_display_data.clicked.connect(self.display_data)
 
+        self.lineButton.clicked.connect(self.verticalLines)
+
+        #self.mousePressEvent
+        #self.enterEvent
+        self.tabWidget_2.hide()
+
+    def verticalLines(self):
+        ymin, ymax = self.figure_data.ax.get_ylim()
+        self.figure_data.ax.vlines(self.mouseCoords[0], ymin, ymax )
+        print(ymax)
+        self.figure_data.ax2.plot(Mydataset)
+        self.canvas_data.draw()
+        self.tabWidget_2.hide()
+    def mousePressEvent(self, QMouseEvent):
+        if QMouseEvent.button() == Qt.LeftButton:
+            print("Left Button Clicked")
+        elif QMouseEvent.button() == Qt.RightButton:
+            # do what you want here
+            print("Right Button Clicked")
 
 
+    def enterEvent(self, event):
+        print ("Mouse Entered")
 
+    def onclick(self, event):
+        print('you pressed', event.button, event.xdata, event.ydata)
+        self.mouseCoords = event.xdata, event.ydata
+        if str(event.button) == "MouseButton.RIGHT":
+            self.tabWidget_2.show()
     def addCanvas(self):
         self.figure_data = Figure()
         self.figure_data.ax = self.figure_data.add_subplot(211)
+        self.data_graph = self.figure_data.ax
         self.figure_data.ax2 = self.figure_data.add_subplot(212)
         self.canvas_data = FigureCanvas(self.figure_data)
         self.toolbar_data = NavigationToolbar(self.canvas_data, self)
@@ -50,6 +80,7 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         self.layout_data_figure.addWidget(self.canvas_data)
         self.figure_data.tight_layout()
         self.canvas_data.draw()
+        self.figure_data.canvas.mpl_connect('button_press_event', self.onclick)
 
         self.figure_svd= plt.figure()
         self.figure_svd.ax = self.figure_svd.add_subplot(221)
@@ -117,8 +148,6 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
                     components = int(components_text2)
 
 
-
-
             self.figure_data.ax.clear()
 
             Myenergy = self.dataset[:, 0]
@@ -142,34 +171,6 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
                     print(self.dataset[:,0])
                     print(Mydataset[1:3, 1:3])
 
-
-#            try:
- #               if rows_text == "" and cols_text == "":
-  #                  self.figure_data.ax.plot(Myenergy, Mydataset)
-   #             elif rows_text == "" and cols_text != "":
-    #                cols = cols_text.split(",")
-     #               if energy_text == "":
-      #                  self.figure_data.ax.plot(self.dataset[:, 0], self.dataset[:, int(cols[0]):int(cols[1])])
-       #             else:
-        #                self.figure_data.ax.plot(Myenergy[:, 0], Mydataset[:, int(cols[0]):int(cols[1])])
-         #       elif rows_text != "" and cols_text == "":
-          #          rows = rows_text.split(",")
-           #         if energy_text == "":
-            #            self.figure_data.ax.plot(self.dataset[int(rows[0]):int(rows[1]), 0], self.dataset[int(rows[0]):int(rows[1]), 1:])
-             #       else:
-              #          self.figure_data.ax.plot(Myenergy[int(rows[0]):int(rows[1]), 0],   Mydataset[int(rows[0]):int(rows[1]), 1:])
-               # else:
-                #    rows = rows_text.split(",")
-                 #   cols = cols_text.split(",")
-                  #  if energy_text == "":
-                   #     self.figure_data.ax.plot(self.dataset[int(rows[0]):int(rows[1]), 0], self.dataset[int(rows[0]):int(rows[1]), int(cols[0]):int(cols[1])])
-                    #else:
-                     #   self.figure_data.ax.plot(Myenergy[int(rows[0]):int(rows[1]), 0],  Mydataset[int(rows[0]):int(rows[1]), int(cols[0]):int(cols[1])])
-            #except Exception as err:
-             #   print(err)
-              #  QMessageBox.about(self, "INDEX ERROR", "The Rows and Columns Dimensions Are Invalid. Retry.")
-
-
             try:
                 if cols_text == "":
                     self.figure_data.ax.plot(Myenergy, Mydataset)
@@ -180,7 +181,6 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
             except Exception as err:
                 print(err)
                 QMessageBox.about(self, "INDEX ERROR", "The Rows and Columns Dimensions Are Invalid. Retry.")
-
 
             self.rowsText.clear()
             self.columnsText.clear()

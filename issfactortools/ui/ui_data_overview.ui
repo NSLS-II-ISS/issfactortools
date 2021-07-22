@@ -87,10 +87,10 @@
   <widget class="QTabWidget" name="tabWidget">
    <property name="geometry">
     <rect>
-     <x>10</x>
+     <x>0</x>
      <y>690</y>
      <width>351</width>
-     <height>121</height>
+     <height>131</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -100,19 +100,19 @@
     </sizepolicy>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>1</number>
    </property>
    <property name="usesScrollButtons">
     <bool>true</bool>
    </property>
    <widget class="QWidget" name="energyTab">
     <attribute name="title">
-     <string>Custom Energy Range</string>
+     <string>Custom Energy and Custom Columns Range</string>
     </attribute>
     <widget class="QPlainTextEdit" name="energyText">
      <property name="geometry">
       <rect>
-       <x>10</x>
+       <x>0</x>
        <y>10</y>
        <width>201</width>
        <height>41</height>
@@ -134,11 +134,16 @@
     <widget class="QPlainTextEdit" name="componentsText">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>60</y>
-       <width>181</width>
-       <height>31</height>
+       <x>210</x>
+       <y>10</y>
+       <width>131</width>
+       <height>71</height>
       </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>7</pointsize>
+      </font>
      </property>
      <property name="lineWrapMode">
       <enum>QPlainTextEdit::WidgetWidth</enum>
@@ -156,8 +161,8 @@
     <widget class="QPlainTextEdit" name="columnsText">
      <property name="geometry">
       <rect>
-       <x>170</x>
-       <y>50</y>
+       <x>0</x>
+       <y>60</y>
        <width>201</width>
        <height>31</height>
       </rect>
@@ -236,6 +241,43 @@
      </property>
      <property name="placeholderText">
       <string>Number of Componenets</string>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QTabWidget" name="tabWidget_2">
+   <property name="geometry">
+    <rect>
+     <x>420</x>
+     <y>80</y>
+     <width>201</width>
+     <height>101</height>
+    </rect>
+   </property>
+   <property name="currentIndex">
+    <number>0</number>
+   </property>
+   <property name="tabsClosable">
+    <bool>false</bool>
+   </property>
+   <property name="tabBarAutoHide">
+    <bool>true</bool>
+   </property>
+   <widget class="QWidget" name="AddSlide">
+    <attribute name="title">
+     <string>Tab 1</string>
+    </attribute>
+    <widget class="QPushButton" name="lineButton">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>10</y>
+       <width>131</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Add Vertical Line</string>
      </property>
     </widget>
    </widget>
