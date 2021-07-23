@@ -9,9 +9,10 @@ import math
 
 import isstools.widgets
 from PyQt5 import uic, QtWidgets, QtGui, QtCore
-from PyQt5.QtCore import QThread, QSettings
+from PyQt5.QtCore import QThread, QSettings, QPoint
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QMessageBox, QApplication, QWidget, QPushButton, QVBoxLayout
+from PyQt5.QtGui import QCursor, QMouseEvent
+from PyQt5.QtWidgets import QMessageBox, QApplication, QWidget, QPushButton, QVBoxLayout, QMenu, QAction, QRadioButton
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas, \
     NavigationToolbar2QT as NavigationToolbar
@@ -39,35 +40,58 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
 
         self.pushButton_display_data.clicked.connect(self.display_data)
 
-        self.lineButton.clicked.connect(self.verticalLines)
 
-        #self.mousePressEvent
-        #self.enterEvent
-        self.tabWidget_2.hide()
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.showMenu)
+
 
     def verticalLines(self):
-        ymin, ymax = self.figure_data.ax.get_ylim()
-        self.figure_data.ax.vlines(self.mouseCoords[0], ymin, ymax )
-        print(ymax)
-        self.figure_data.ax2.plot(Mydataset)
-        self.canvas_data.draw()
-        self.tabWidget_2.hide()
-    def mousePressEvent(self, QMouseEvent):
-        if QMouseEvent.button() == Qt.LeftButton:
-            print("Left Button Clicked")
-        elif QMouseEvent.button() == Qt.RightButton:
-            # do what you want here
-            print("Right Button Clicked")
-
-
-    def enterEvent(self, event):
-        print ("Mouse Entered")
-
+        if self.dataset is not None:
+            ymin, ymax = self.figure_data.ax.get_ylim()
+            self.figure_data.ax.vlines(self.mouseCoords[0], ymin, ymax )
+            print(ymax)
+            energy = self.dataset[:,0]
+            if(self.mouseCoords[0] <= energy[energy.size-1] and self.mouseCoords[0] >= energy[0]):
+                num = self.findclosest(self.dataset[:, 0], self.mouseCoords[0])
+                i= np.where(self.dataset[:,0] == num)
+                print("Index: ", i[0])
+                shape = self.dataset[i[0], :].shape
+                arr1d = self.dataset[i[0], :].flatten()
+                print(arr1d)
+                self.figure_data.ax2.plot(arr1d, ".-")
+            self.canvas_data.draw()
+        else:
+            QMessageBox.about(self, "ERROR", "You must import a dataset first.")
     def onclick(self, event):
         print('you pressed', event.button, event.xdata, event.ydata)
         self.mouseCoords = event.xdata, event.ydata
-        if str(event.button) == "MouseButton.RIGHT":
-            self.tabWidget_2.show()
+
+    def clearplot2(self):
+        if self.dataset is not None:
+            self.figure_data.ax2.clear()
+            self.figure_data.ax.clear()
+            self.canvas_data.draw()
+            self.figure_data.ax.plot(self.dataset[:,0], self.dataset[:,1:])
+            self.canvas_data.draw()
+        else:
+            QMessageBox.about(self, "ERROR", "You must import a dataset first.")
+
+    def showMenu(self, pos):
+        if (pos.x() >= 390 and pos.x() <= 850) and (pos.y() >= 90 and pos.y() <= 435):
+            menu = QMenu(self)
+
+            menuAction1 = QAction("Add line", menu)
+            menu.addAction(menuAction1)
+
+            menuAction2 = QAction("Remove all lines", menu)
+            menu.addAction(menuAction2)
+            menuAction1.triggered.connect(self.verticalLines)
+            menuAction2.triggered.connect(self.clearplot2)
+
+
+            menu.exec_(self.mapToGlobal(pos))
+        print("POS: ",pos.x(), pos.y())
+
     def addCanvas(self):
         self.figure_data = Figure()
         self.figure_data.ax = self.figure_data.add_subplot(211)
@@ -126,7 +150,13 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
                 return sR
             i = i + 1
 
+    def findclosest(self, lst, K):
+        closest = lst[min(range(len(lst)), key=lambda i: abs(lst[i] - K))]
+        print (closest)
+        return closest
+
     def display_data(self):
+        self.figure_data.ax2.clear()
         components = 3
         if self.dataset is not None:
             rows_text = self.rowsText.toPlainText()
@@ -169,7 +199,6 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
                     Myenergy = self.dataset[firstRow:secondRow, 0]
                     Myenergy = np.array(Myenergy)
                     print(self.dataset[:,0])
-                    print(Mydataset[1:3, 1:3])
 
             try:
                 if cols_text == "":
