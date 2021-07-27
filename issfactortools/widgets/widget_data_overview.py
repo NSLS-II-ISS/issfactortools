@@ -48,7 +48,7 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
     def verticalLines(self):
         if self.dataset is not None:
             ymin, ymax = self.figure_data.ax.get_ylim()
-            self.figure_data.ax.vlines(self.mouseCoords[0], ymin, ymax )
+            self.figure_data.ax.vlines(self.mouseCoords[0], self.mouseCoords[1], self.mouseCoords[1] + 0.1)
             print(ymax)
             energy = self.dataset[:,0]
             if(self.mouseCoords[0] <= energy[energy.size-1] and self.mouseCoords[0] >= energy[0]):
@@ -56,12 +56,42 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
                 i= np.where(self.dataset[:,0] == num)
                 print("Index: ", i[0])
                 shape = self.dataset[i[0], :].shape
-                arr1d = self.dataset[i[0], :].flatten()
+                arr1d = self.dataset[i[0], 1:].flatten()
                 print(arr1d)
                 self.figure_data.ax2.plot(arr1d, ".-")
             self.canvas_data.draw()
         else:
             QMessageBox.about(self, "ERROR", "You must import a dataset first.")
+
+
+
+    def normalizedLines(self):
+        if self.dataset is not None:
+            ymin, ymax = self.figure_data.ax.get_ylim()
+            self.figure_data.ax.vlines(self.mouseCoords[0], self.mouseCoords[1], self.mouseCoords[1] + 0.1)
+            print(ymax)
+            energy = self.dataset[:,0]
+            if(self.mouseCoords[0] <= energy[energy.size-1] and self.mouseCoords[0] >= energy[0]):
+                num = self.findclosest(self.dataset[:, 0], self.mouseCoords[0])
+                i= np.where(self.dataset[:,0] == num)
+                print("Index: ", i[0])
+                shape = self.dataset[i[0], :].shape
+                arr1d = self.dataset[i[0], 1:].flatten()
+                max = np.max(arr1d)
+                min = np.min(arr1d)
+                print(max)
+                print(min)
+                newArr = []
+                for val in arr1d:
+                    val = ((val - min)/(max-min))
+                    print(val)
+                    newArr.append(val)
+                print(arr1d)
+                self.figure_data.ax2.plot(newArr, ".-")
+            self.canvas_data.draw()
+        else:
+            QMessageBox.about(self, "ERROR", "You must import a dataset first.")
+
     def onclick(self, event):
         print('you pressed', event.button, event.xdata, event.ydata)
         self.mouseCoords = event.xdata, event.ydata
@@ -85,8 +115,13 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
 
             menuAction2 = QAction("Remove all lines", menu)
             menu.addAction(menuAction2)
+
+            menuAction3 = QAction("Add line(normalized)", menu)
+            menu.addAction(menuAction3)
+
             menuAction1.triggered.connect(self.verticalLines)
             menuAction2.triggered.connect(self.clearplot2)
+            menuAction3.triggered.connect(self.normalizedLines)
 
 
             menu.exec_(self.mapToGlobal(pos))
@@ -159,23 +194,18 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         self.figure_data.ax2.clear()
         components = 3
         if self.dataset is not None:
-            rows_text = self.rowsText.toPlainText()
             cols_text = self.columnsText.toPlainText()
             components_text = self.componentsText.toPlainText()
-            components_text2 = self.componentsText2.toPlainText()
             energy_text = self.energyText.toPlainText()
-            if components_text == "" and components_text2 == "":
+            svdauto_text = self.svd_auto_limits.toPlainText()
+
+            if components_text == "":
                 components = 3
-            elif components_text != "" and components_text2 == "":
+            elif components_text != "":
                 if int(components_text) <= 0:
                     QMessageBox.about(self, "ERROR", "The number of components is too low. Retry.")
                 else:
                     components = int(components_text)
-            elif components_text == "" and components_text2 != "":
-                if int(components_text2) <= 0:
-                    QMessageBox.about(self, "ERROR", "The number of components is too low. Retry.")
-                else:
-                    components = int(components_text2)
 
 
             self.figure_data.ax.clear()
@@ -211,18 +241,30 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
                 print(err)
                 QMessageBox.about(self, "INDEX ERROR", "The Rows and Columns Dimensions Are Invalid. Retry.")
 
-            self.rowsText.clear()
+
             self.columnsText.clear()
             self.componentsText.clear()
-            self.componentsText2.clear()
             self.energyText.clear()
+            self.svd_auto_limits.clear()
 
 
 
 
             u, s, v, lra_chisq, ac_u, ac_v = doSVD(Mydataset)
             self.figure_svd.clear()
-            plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, self.figure_svd, Myenergy, n_cmp_show=components)
+            if svdauto_text != "":
+                l = int(svdauto_text)
+                if l <= 0:
+                    QMessageBox.about(self, "ERROR", "Invalid number of points to display.")
+                    l = None
+                    plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, self.figure_svd, Myenergy, limits=None,n_cmp_show=components)
+                else:
+                    plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, self.figure_svd, Myenergy, limits = l, n_cmp_show=components)
+            else:
+                plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, self.figure_svd, Myenergy, limits = None, n_cmp_show=components)
+
+            self.figure_data.ax.title.set_text("Data")
+            self.figure_data.ax2.title.set_text("Subplot")
             self.canvas.draw_idle()
             self.canvas_data.draw_idle()
 

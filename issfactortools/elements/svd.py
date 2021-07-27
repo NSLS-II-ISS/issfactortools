@@ -59,20 +59,34 @@ def getChiSq(x):
     return np.sum((x ** 2))
 
 
-def plots(name, matrix, fig=None, font=None, energy = None, fmt='ks-', semilogy=False):
+def plots(name, matrix, fig=None, font=None, energy = None, fmt='ks-', limits = None,semilogy=False,):
     if fig is not None:
         fig.set_title(name, fontsize=font)
         if semilogy:
-            fig.semilogy(matrix, fmt)
+            if limits is not None:
+                matrix = matrix[0:limits]
+
+                fig.semilogy(matrix, fmt)
+            else:
+                fig.semilogy(matrix, fmt)
         else:
             if energy is None:
-                fig.plot(matrix, fmt)
+                if limits is not None:
+                    matrix = matrix[0:limits]
+                    fig.plot(matrix, fmt)
+                else:
+                    fig.plot(matrix, fmt)
             else:
-                fig.plot(energy, matrix, fmt)
+                if limits is not None:
+                    matrix = matrix[0:limits]
+                    fig.plot(matrix, fmt)
+                else:
+                    fig.plot(energy, matrix, fmt)
     else:
         plt.figure()
         plt.title(name)
         if semilogy:
+
             fig.semilogy(matrix, fmt)
         else:
             if energy is None:
@@ -226,7 +240,8 @@ def doSVD(A):
 
 
 
-def plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, figure, energy = None, n_cmp_show=3):
+def plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, figure, energy = None, n_cmp_show=3, limits = None):
+    l = limits
     fig = plt.figure(figure.number)
     font = (fig.get_figwidth() + fig.get_figheight()) / 2
     # fig.set_figheight(20)
@@ -264,11 +279,11 @@ def plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, figure, energy = None, n_cm
         plots("subset of U", subsetu, ax_u, font, energy, fmt='-')  # 2
     plots("subset of V", subsetv, ax_v, font, fmt='-')  # 3
 
-    plots("Singular values", s, ax_s, font, fmt='k.-', semilogy=True)  # 7
-    plots("Singular values", lra_chisq, ax_s,  font, fmt='bs-', semilogy=True)  # 7
+    plots("Singular values", s, ax_s, font, fmt='k.-', limits = l, semilogy=True)  # 7
+    plots("Singular values", lra_chisq, ax_s,  font, fmt='bs-', limits = l, semilogy=True)  # 7
 
-    plots("autocorrelation of U", ac_u, ax_ac, font, fmt='ks-')  # 3
-    plots("autocorrelation of V", ac_v, ax_ac, font, fmt='r.-')  # 3
+    plots("autocorrelation of U", ac_u, ax_ac, font, fmt='ks-', limits = l)  # 3
+    plots("autocorrelation of V", ac_v, ax_ac, font, fmt='r.-', limits = l)  # 3
 
     plt.tight_layout()
 

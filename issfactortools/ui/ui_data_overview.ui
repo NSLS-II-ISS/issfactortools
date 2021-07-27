@@ -90,7 +90,7 @@
      <x>0</x>
      <y>690</y>
      <width>351</width>
-     <height>131</height>
+     <height>181</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -180,49 +180,19 @@
       <string>Columns (Ex: 1, 10)</string>
      </property>
     </widget>
-   </widget>
-   <widget class="QWidget" name="rowscolsTab">
-    <attribute name="title">
-     <string>Custom Rows and Columns</string>
-    </attribute>
-    <widget class="QPlainTextEdit" name="rowsText">
+    <widget class="QPlainTextEdit" name="svd_auto_limits">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>10</y>
+       <x>0</x>
+       <y>100</y>
        <width>201</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="lineWrapMode">
-      <enum>QPlainTextEdit::NoWrap</enum>
-     </property>
-     <property name="plainText">
-      <string/>
-     </property>
-     <property name="placeholderText">
-      <string>Rows (Ex: 1, 10)</string>
-     </property>
-    </widget>
-    <widget class="QPlainTextEdit" name="componentsText2">
-     <property name="geometry">
-      <rect>
-       <x>220</x>
-       <y>10</y>
-       <width>111</width>
-       <height>51</height>
+       <height>41</height>
       </rect>
      </property>
      <property name="font">
       <font>
-       <pointsize>6</pointsize>
+       <pointsize>7</pointsize>
       </font>
-     </property>
-     <property name="autoFillBackground">
-      <bool>false</bool>
-     </property>
-     <property name="tabChangesFocus">
-      <bool>false</bool>
      </property>
      <property name="lineWrapMode">
       <enum>QPlainTextEdit::WidgetWidth</enum>
@@ -233,14 +203,8 @@
      <property name="overwriteMode">
       <bool>false</bool>
      </property>
-     <property name="backgroundVisible">
-      <bool>false</bool>
-     </property>
-     <property name="centerOnScroll">
-      <bool>false</bool>
-     </property>
      <property name="placeholderText">
-      <string>Number of Componenets</string>
+      <string>Set Limits on SVD and Autocorrelation</string>
      </property>
     </widget>
    </widget>
@@ -248,22 +212,6 @@
  </widget>
  <resources/>
  <connections>
-  <connection>
-   <sender>tabWidget</sender>
-   <signal>currentChanged(int)</signal>
-   <receiver>rowsText</receiver>
-   <slot>clear()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>175</x>
-     <y>750</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>117</x>
-     <y>752</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>tabWidget</sender>
    <signal>currentChanged(int)</signal>
@@ -309,22 +257,6 @@
     <hint type="destinationlabel">
      <x>92</x>
      <y>792</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>tabWidget</sender>
-   <signal>currentChanged(int)</signal>
-   <receiver>componentsText2</receiver>
-   <slot>clear()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>165</x>
-     <y>750</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>267</x>
-     <y>752</y>
     </hint>
    </hints>
   </connection>
