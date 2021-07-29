@@ -101,6 +101,8 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
             self.figure_data.ax2.clear()
             self.figure_data.ax.clear()
             self.canvas_data.draw()
+            self.figure_data.ax.title.set_text("Data")
+            self.figure_data.ax2.title.set_text("Subplot")
             self.figure_data.ax.plot(self.dataset[:,0], self.dataset[:,1:])
             self.canvas_data.draw()
         else:
