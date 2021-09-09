@@ -48,7 +48,7 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
     def verticalLines(self):
         if self.dataset is not None:
             ymin, ymax = self.figure_data.ax.get_ylim()
-            self.figure_data.ax.vlines(self.mouseCoords[0], self.mouseCoords[1], self.mouseCoords[1] + 0.1)
+            col = ''
             print(ymax)
             energy = self.dataset[:,0]
             if(self.mouseCoords[0] <= energy[energy.size-1] and self.mouseCoords[0] >= energy[0]):
@@ -58,7 +58,11 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
                 shape = self.dataset[i[0], :].shape
                 arr1d = self.dataset[i[0], 1:].flatten()
                 print(arr1d)
-                self.figure_data.ax2.plot(arr1d, ".-")
+                col = self.figure_data.ax2.plot(arr1d, ".-")
+                print(col[0].get_color())
+
+            #self.figure_data.ax.vlines(self.mouseCoords[0], self.mouseCoords[1], self.mouseCoords[1] + 0.1, color= col[0].get_color())
+            self.figure_data.ax.vlines(self.mouseCoords[0], 0, self.mouseCoords[1]+0.1, color=col[0].get_color())
             self.canvas_data.draw()
         else:
             QMessageBox.about(self, "ERROR", "You must import a dataset first.")
@@ -68,7 +72,7 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
     def normalizedLines(self):
         if self.dataset is not None:
             ymin, ymax = self.figure_data.ax.get_ylim()
-            self.figure_data.ax.vlines(self.mouseCoords[0], self.mouseCoords[1], self.mouseCoords[1] + 0.1)
+            col = ''
             print(ymax)
             energy = self.dataset[:,0]
             if(self.mouseCoords[0] <= energy[energy.size-1] and self.mouseCoords[0] >= energy[0]):
@@ -87,7 +91,8 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
                     print(val)
                     newArr.append(val)
                 print(arr1d)
-                self.figure_data.ax2.plot(newArr, ".-")
+                col = self.figure_data.ax2.plot(newArr, ".-")
+                self.figure_data.ax.vlines(self.mouseCoords[0], self.mouseCoords[1], self.mouseCoords[1] + 0.1, col[0].get_color())
             self.canvas_data.draw()
         else:
             QMessageBox.about(self, "ERROR", "You must import a dataset first.")

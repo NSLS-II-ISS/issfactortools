@@ -40,7 +40,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>880</y>
+     <y>710</y>
      <width>151</width>
      <height>36</height>
     </rect>
@@ -52,10 +52,10 @@
   <widget class="QWidget" name="verticalLayoutWidget">
    <property name="geometry">
     <rect>
-     <x>889</x>
-     <y>9</y>
+     <x>860</x>
+     <y>10</y>
      <width>811</width>
-     <height>911</height>
+     <height>801</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="layout_svd_figure"/>
@@ -65,8 +65,8 @@
     <rect>
      <x>360</x>
      <y>10</y>
-     <width>511</width>
-     <height>911</height>
+     <width>471</width>
+     <height>801</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="layout_data_figure"/>
@@ -75,7 +75,7 @@
    <property name="geometry">
     <rect>
      <x>190</x>
-     <y>880</y>
+     <y>710</y>
      <width>151</width>
      <height>36</height>
     </rect>
@@ -84,181 +84,105 @@
     <string>Display Data</string>
    </property>
   </widget>
-  <widget class="QTabWidget" name="tabWidget">
+  <widget class="QPlainTextEdit" name="componentsText">
    <property name="geometry">
     <rect>
-     <x>0</x>
-     <y>690</y>
-     <width>351</width>
-     <height>181</height>
+     <x>230</x>
+     <y>860</y>
+     <width>141</width>
+     <height>51</height>
     </rect>
    </property>
-   <property name="sizePolicy">
-    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-     <horstretch>0</horstretch>
-     <verstretch>7</verstretch>
-    </sizepolicy>
+   <property name="font">
+    <font>
+     <pointsize>7</pointsize>
+    </font>
    </property>
-   <property name="currentIndex">
-    <number>0</number>
+   <property name="lineWrapMode">
+    <enum>QPlainTextEdit::WidgetWidth</enum>
    </property>
-   <property name="usesScrollButtons">
-    <bool>true</bool>
+   <property name="plainText">
+    <string/>
    </property>
-   <widget class="QWidget" name="energyTab">
-    <attribute name="title">
-     <string>Custom Energy and Custom Columns Range</string>
-    </attribute>
-    <widget class="QPlainTextEdit" name="energyText">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>10</y>
-       <width>201</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="lineWrapMode">
-      <enum>QPlainTextEdit::WidgetWidth</enum>
-     </property>
-     <property name="plainText">
-      <string/>
-     </property>
-     <property name="overwriteMode">
-      <bool>false</bool>
-     </property>
-     <property name="placeholderText">
-      <string>Energy Range(Ex: 1000, 2500)</string>
-     </property>
-    </widget>
-    <widget class="QPlainTextEdit" name="componentsText">
-     <property name="geometry">
-      <rect>
-       <x>210</x>
-       <y>10</y>
-       <width>131</width>
-       <height>71</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>7</pointsize>
-      </font>
-     </property>
-     <property name="lineWrapMode">
-      <enum>QPlainTextEdit::WidgetWidth</enum>
-     </property>
-     <property name="plainText">
-      <string/>
-     </property>
-     <property name="overwriteMode">
-      <bool>false</bool>
-     </property>
-     <property name="placeholderText">
-      <string>Number of Componenets</string>
-     </property>
-    </widget>
-    <widget class="QPlainTextEdit" name="columnsText">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>60</y>
-       <width>201</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="lineWrapMode">
-      <enum>QPlainTextEdit::WidgetWidth</enum>
-     </property>
-     <property name="plainText">
-      <string/>
-     </property>
-     <property name="overwriteMode">
-      <bool>false</bool>
-     </property>
-     <property name="placeholderText">
-      <string>Columns (Ex: 1, 10)</string>
-     </property>
-    </widget>
-    <widget class="QPlainTextEdit" name="svd_auto_limits">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>100</y>
-       <width>201</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>7</pointsize>
-      </font>
-     </property>
-     <property name="lineWrapMode">
-      <enum>QPlainTextEdit::WidgetWidth</enum>
-     </property>
-     <property name="plainText">
-      <string/>
-     </property>
-     <property name="overwriteMode">
-      <bool>false</bool>
-     </property>
-     <property name="placeholderText">
-      <string>Set Limits on SVD and Autocorrelation</string>
-     </property>
-    </widget>
-   </widget>
+   <property name="overwriteMode">
+    <bool>false</bool>
+   </property>
+   <property name="placeholderText">
+    <string>Number of Componenets</string>
+   </property>
+  </widget>
+  <widget class="QPlainTextEdit" name="svd_auto_limits">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>860</y>
+     <width>211</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>7</pointsize>
+    </font>
+   </property>
+   <property name="lineWrapMode">
+    <enum>QPlainTextEdit::WidgetWidth</enum>
+   </property>
+   <property name="plainText">
+    <string/>
+   </property>
+   <property name="overwriteMode">
+    <bool>false</bool>
+   </property>
+   <property name="placeholderText">
+    <string>Set Limits on SVD and Autocorrelation</string>
+   </property>
+  </widget>
+  <widget class="QPlainTextEdit" name="energyText">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>770</y>
+     <width>201</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="lineWrapMode">
+    <enum>QPlainTextEdit::WidgetWidth</enum>
+   </property>
+   <property name="plainText">
+    <string/>
+   </property>
+   <property name="overwriteMode">
+    <bool>false</bool>
+   </property>
+   <property name="placeholderText">
+    <string>Energy Range(Ex: 1000, 2500)</string>
+   </property>
+  </widget>
+  <widget class="QPlainTextEdit" name="columnsText">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>820</y>
+     <width>201</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="lineWrapMode">
+    <enum>QPlainTextEdit::WidgetWidth</enum>
+   </property>
+   <property name="plainText">
+    <string/>
+   </property>
+   <property name="overwriteMode">
+    <bool>false</bool>
+   </property>
+   <property name="placeholderText">
+    <string>Columns (Ex: 1, 10)</string>
+   </property>
   </widget>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>tabWidget</sender>
-   <signal>currentChanged(int)</signal>
-   <receiver>columnsText</receiver>
-   <slot>clear()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>175</x>
-     <y>750</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>117</x>
-     <y>817</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>tabWidget</sender>
-   <signal>currentChanged(int)</signal>
-   <receiver>energyText</receiver>
-   <slot>clear()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>175</x>
-     <y>750</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>112</x>
-     <y>747</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>tabWidget</sender>
-   <signal>currentChanged(int)</signal>
-   <receiver>componentsText</receiver>
-   <slot>clear()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>165</x>
-     <y>750</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>92</x>
-     <y>792</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>
