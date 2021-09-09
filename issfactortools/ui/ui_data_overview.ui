@@ -49,23 +49,12 @@
     <string>Sort by</string>
    </property>
   </widget>
-  <widget class="QWidget" name="verticalLayoutWidget">
-   <property name="geometry">
-    <rect>
-     <x>860</x>
-     <y>10</y>
-     <width>811</width>
-     <height>801</height>
-    </rect>
-   </property>
-   <layout class="QVBoxLayout" name="layout_svd_figure"/>
-  </widget>
   <widget class="QWidget" name="verticalLayoutWidget_2">
    <property name="geometry">
     <rect>
      <x>360</x>
      <y>10</y>
-     <width>471</width>
+     <width>431</width>
      <height>801</height>
     </rect>
    </property>
@@ -87,8 +76,8 @@
   <widget class="QPlainTextEdit" name="componentsText">
    <property name="geometry">
     <rect>
-     <x>230</x>
-     <y>860</y>
+     <x>1280</x>
+     <y>820</y>
      <width>141</width>
      <height>51</height>
     </rect>
@@ -114,8 +103,8 @@
   <widget class="QPlainTextEdit" name="svd_auto_limits">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>860</y>
+     <x>1460</x>
+     <y>820</y>
      <width>211</width>
      <height>51</height>
     </rect>
@@ -141,8 +130,8 @@
   <widget class="QPlainTextEdit" name="energyText">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>770</y>
+     <x>360</x>
+     <y>820</y>
      <width>201</width>
      <height>41</height>
     </rect>
@@ -163,7 +152,7 @@
   <widget class="QPlainTextEdit" name="columnsText">
    <property name="geometry">
     <rect>
-     <x>10</x>
+     <x>580</x>
      <y>820</y>
      <width>201</width>
      <height>31</height>
@@ -181,6 +170,28 @@
    <property name="placeholderText">
     <string>Columns (Ex: 1, 10)</string>
    </property>
+  </widget>
+  <widget class="QWidget" name="verticalLayoutWidget_3">
+   <property name="geometry">
+    <rect>
+     <x>810</x>
+     <y>10</y>
+     <width>441</width>
+     <height>801</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="layout_svd_figure"/>
+  </widget>
+  <widget class="QWidget" name="verticalLayoutWidget_4">
+   <property name="geometry">
+    <rect>
+     <x>1270</x>
+     <y>10</y>
+     <width>421</width>
+     <height>801</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="layout_auto_figure"/>
   </widget>
  </widget>
  <resources/>

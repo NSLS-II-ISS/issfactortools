@@ -149,10 +149,9 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         self.figure_data.canvas.mpl_connect('button_press_event', self.onclick)
 
         self.figure_svd= plt.figure()
-        self.figure_svd.ax = self.figure_svd.add_subplot(221)
-        self.figure_svd.ax2 = self.figure_svd.add_subplot(222)
-        self.figure_svd.ax3 = self.figure_svd.add_subplot(223)
-        self.figure_svd.ax4 = self.figure_svd.add_subplot(224)
+        self.figure_svd.ax = self.figure_svd.add_subplot(211)
+        self.figure_svd.ax2 = self.figure_svd.add_subplot(212)
+
         self.canvas = FigureCanvas(self.figure_svd)
         self.toolbar = NavigationToolbar(self.canvas, self)
         self.toolbar.resize(1, 10)
@@ -161,6 +160,16 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         self.figure_svd.tight_layout()
         self.canvas.draw()
 
+        self.figure_auto = plt.figure()
+        self.figure_auto.ax3 = self.figure_auto.add_subplot(211)
+        self.figure_auto.ax4 = self.figure_auto.add_subplot(212)
+        self.canvas_auto = FigureCanvas(self.figure_auto)
+        self.toolbar_auto = NavigationToolbar(self.canvas_auto, self)
+        self.toolbar.resize(1, 10)
+        self.layout_auto_figure.addWidget(self.toolbar_auto)
+        self.layout_auto_figure.addWidget(self.canvas_auto)
+        self.figure_auto.tight_layout()
+        self.canvas_auto.draw()
 
     def import_data(self):
         filename = QtWidgets.QFileDialog.getOpenFileName(directory='/nsls2/xf08id/Sandbox',
@@ -201,6 +210,8 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         self.figure_data.ax2.clear()
         components = 3
         if self.dataset is not None:
+            self.figure_auto.ax3.clear()
+            self.figure_auto.ax4.clear()
             cols_text = self.columnsText.toPlainText()
             components_text = self.componentsText.toPlainText()
             energy_text = self.energyText.toPlainText()
@@ -264,14 +275,20 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
                 if l <= 0:
                     QMessageBox.about(self, "ERROR", "Invalid number of points to display.")
                     l = None
-                    plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, self.figure_svd, Myenergy, limits=None,n_cmp_show=components)
+                    plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, self.figure_svd, self.figure_auto, Myenergy, n_cmp_show=components, limits = 5)
                 else:
-                    plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, self.figure_svd, Myenergy, limits = l, n_cmp_show=components)
+                    plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, self.figure_svd, self.figure_auto, Myenergy, n_cmp_show=components, limits = l)
+                    print(l)
             else:
-                plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, self.figure_svd, Myenergy, limits = None, n_cmp_show=components)
+                plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, self.figure_svd, self.figure_auto, Myenergy, n_cmp_show=components, limits = 5)
 
             self.figure_data.ax.title.set_text("Data")
             self.figure_data.ax2.title.set_text("Subplot")
+            self.figure_svd.ax.title.set_text("Subset of U")
+            self.figure_svd.ax2.title.set_text("Subset of V")
+            self.figure_auto.ax3.title.set_text("Singular Values")
+            self.figure_auto.ax4.title.set_text("Autocorrelation")
             self.canvas.draw_idle()
             self.canvas_data.draw_idle()
+            self.canvas_auto.draw_idle()
 

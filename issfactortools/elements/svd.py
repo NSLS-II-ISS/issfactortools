@@ -59,27 +59,29 @@ def getChiSq(x):
     return np.sum((x ** 2))
 
 
-def plots(name, matrix, fig=None, font=None, energy = None, fmt='ks-', limits = None,semilogy=False,):
+def plots(name, matrix, fig=None, font=None, energy = None, fmt='ks-', limits = None, semilogy=False,):
     if fig is not None:
         fig.set_title(name, fontsize=font)
         if semilogy:
             if limits is not None:
-                matrix = matrix[0:limits]
-
-                fig.semilogy(matrix, fmt)
+                #matrix = matrix[0:limits]
+                print("L2: " + str(limits))
+                fig.semilogy(matrix[0:limits], fmt)
             else:
                 fig.semilogy(matrix, fmt)
         else:
             if energy is None:
                 if limits is not None:
-                    matrix = matrix[0:limits]
-                    fig.plot(matrix, fmt)
+                    #matrix = matrix[0:limits]
+                    print("L1: "+str(limits))
+                    fig.plot(matrix[0:limits], fmt)
                 else:
                     fig.plot(matrix, fmt)
             else:
                 if limits is not None:
-                    matrix = matrix[0:limits]
-                    fig.plot(matrix, fmt)
+                    #matrix = matrix[0:limits]
+                    print("L3: " + str(limits))
+                    fig.plot(matrix[0:limits], fmt)
                 else:
                     fig.plot(energy, matrix, fmt)
     else:
@@ -240,17 +242,23 @@ def doSVD(A):
 
 
 
-def plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, figure, energy = None, n_cmp_show=3, limits = None):
+def plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, figure1, figure2, energy = None, n_cmp_show=3, limits = None):
     l = limits
-    fig = plt.figure(figure.number)
-    font = (fig.get_figwidth() + fig.get_figheight()) / 2
+    print("LIMITS: "+str(l))
+    fig1 = plt.figure(figure1.number)
+    fig2 = plt.figure(figure2.number)
+    font = 12
+    #font = (fig1.get_figwidth() + fig1.get_figheight()) / 2
     # fig.set_figheight(20)
     # fig.set_figwidth(20)
 
-    ax_u = fig.add_subplot(2, 2, 1)
-    ax_v = fig.add_subplot(2, 2, 3)
-    ax_s = fig.add_subplot(2, 2, 2)
-    ax_ac = fig.add_subplot(2, 2, 4)
+    allaxes = fig2.get_axes()
+
+    ax_u = fig1.add_subplot(2, 1, 1)
+    ax_v = fig1.add_subplot(2, 1, 2)
+
+    ax_s = allaxes[0]
+    ax_ac = allaxes[1]
 
     # ax3 = fig.add_subplot(3, 3, 3)
     # ax4 = fig.add_subplot(3, 3, 4)
@@ -268,7 +276,8 @@ def plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, figure, energy = None, n_cm
         for label in (sub.get_xticklabels() + sub.get_yticklabels()):
             label.set_fontsize(font)
 
-    fig.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=0.25, hspace=0.5)
+    fig1.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=0.25, hspace=0.5)
+    fig2.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=0.25, hspace=0.5)
 
     subsetu = getSubset(0, n_cmp_show, u)
     subsetv = getSubset(0, n_cmp_show, v)
