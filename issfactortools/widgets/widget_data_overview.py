@@ -37,13 +37,21 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
 
         self.addCanvas()
         self.pushButton_import_data.clicked.connect(self.import_data)
-
+        self.clearButton.clicked.connect(self.clearText)
         self.pushButton_display_data.clicked.connect(self.display_data)
 
         self.offset_text = self.dataOffset.toPlainText()
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.showMenu)
 
+    def clearText(self):
+        self.columnsText.clear()
+        self.componentsText.clear()
+        self.energyText.clear()
+        self.svd_auto_limits.clear()
+        self.dataOffset.clear()
+        self.svd_sing_limits.clear()
+        self.dataOffsetWhole.clear()
 
     def verticalLines(self):
         self.offset_text = self.dataOffset.toPlainText()
@@ -61,12 +69,18 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
                 print(arr1d)
                 if self.offset_text == "":
                     col = self.figure_data.ax2.plot(arr1d, ".-")
+                    self.figure_data.ax2.set_xlabel("Spectrum Number")
+                    self.figure_data.ax2.set_ylabel('Mu Normalized')
                 else:
                     col = self.figure_data.ax2.plot(arr1d + float(self.offset_text), ".-")
+                    self.figure_data.ax2.set_xlabel("Spectrum Number")
+                    self.figure_data.ax2.set_ylabel('Mu Normalized')
                 print(col[0].get_color())
+                #self.figure_data.ax2.yaxis.tick_right()
 
             #self.figure_data.ax.vlines(self.mouseCoords[0], self.mouseCoords[1], self.mouseCoords[1] + 0.1, color= col[0].get_color())
-            self.figure_data.ax.vlines(self.mouseCoords[0], 0, self.mouseCoords[1]+0.1, color=col[0].get_color())
+            self.figure_data.ax.vlines(self.mouseCoords[0], 0, ymax - (ymax*0.05), color=col[0].get_color())
+
             self.canvas_data.draw()
         else:
             QMessageBox.about(self, "ERROR", "You must import a dataset first.")
@@ -96,7 +110,7 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
                     newArr.append(val)
                 print(arr1d)
                 col = self.figure_data.ax2.plot(newArr, ".-")
-                self.figure_data.ax.vlines(self.mouseCoords[0], self.mouseCoords[1], self.mouseCoords[1] + 0.1, col[0].get_color())
+                self.figure_data.ax.vlines(self.mouseCoords[0], 0, ymax - (ymax*0.05), col[0].get_color())
             self.canvas_data.draw()
         else:
             QMessageBox.about(self, "ERROR", "You must import a dataset first.")
@@ -221,7 +235,9 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
             energy_text = self.energyText.toPlainText()
             svdauto_text = self.svd_auto_limits.toPlainText()
             singval_text = self.svd_sing_limits.toPlainText()
-
+            offsetD = self.dataOffsetWhole.toPlainText()
+            if offsetD == "":
+                offsetD = 0
 
             if components_text == "":
                 components = 3
@@ -256,20 +272,18 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
 
             try:
                 if cols_text == "":
-                    self.figure_data.ax.plot(Myenergy, Mydataset)
+                    self.figure_data.ax.plot(Myenergy, Mydataset + float(offsetD))
                 elif cols_text != "":
                     cols = cols_text.split(",")
-                    self.figure_data.ax.plot(Myenergy, Mydataset[:, int(cols[0]):int(cols[1])])
+                    self.figure_data.ax.plot(Myenergy, Mydataset[:, int(cols[0]):int(cols[1])] + float(offsetD))
                     Mydataset = Mydataset[:, int(cols[0]):int(cols[1])]
             except Exception as err:
                 print(err)
                 QMessageBox.about(self, "INDEX ERROR", "The Rows and Columns Dimensions Are Invalid. Retry.")
 
-
-            #self.columnsText.clear()
-            #self.componentsText.clear()
-            #self.energyText.clear()
-            #self.svd_auto_limits.clear()
+            self.figure_data.ax.set_xlabel("Energy(eV)")
+            self.figure_data.ax.set_ylabel("Mu Normalized")
+            #self.figure_data.ax.yaxis.tick_right()
 
 
             if svdauto_text != "":

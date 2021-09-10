@@ -52,9 +52,9 @@
   <widget class="QWidget" name="verticalLayoutWidget_2">
    <property name="geometry">
     <rect>
-     <x>360</x>
+     <x>350</x>
      <y>10</y>
-     <width>431</width>
+     <width>471</width>
      <height>801</height>
     </rect>
    </property>
@@ -174,9 +174,9 @@
   <widget class="QWidget" name="verticalLayoutWidget_3">
    <property name="geometry">
     <rect>
-     <x>810</x>
+     <x>830</x>
      <y>10</y>
-     <width>441</width>
+     <width>431</width>
      <height>801</height>
     </rect>
    </property>
@@ -239,7 +239,42 @@
     <bool>false</bool>
    </property>
    <property name="placeholderText">
-    <string>Data Offset</string>
+    <string>Data Offset of Subplot</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="clearButton">
+   <property name="geometry">
+    <rect>
+     <x>100</x>
+     <y>770</y>
+     <width>151</width>
+     <height>36</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Clear All Inputs</string>
+   </property>
+  </widget>
+  <widget class="QPlainTextEdit" name="dataOffsetWhole">
+   <property name="geometry">
+    <rect>
+     <x>580</x>
+     <y>880</y>
+     <width>201</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="lineWrapMode">
+    <enum>QPlainTextEdit::WidgetWidth</enum>
+   </property>
+   <property name="plainText">
+    <string/>
+   </property>
+   <property name="overwriteMode">
+    <bool>false</bool>
+   </property>
+   <property name="placeholderText">
+    <string>Data Offset of Data</string>
    </property>
   </widget>
  </widget>

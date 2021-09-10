@@ -59,43 +59,77 @@ def getChiSq(x):
     return np.sum((x ** 2))
 
 
-def plots(name, matrix, fig=None, font=None, energy = None, fmt='ks-', limits = None, semilogy=False,):
+def plots(name, matrix, fig=None, font=None, energy = None, fmt='ks-', limits = None, semilogy=False, lab = None):
     if fig is not None:
         fig.set_title(name, fontsize=font)
         if semilogy:
             if limits is not None:
                 #matrix = matrix[0:limits]
                 print("L2: " + str(limits))
-                fig.semilogy(matrix[0:limits], fmt)
+                if lab is None:
+                    fig.semilogy(matrix[0:limits], fmt )
+                else:
+                    fig.semilogy(matrix[0:limits], fmt, label = lab)
+                    fig.legend()
+                fig.legend()
             else:
-                fig.semilogy(matrix, fmt)
+                if lab is None:
+                    fig.semilogy(matrix, fmt)
+                else:
+                    fig.semilogy(matrix, fmt, label = lab)
+                    fig.legend()
         else:
             if energy is None:
                 if limits is not None:
                     #matrix = matrix[0:limits]
                     print("L1: "+str(limits))
-                    fig.plot(matrix[0:limits], fmt)
+                    if lab is None:
+                        fig.plot(matrix[0:limits], fmt)
+                    else:
+                        fig.plot(matrix[0:limits], fmt, label = lab)
+                        fig.legend()
+                    fig.legend()
                 else:
+                    if lab is None:
+                        fig.plot(matrix[0:limits], fmt)
+                    else:
+                        fig.plot(matrix[0:limits], fmt, label = lab)
+                        fig.legend()
                     fig.plot(matrix, fmt)
+                    fig.legend()
             else:
                 if limits is not None:
                     #matrix = matrix[0:limits]
                     print("L3: " + str(limits))
-                    fig.plot(matrix[0:limits], fmt)
+                    if lab is None:
+                        fig.plot(matrix[0:limits], fmt)
+                    else:
+                        fig.plot(matrix[0:limits], fmt, label = lab)
+                        fig.legend()
+                    fig.legend()
                 else:
-                    fig.plot(energy, matrix, fmt)
+                    if lab is None:
+                        fig.plot(energy, matrix, fmt)
+                    else:
+                        fig.plot(energy, matrix, fmt, label = lab)
+                        fig.legend()
+
     else:
         plt.figure()
         plt.title(name)
         if semilogy:
 
             fig.semilogy(matrix, fmt)
+            fig.legend()
         else:
             if energy is None:
                 fig.plot(matrix, fmt)
+                fig.legend()
             else:
                 fig.plot(matrix, energy, fmt)
+                fig.legend()
         plt.show()
+
 
 
 def getPicture(name, matrix, fig=None, font=None):
@@ -284,16 +318,17 @@ def plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, figure1, figure2, energy = 
     subsetv = getSubset(0, n_cmp_show, v)
 
     if energy is None:
-        plots("subset of U", subsetu, ax_u, font, fmt='-')  # 2
+        plots("subset of U", subsetu, ax_u, font, fmt='-', lab = "Componenets")  # 2
     else:
-        plots("subset of U", subsetu, ax_u, font, energy, fmt='-')  # 2
-    plots("subset of V", subsetv, ax_v, font, fmt='-')  # 3
+        plots("subset of U", subsetu, ax_u, font, energy, fmt='-', lab = "Componenets")  # 2
 
-    plots("Singular values", s, ax_s, font, fmt='k.-', limits = l2, semilogy=True)  # 7
-    plots("Singular values", lra_chisq, ax_s,  font, fmt='bs-', limits = l2, semilogy=True)  # 7
+    plots("subset of V", subsetv, ax_v, font, fmt='-', lab = "Comp")  # 3
 
-    plots("autocorrelation of U", ac_u, ax_ac, font, fmt='ks-', limits = l)  # 3
-    plots("autocorrelation of V", ac_v, ax_ac, font, fmt='r.-', limits = l)  # 3
+    plots("Singular values", s, ax_s, font, fmt='k.-', limits = l2, semilogy=True, lab = "Singular Values")  # 7
+    plots("Singular values", lra_chisq, ax_s,  font, fmt='bs-', limits = l2, semilogy=True, lab = "Chi Squared")  # 7
+
+    plots("autocorrelation of U", ac_u, ax_ac, font, fmt='ks-', limits = l, lab = "U")  # 3
+    plots("autocorrelation of V", ac_v, ax_ac, font, fmt='r.-', limits = l, lab = "V")  # 3
 
     plt.tight_layout()
 
