@@ -242,8 +242,9 @@ def doSVD(A):
 
 
 
-def plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, figure1, figure2, energy = None, n_cmp_show=3, limits = None):
+def plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, figure1, figure2, energy = None, n_cmp_show=3, limits = None, singlimits = None):
     l = limits
+    l2 = singlimits
     print("LIMITS: "+str(l))
     fig1 = plt.figure(figure1.number)
     fig2 = plt.figure(figure2.number)
@@ -288,8 +289,8 @@ def plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, figure1, figure2, energy = 
         plots("subset of U", subsetu, ax_u, font, energy, fmt='-')  # 2
     plots("subset of V", subsetv, ax_v, font, fmt='-')  # 3
 
-    plots("Singular values", s, ax_s, font, fmt='k.-', limits = l, semilogy=True)  # 7
-    plots("Singular values", lra_chisq, ax_s,  font, fmt='bs-', limits = l, semilogy=True)  # 7
+    plots("Singular values", s, ax_s, font, fmt='k.-', limits = l2, semilogy=True)  # 7
+    plots("Singular values", lra_chisq, ax_s,  font, fmt='bs-', limits = l2, semilogy=True)  # 7
 
     plots("autocorrelation of U", ac_u, ax_ac, font, fmt='ks-', limits = l)  # 3
     plots("autocorrelation of V", ac_v, ax_ac, font, fmt='r.-', limits = l)  # 3

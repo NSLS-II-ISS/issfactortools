@@ -76,7 +76,7 @@
   <widget class="QPlainTextEdit" name="componentsText">
    <property name="geometry">
     <rect>
-     <x>1280</x>
+     <x>900</x>
      <y>820</y>
      <width>141</width>
      <height>51</height>
@@ -103,7 +103,7 @@
   <widget class="QPlainTextEdit" name="svd_auto_limits">
    <property name="geometry">
     <rect>
-     <x>1460</x>
+     <x>1480</x>
      <y>820</y>
      <width>211</width>
      <height>51</height>
@@ -124,7 +124,7 @@
     <bool>false</bool>
    </property>
    <property name="placeholderText">
-    <string>Set Limits on SVD and Autocorrelation</string>
+    <string>Set Limits on Autocorrelation</string>
    </property>
   </widget>
   <widget class="QPlainTextEdit" name="energyText">
@@ -192,6 +192,55 @@
     </rect>
    </property>
    <layout class="QVBoxLayout" name="layout_auto_figure"/>
+  </widget>
+  <widget class="QPlainTextEdit" name="svd_sing_limits">
+   <property name="geometry">
+    <rect>
+     <x>1260</x>
+     <y>820</y>
+     <width>211</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>7</pointsize>
+    </font>
+   </property>
+   <property name="lineWrapMode">
+    <enum>QPlainTextEdit::WidgetWidth</enum>
+   </property>
+   <property name="plainText">
+    <string/>
+   </property>
+   <property name="overwriteMode">
+    <bool>false</bool>
+   </property>
+   <property name="placeholderText">
+    <string>Set Limits on Singular Values</string>
+   </property>
+  </widget>
+  <widget class="QPlainTextEdit" name="dataOffset">
+   <property name="geometry">
+    <rect>
+     <x>360</x>
+     <y>880</y>
+     <width>201</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="lineWrapMode">
+    <enum>QPlainTextEdit::WidgetWidth</enum>
+   </property>
+   <property name="plainText">
+    <string/>
+   </property>
+   <property name="overwriteMode">
+    <bool>false</bool>
+   </property>
+   <property name="placeholderText">
+    <string>Data Offset</string>
+   </property>
   </widget>
  </widget>
  <resources/>

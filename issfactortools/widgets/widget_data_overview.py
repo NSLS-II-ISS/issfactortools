@@ -40,12 +40,13 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
 
         self.pushButton_display_data.clicked.connect(self.display_data)
 
-
+        self.offset_text = self.dataOffset.toPlainText()
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.showMenu)
 
 
     def verticalLines(self):
+        self.offset_text = self.dataOffset.toPlainText()
         if self.dataset is not None:
             ymin, ymax = self.figure_data.ax.get_ylim()
             col = ''
@@ -58,7 +59,10 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
                 shape = self.dataset[i[0], :].shape
                 arr1d = self.dataset[i[0], 1:].flatten()
                 print(arr1d)
-                col = self.figure_data.ax2.plot(arr1d, ".-")
+                if self.offset_text == "":
+                    col = self.figure_data.ax2.plot(arr1d, ".-")
+                else:
+                    col = self.figure_data.ax2.plot(arr1d + float(self.offset_text), ".-")
                 print(col[0].get_color())
 
             #self.figure_data.ax.vlines(self.mouseCoords[0], self.mouseCoords[1], self.mouseCoords[1] + 0.1, color= col[0].get_color())
@@ -216,6 +220,8 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
             components_text = self.componentsText.toPlainText()
             energy_text = self.energyText.toPlainText()
             svdauto_text = self.svd_auto_limits.toPlainText()
+            singval_text = self.svd_sing_limits.toPlainText()
+
 
             if components_text == "":
                 components = 3
@@ -260,27 +266,43 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
                 QMessageBox.about(self, "INDEX ERROR", "The Rows and Columns Dimensions Are Invalid. Retry.")
 
 
-            self.columnsText.clear()
-            self.componentsText.clear()
-            self.energyText.clear()
-            self.svd_auto_limits.clear()
+            #self.columnsText.clear()
+            #self.componentsText.clear()
+            #self.energyText.clear()
+            #self.svd_auto_limits.clear()
 
+
+            if svdauto_text != "":
+                l = int(svdauto_text)
+            else:
+                l = None
+            if singval_text != "":
+                l2 = int(singval_text)
+            else:
+                l2 = None
 
 
 
             u, s, v, lra_chisq, ac_u, ac_v = doSVD(Mydataset)
             self.figure_svd.clear()
-            if svdauto_text != "":
-                l = int(svdauto_text)
-                if l <= 0:
-                    QMessageBox.about(self, "ERROR", "Invalid number of points to display.")
-                    l = None
-                    plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, self.figure_svd, self.figure_auto, Myenergy, n_cmp_show=components, limits = 5)
-                else:
-                    plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, self.figure_svd, self.figure_auto, Myenergy, n_cmp_show=components, limits = l)
-                    print(l)
-            else:
-                plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, self.figure_svd, self.figure_auto, Myenergy, n_cmp_show=components, limits = 5)
+
+
+            print(l is int)
+            if (isinstance(l, int) and l <= 0) or (isinstance(l2, int) and l2 <= 0):
+                plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, self.figure_svd, self.figure_auto, Myenergy,n_cmp_show=components, limits=5, singlimits=25)
+                QMessageBox.about(self, "ERROR", "Invalid number of points to display.")
+            elif l2 is not None and l is not None:
+                plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, self.figure_svd, self.figure_auto, Myenergy,n_cmp_show=components, limits=l, singlimits=l2)
+            elif l is None and l2 is not None:
+                plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, self.figure_svd, self.figure_auto, Myenergy,n_cmp_show=components, limits=5, singlimits=l2)
+            elif l is not None and l2 is None:
+                plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, self.figure_svd, self.figure_auto, Myenergy,n_cmp_show=components, limits=l, singlimits=25)
+            elif l is None and l2 is None:
+                plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, self.figure_svd, self.figure_auto, Myenergy, n_cmp_show=components, limits=5, singlimits=25)
+
+
+
+
 
             self.figure_data.ax.title.set_text("Data")
             self.figure_data.ax2.title.set_text("Subplot")
