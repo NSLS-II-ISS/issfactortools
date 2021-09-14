@@ -44,6 +44,7 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.showMenu)
 
+
     def clearText(self):
         self.columnsText.clear()
         self.componentsText.clear()
@@ -63,10 +64,10 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
             if(self.mouseCoords[0] <= energy[energy.size-1] and self.mouseCoords[0] >= energy[0]):
                 num = self.findclosest(self.dataset[:, 0], self.mouseCoords[0])
                 i= np.where(self.dataset[:,0] == num)
-                print("Index: ", i[0])
+                #print("Index: ", i[0])
                 shape = self.dataset[i[0], :].shape
                 arr1d = self.dataset[i[0], 1:].flatten()
-                print(arr1d)
+                #print(arr1d)
                 if self.offset_text == "":
                     col = self.figure_data.ax2.plot(arr1d, ".-")
                     self.figure_data.ax2.set_xlabel("Spectrum Number")
@@ -79,7 +80,8 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
                 #self.figure_data.ax2.yaxis.tick_right()
 
             #self.figure_data.ax.vlines(self.mouseCoords[0], self.mouseCoords[1], self.mouseCoords[1] + 0.1, color= col[0].get_color())
-            self.figure_data.ax.vlines(self.mouseCoords[0], 0, ymax - (ymax*0.05), color=col[0].get_color())
+            self.figure_data.ax.vlines(self.mouseCoords[0], 0, ymax - (ymax*0.005), color=col[0].get_color())
+            print(ymax)
 
             self.canvas_data.draw()
         else:
@@ -110,7 +112,7 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
                     newArr.append(val)
                 print(arr1d)
                 col = self.figure_data.ax2.plot(newArr, ".-")
-                self.figure_data.ax.vlines(self.mouseCoords[0], 0, ymax - (ymax*0.05), col[0].get_color())
+                self.figure_data.ax.vlines(self.mouseCoords[0], 0, ymax - (ymax*0.005), col[0].get_color())
             self.canvas_data.draw()
         else:
             QMessageBox.about(self, "ERROR", "You must import a dataset first.")
@@ -124,12 +126,9 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
             self.figure_data.ax2.clear()
             self.figure_data.ax.clear()
             self.canvas_data.draw()
-            self.figure_data.ax.title.set_text("Data")
-            self.figure_data.ax2.title.set_text("Subplot")
-            self.figure_data.ax.plot(self.dataset[:,0], self.dataset[:,1:])
-            self.canvas_data.draw()
-        else:
-            QMessageBox.about(self, "ERROR", "You must import a dataset first.")
+            self.display_data()
+        self.canvas.draw_idle()
+        self.canvas_data.draw_idle()
 
     def showMenu(self, pos):
         if (pos.x() >= 390 and pos.x() <= 850) and (pos.y() >= 90 and pos.y() <= 435):
@@ -303,28 +302,51 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
 
             print(l is int)
             if (isinstance(l, int) and l <= 0) or (isinstance(l2, int) and l2 <= 0):
-                plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, self.figure_svd, self.figure_auto, Myenergy,n_cmp_show=components, limits=5, singlimits=25)
+                plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, self.figure_svd, self.figure_auto, Myenergy,n_cmp_show=components, limits=25, singlimits=25)
                 QMessageBox.about(self, "ERROR", "Invalid number of points to display.")
             elif l2 is not None and l is not None:
                 plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, self.figure_svd, self.figure_auto, Myenergy,n_cmp_show=components, limits=l, singlimits=l2)
             elif l is None and l2 is not None:
-                plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, self.figure_svd, self.figure_auto, Myenergy,n_cmp_show=components, limits=5, singlimits=l2)
+                plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, self.figure_svd, self.figure_auto, Myenergy,n_cmp_show=components, limits=25, singlimits=l2)
             elif l is not None and l2 is None:
                 plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, self.figure_svd, self.figure_auto, Myenergy,n_cmp_show=components, limits=l, singlimits=25)
             elif l is None and l2 is None:
-                plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, self.figure_svd, self.figure_auto, Myenergy, n_cmp_show=components, limits=5, singlimits=25)
+                plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, self.figure_svd, self.figure_auto, Myenergy, n_cmp_show=components, limits=25, singlimits=25)
 
 
 
 
 
             self.figure_data.ax.title.set_text("Data")
-            self.figure_data.ax2.title.set_text("Subplot")
+            self.figure_data.ax.set_xlabel("Energy(eV)")
+            self.figure_data.ax.set_ylabel("Mu Normalized")
+            ymin, ymax = self.figure_data.ax.get_ylim()
+            self.figure_data.ax.set_ylim(top=ymax)
+
+            self.figure_data.ax2.title.set_text("Data Cuts")
+            self.figure_data.ax2.set_xlabel("Curve Index")
+            self.figure_data.ax2.set_ylabel("Mu Normalized")
+
+
             self.figure_svd.ax.title.set_text("Subset of U")
+
             self.figure_svd.ax2.title.set_text("Subset of V")
-            self.figure_auto.ax3.title.set_text("Singular Values")
-            self.figure_auto.ax4.title.set_text("Autocorrelation")
+            self.figure_svd.ax2.legend()
+
+            self.figure_auto.ax3.title.set_text("Significance Testing")#sing
+            self.figure_auto.ax3.set_xlabel("Component Index")
+            self.figure_auto.ax3.set_ylabel("Singular Values")
+
+            self.figure_auto.ax4.title.set_text("Significance Testing") #auto
+            self.figure_auto.ax4.set_xlabel("Component Index")
+            self.figure_auto.ax4.set_ylabel("Autocorrelation")
+
+            self.figure_data.tight_layout()
+            self.figure_svd.tight_layout()
+            self.figure_auto.tight_layout()
+
             self.canvas.draw_idle()
             self.canvas_data.draw_idle()
             self.canvas_auto.draw_idle()
+
 
