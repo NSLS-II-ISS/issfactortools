@@ -7,7 +7,7 @@ import math
 from PyQt5 import uic, QtGui, QtCore
 from PyQt5.QtCore import QThread, QSettings
 
-from issfactortools.widgets import widget_data_overview
+from issfactortools.widgets import widget_data_overview, widget_mcr_overview
 
 ui_path = pkg_resources.resource_filename('issfactortools', 'ui/ui_main.ui')
 
@@ -23,6 +23,9 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
 
         self.widget_data_overview = widget_data_overview.UIDataOverview()
         self.layout_data_overview.addWidget(self.widget_data_overview)
+
+        self.widget_mcr_overview = widget_mcr_overview.UIDataOverview()
+        self.layout_mcr_analysis.addWidget(self.widget_mcr_overview)
 
 
 
