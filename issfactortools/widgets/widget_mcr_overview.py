@@ -84,6 +84,10 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         currentRows = self.tableWidget.rowCount()
         self.tableWidget.setRowCount(currentRows + 1)
         self.tableWidget.setItem(currentRows, 0, QTableWidgetItem(savedName))
+        chkBoxItem = QTableWidgetItem()
+        chkBoxItem.setFlags(QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
+        chkBoxItem.setCheckState(QtCore.Qt.Unchecked)
+        self.tableWidget.setItem(currentRows, 2, chkBoxItem)
 
     def dialogPrompts(self, cols, data):
         numEnergy = float('inf')
@@ -117,6 +121,8 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         num_rows, num_cols = self.dataset.shape
         self.dialogPrompts(num_cols, self.dataset)
         self.addNewFile(filename)
+
+
 
 
         Myenergy = self.file_formats[self.tableWidget.rowCount() - 2]["energy"]
