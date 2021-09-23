@@ -86,7 +86,8 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         self.tableWidget.setItem(currentRows, 0, QTableWidgetItem(savedName))
         chkBoxItem = QTableWidgetItem()
         chkBoxItem.setFlags(QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
-        chkBoxItem.setCheckState(QtCore.Qt.Unchecked)
+        chkBoxItem.setCheckState(QtCore.Qt.Checked)
+        print(chkBoxItem.checkState()) #0 is unchecked, 2 is checked, 1 is intermediate
         self.tableWidget.setItem(currentRows, 2, chkBoxItem)
 
     def dialogPrompts(self, cols, data):
