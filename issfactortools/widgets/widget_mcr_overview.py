@@ -30,6 +30,7 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         self.setupUi(self)
         self.addCanvas()
         self.pushButton_import_spectra.clicked.connect(self.import_data)
+        self.pushButton_display_spectra.clicked.connect(self.display_data)
         self.file_formats = []
         self.tableWidget = None
         self.createTable()
@@ -115,6 +116,21 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         #print(self.file_formats[0]["energy"])
         #print(ok)
 
+    def display_data(self):
+        self.figure_solutions.ax.clear()
+        numRows = self.tableWidget.rowCount()
+        i = 0
+        while i < numRows:
+            item = self.tableWidget.item(i, 2).checkState()
+
+            if (item == 2):
+                Myenergy = self.file_formats[i - 2]["energy"]
+                Mydataset = self.file_formats[i - 2]["mu"]
+                self.figure_solutions.ax.plot(Myenergy, Mydataset)
+                self.canvas_solutions.draw_idle()
+            i = i + 1
+        self.canvas_solutions.draw_idle()
+
     def import_data(self):
         filename = QtWidgets.QFileDialog.getOpenFileName(directory='/nsls2/xf08id/Sandbox',
                                                          filter='*.xas', parent=self)[0]
@@ -124,12 +140,6 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         self.addNewFile(filename)
 
 
-
-
-        Myenergy = self.file_formats[self.tableWidget.rowCount() - 2]["energy"]
-        Mydataset = self.file_formats[self.tableWidget.rowCount() - 2]["mu"]
-        self.figure_solutions.ax.plot(Myenergy, Mydataset)
-        self.canvas_solutions.draw_idle()
 
 
 
