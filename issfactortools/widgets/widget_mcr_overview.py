@@ -85,23 +85,44 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         self.tableWidget.setRowCount(currentRows + 1)
         self.tableWidget.setItem(currentRows, 0, QTableWidgetItem(savedName))
 
+    def dialogPrompts(self, cols, data):
+        numEnergy = float('inf')
+        numMu = float('inf')
+
+        while numEnergy >= cols or numMu >= cols or numEnergy < 0 or numMu < 0:
+            numEnergy, ok = QInputDialog.getText(self, "Energy", "Of the " +str(cols) + " columns, which contains energy?(Enter INDEX)")
+            numMu, ok = QInputDialog.getText(self, "Mu Normalized", "Of the " + str(cols) + " columns, which contain mu normalized(Enter INDEX)")
+
+            numEnergy = int(numEnergy)
+            numMu = int(numMu)
+            if(numEnergy >= cols or numMu >= cols or numEnergy < 0 or numMu < 0):
+                QMessageBox.about(self, "ERROR", "INVALID COLUMN INDEX.")
+
+
+        x = data[:, numEnergy]
+        y = data[:, numMu]
+        dictionary = {'energy': x, 'mu': y}
+        self.file_formats.append(dictionary)
+
+        #energyMu = numEnergy, numMu
+        #self.file_formats.append(energyMu)
+
+        #print(self.file_formats[0]["energy"])
+        #print(ok)
+
     def import_data(self):
         filename = QtWidgets.QFileDialog.getOpenFileName(directory='/nsls2/xf08id/Sandbox',
                                                          filter='*.xas', parent=self)[0]
         self.dataset = np.genfromtxt(filename)
+        num_rows, num_cols = self.dataset.shape
+        self.dialogPrompts(num_cols, self.dataset)
         self.addNewFile(filename)
 
-        Myenergy = self.dataset[:, 0]
-        Mydataset = self.dataset[:, 1:]
+
+        Myenergy = self.file_formats[self.tableWidget.rowCount() - 2]["energy"]
+        Mydataset = self.file_formats[self.tableWidget.rowCount() - 2]["mu"]
         self.figure_solutions.ax.plot(Myenergy, Mydataset)
         self.canvas_solutions.draw_idle()
 
-        numEnergy,ok = QInputDialog.getText(self,"Energy","Which columns contain energy?")
-        numMu, ok = QInputDialog.getText(self, "Mu Normalized", "Which columns contain mu normalized")
 
-        energyMu = numEnergy, numMu
-        self.file_formats.append(energyMu)
-
-        print(self.file_formats)
-        print(ok)
 
