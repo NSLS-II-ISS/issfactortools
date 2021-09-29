@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import pkg_resources
 import traceback
 import math
+import issfactortools.widgets.QDialog
 
 import isstools.widgets
 from PyQt5 import uic, QtWidgets, QtGui, QtCore
@@ -13,7 +14,7 @@ from PyQt5.QtCore import QThread, QSettings, QPoint
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QCursor, QMouseEvent
 from PyQt5.QtWidgets import QMessageBox, QApplication, QWidget, QPushButton, QVBoxLayout, QMenu, QAction, QRadioButton, \
-    QInputDialog, QFormLayout, QLineEdit, QTableWidgetItem, QTableWidget, QHeaderView
+    QInputDialog, QFormLayout, QLineEdit, QTableWidgetItem, QTableWidget, QHeaderView, QDialogButtonBox
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas, \
     NavigationToolbar2QT as NavigationToolbar
@@ -35,6 +36,21 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         self.tableWidget = None
         self.createTable()
 
+    def makeialog(self):
+        self.first = QLineEdit(self)
+        self.second = QLineEdit(self)
+        buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self);
+
+        layout = QFormLayout(self)
+        layout.addRow("First text", self.first)
+        layout.addRow("Second text", self.second)
+        layout.addWidget(buttonBox)
+
+        #buttonBox.accepted.connect(self.accept)
+        #buttonBox.rejected.connect(self.reject)
+
+    def getInputs(self):
+        return (self.first.text(), self.second.text())
 
     def createTable(self):
         self.tableWidget = QTableWidget()
@@ -91,30 +107,21 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         print(chkBoxItem.checkState()) #0 is unchecked, 2 is checked, 1 is intermediate
         self.tableWidget.setItem(currentRows, 2, chkBoxItem)
 
-    def dialogPrompts(self, cols, data):
-        numEnergy = float('inf')
-        numMu = float('inf')
-
-        while numEnergy >= cols or numMu >= cols or numEnergy < 0 or numMu < 0:
-            numEnergy, ok = QInputDialog.getText(self, "Energy", "Of the " +str(cols) + " columns, which contains energy?(Enter INDEX)")
-            numMu, ok = QInputDialog.getText(self, "Mu Normalized", "Of the " + str(cols) + " columns, which contain mu normalized(Enter INDEX)")
-
-            numEnergy = int(numEnergy)
-            numMu = int(numMu)
-            if(numEnergy >= cols or numMu >= cols or numEnergy < 0 or numMu < 0):
-                QMessageBox.about(self, "ERROR", "INVALID COLUMN INDEX.")
 
 
-        x = data[:, numEnergy]
-        y = data[:, numMu]
-        dictionary = {'energy': x, 'mu': y}
-        self.file_formats.append(dictionary)
+    def dialogPrompts(self, mu, energy, cols, data):
+        numEnergy = int(energy.text())
+        numMu = int(mu.text())
+        if (numEnergy >= cols or numMu >= cols or numEnergy < 0 or numMu < 0):
+            QMessageBox.about(self, "ERROR", "INVALID COLUMN INDEX.")
+            return 0
+        else:
+            x = data[:, numEnergy]
+            y = data[:, numMu]
+            dictionary = {'energy': x, 'mu': y}
+            self.file_formats.append(dictionary)
+            return 1
 
-        #energyMu = numEnergy, numMu
-        #self.file_formats.append(energyMu)
-
-        #print(self.file_formats[0]["energy"])
-        #print(ok)
 
     def display_data(self):
         self.figure_solutions.ax.clear()
@@ -134,10 +141,19 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
     def import_data(self):
         filename = QtWidgets.QFileDialog.getOpenFileName(directory='/nsls2/xf08id/Sandbox',
                                                          filter='*.xas', parent=self)[0]
+        msgBox = issfactortools.widgets.QDialog.OpDialog()
+
         self.dataset = np.genfromtxt(filename)
         num_rows, num_cols = self.dataset.shape
-        self.dialogPrompts(num_cols, self.dataset)
+        num = 0
+        while num == 0:
+            result = msgBox.exec_()
+            print(msgBox.energy_line.text())
+            print(msgBox.mu_line.text())
+            num = self.dialogPrompts(msgBox.energy_line, msgBox.mu_line, num_cols, self.dataset)
+
         self.addNewFile(filename)
+
 
 
 
