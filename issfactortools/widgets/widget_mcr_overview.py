@@ -41,8 +41,6 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         self.columnNames = ""
         self.num_cols = 0
         self.gridFilled = False
-        #print(inspect.signature(pymcr.constraints.ConstraintCutBelow.__init__))
-        #self.x = dict([(name, cls) for name, cls in pymcr.constraints.__dict__.items() if isinstance(cls, type)])
         self.x = { }
         for entry in self.allConstraints:
             self.x.update( {entry: 'inspect.signature(pymcr.constraints.'+entry+'.__init__)'})
@@ -71,7 +69,6 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
 
         self.combo_layout.addWidget(self.combo)
         self.combo.currentIndexChanged.connect(self.constraintTable)
-        #combo.currentIndexChanged.connect(self.deleteME) use this line to dynamically populate grid
 
     def constraintTable(self):
         if self.gridFilled == True:
@@ -104,13 +101,11 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         for i in range(0, self.constraintT.rowCount()):
             for j in range(0, len(pArr[i])):
                 self.constraintT.setItem(i, j, QTableWidgetItem(str(pArr[i][j])))
+
+        self.tableWidget.horizontalHeader().setStretchLastSection(False)
+        self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         self.grid_layout.addWidget(self.constraintT)
         self.gridFilled = True
-
-
-
-    def getComboText(self):
-        print(self.combo.currentText())
 
     def createTable(self):
         self.tableWidget = QTableWidget()
