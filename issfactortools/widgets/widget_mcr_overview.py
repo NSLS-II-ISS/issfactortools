@@ -1,4 +1,4 @@
-
+import inspect
 import re
 import sys
 import numpy as np
@@ -7,14 +7,15 @@ import pkg_resources
 import traceback
 import math
 import issfactortools.widgets.QDialog
-
+import pymcr.constraints
 import isstools.widgets
 from PyQt5 import uic, QtWidgets, QtGui, QtCore
 from PyQt5.QtCore import QThread, QSettings, QPoint
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QCursor, QMouseEvent
 from PyQt5.QtWidgets import QMessageBox, QApplication, QWidget, QPushButton, QVBoxLayout, QMenu, QAction, QRadioButton, \
-    QInputDialog, QFormLayout, QLineEdit, QTableWidgetItem, QTableWidget, QHeaderView, QDialogButtonBox, QHBoxLayout
+    QInputDialog, QFormLayout, QLineEdit, QTableWidgetItem, QTableWidget, QHeaderView, QDialogButtonBox, QHBoxLayout, \
+    QComboBox
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas, \
     NavigationToolbar2QT as NavigationToolbar
@@ -34,9 +35,21 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         self.pushButton_display_spectra.clicked.connect(self.display_data)
         self.file_formats = []
         self.tableWidget = None
+        self.allConstraints = pymcr.constraints.__all__
         self.createTable()
+        self.createComboBox()
         self.columnNames = ""
         self.num_cols = 0
+        #print(inspect.signature(pymcr.constraints.ConstraintCutBelow.__init__))
+        self.x = dict([(name, cls) for name, cls in pymcr.constraints.__dict__.items() if isinstance(cls, type)])
+        print(self.x)
+        badKey = []
+        for key in self.x:
+            if "Constraint" not in key:
+                badKey.append(key)
+        for entry in badKey:
+            del self.x[entry]
+        print(self.x)
 
     def getColNammes(self):
         return self.columnNames
@@ -47,6 +60,14 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
 
     def getInputs(self):
         return (self.first.text(), self.second.text())
+
+    def createComboBox(self):
+        combo = QComboBox()
+        for key in self.x:
+            combo.addItem(self.x[key])
+        self.combo_layout.addWidget(combo)
+        #combo.currentIndexChanged.connect(self.deleteME) use this line to dynamically populate grid
+
 
     def createTable(self):
         self.tableWidget = QTableWidget()
