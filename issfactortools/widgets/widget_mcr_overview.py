@@ -37,19 +37,22 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         self.tableWidget = None
         self.allConstraints = pymcr.constraints.__all__
         self.createTable()
-        self.createComboBox()
+        self.comboText = ""
         self.columnNames = ""
         self.num_cols = 0
+        self.gridFilled = False
         #print(inspect.signature(pymcr.constraints.ConstraintCutBelow.__init__))
-        self.x = dict([(name, cls) for name, cls in pymcr.constraints.__dict__.items() if isinstance(cls, type)])
+        #self.x = dict([(name, cls) for name, cls in pymcr.constraints.__dict__.items() if isinstance(cls, type)])
+        self.x = { }
+        for entry in self.allConstraints:
+            self.x.update( {entry: 'inspect.signature(pymcr.constraints.'+entry+'.__init__)'})
         print(self.x)
-        badKey = []
         for key in self.x:
-            if "Constraint" not in key:
-                badKey.append(key)
-        for entry in badKey:
-            del self.x[entry]
+            print(eval(self.x[key]))
         print(self.x)
+        self.createComboBox()
+
+
 
     def getColNammes(self):
         return self.columnNames
@@ -62,12 +65,52 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         return (self.first.text(), self.second.text())
 
     def createComboBox(self):
-        combo = QComboBox()
+        self.combo = QComboBox()
         for key in self.x:
-            combo.addItem(self.x[key])
-        self.combo_layout.addWidget(combo)
+            self.combo.addItem(key)
+
+        self.combo_layout.addWidget(self.combo)
+        self.combo.currentIndexChanged.connect(self.constraintTable)
         #combo.currentIndexChanged.connect(self.deleteME) use this line to dynamically populate grid
 
+    def constraintTable(self):
+        if self.gridFilled == True:
+            self.grid_layout.removeWidget(self.constraintT)
+        self.constraintT = QTableWidget()
+        text = self.combo.currentText()
+        parameters = str(eval(self.x[text]))
+        print(parameters)
+        parametersList = list(parameters)
+        for char in parametersList: #remove any punctuation to make it neater in the grid
+            if char == ")" or char == "(":
+                del parametersList[parametersList.index(char)]
+
+        parameters = "".join(parametersList)
+        print(parameters)
+
+        pArr = parameters.split(",")
+        if "self" in pArr[0]:
+            del pArr[0]
+        print(pArr)
+        self.constraintT.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
+        self.constraintT.setRowCount(len(pArr))
+        self.constraintT.setColumnCount(2)
+
+        self.constraintT.setHorizontalHeaderItem(0, QTableWidgetItem("PARAMETER"))
+        self.constraintT.setHorizontalHeaderItem(1, QTableWidgetItem("VALUE"))
+        for i in range(0, len(pArr)):
+            pArr[i] = pArr[i].split("=")
+
+        for i in range(0, self.constraintT.rowCount()):
+            for j in range(0, len(pArr[i])):
+                self.constraintT.setItem(i, j, QTableWidgetItem(str(pArr[i][j])))
+        self.grid_layout.addWidget(self.constraintT)
+        self.gridFilled = True
+
+
+
+    def getComboText(self):
+        print(self.combo.currentText())
 
     def createTable(self):
         self.tableWidget = QTableWidget()
