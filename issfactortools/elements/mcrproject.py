@@ -32,7 +32,7 @@ class DataSet:
         nx, nt = data.shape
         sizes_match = (nx == x.size) and (nt == t.size)
         if not sizes_match:
-            raise ValueError('x, t, and data sizes/shapes do not match')
+            raise Exception('x, t, and data sizes/shapes do not match')
 
     def set_x_limits(self, xmin, xmax):
         self.xmin = xmin
@@ -43,7 +43,7 @@ class DataSet:
         if t_mask.size == self._t.size:
             self.t_mask = t_mask
         else:
-            raise ValueError('Error: t_mask must be the same size as t')
+            raise Exception('Error: t_mask must be the same size as t')
 
     @property
     def data(self):
@@ -61,11 +61,42 @@ class DataSet:
 
 
 class ReferenceSet:
-    pass
+    def __init__(self):
+        self.reference_dict = {}
+
+    def append_reference(self, x, data, label:str, fixed:bool):
+        self.validate_reference(x, data, label)
+        _d = {'x' : x, 'data': data, 'fixed' : fixed}
+        self.reference_dict = {label : _d}
+
+    def validate_reference(self, x, data, label):
+        shape_match = (len(data.shape) == 1)
+        if not shape_match:
+            raise Exception(f'{label} Reference data shape mismatch: data.shape should be ({data.size}, );  currently is {data.shape}')
+
+        size_match = (data.size == x.size)
+        if not size_match:
+            raise Exception(f'{label} Reference data size mismatch: data.size should be == x.size; currently: data.size={data.ize} and x.size={x.size}')
+
+        label_match = (label in self.labels)
+        if not label_match:
+            raise KeyError(f'Provided labels must be unique. {label} already exists')
+
+    @property
+    def labels(self):
+        return list(self.reference_dict.keys())
 
 
 class ConstraintSet:
-    pass
+    def __init__(self):
+        self.c_constraints = []
+        self.st_constraints = []
+
+    def append_c_constraint(self, c_constraint):
+        self.c_constraints.append(c_constraint)
+
+    def append_st_constraint(self, st_constraint):
+        self.st_constraints.append(st_constraint)
 
 
 
