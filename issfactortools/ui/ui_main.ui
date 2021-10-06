@@ -6,67 +6,207 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1722</width>
-    <height>1023</height>
+    <width>1750</width>
+    <height>1080</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MCR project</string>
   </property>
-  <widget class="QTabWidget" name="tabWidget">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
+  <widget class="QGroupBox" name="groupBox">
    <property name="geometry">
     <rect>
      <x>0</x>
-     <y>10</y>
-     <width>1721</width>
-     <height>1011</height>
+     <y>0</y>
+     <width>311</width>
+     <height>751</height>
     </rect>
    </property>
-   <property name="currentIndex">
-    <number>0</number>
+   <property name="title">
+    <string>Datasets</string>
    </property>
-   <widget class="QWidget" name="tab_data_overview">
-    <attribute name="title">
-     <string>Data Overview</string>
-    </attribute>
-    <widget class="QWidget" name="horizontalLayoutWidget_10">
+   <widget class="QListView" name="listView_datasets">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>30</y>
+      <width>301</width>
+      <height>411</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_2">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>450</y>
+      <width>111</width>
+      <height>36</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Import dataset</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_2">
+   <property name="geometry">
+    <rect>
+     <x>680</x>
+     <y>0</y>
+     <width>311</width>
+     <height>751</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Constraints</string>
+   </property>
+   <widget class="QListView" name="listView_constraints">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>30</y>
+      <width>301</width>
+      <height>411</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_5">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>470</y>
+      <width>111</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Create
+Constraint Set</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_4">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>530</y>
+      <width>301</width>
+      <height>201</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Constraint designer</string>
+    </property>
+    <widget class="QWidget" name="verticalLayoutWidget">
      <property name="geometry">
       <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>1711</width>
-       <height>961</height>
+       <x>10</x>
+       <y>30</y>
+       <width>281</width>
+       <height>161</height>
       </rect>
      </property>
-     <layout class="QHBoxLayout" name="layout_data_overview">
-      <property name="sizeConstraint">
-       <enum>QLayout::SetNoConstraint</enum>
-      </property>
-     </layout>
+     <layout class="QVBoxLayout" name="verticalLayout"/>
     </widget>
    </widget>
-   <widget class="QWidget" name="tab_sdd_manager">
-    <attribute name="title">
-     <string>MCR analysis</string>
-    </attribute>
-    <widget class="QWidget" name="horizontalLayoutWidget_7">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>1711</width>
-       <height>961</height>
-      </rect>
-     </property>
-     <layout class="QHBoxLayout" name="layout_mcr_analysis">
-      <property name="sizeConstraint">
-       <enum>QLayout::SetNoConstraint</enum>
-      </property>
-     </layout>
-    </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_3">
+   <property name="geometry">
+    <rect>
+     <x>340</x>
+     <y>0</y>
+     <width>311</width>
+     <height>751</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>References</string>
+   </property>
+   <widget class="QListView" name="listView_references">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>30</y>
+      <width>301</width>
+      <height>411</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_9">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>500</y>
+      <width>111</width>
+      <height>35</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>From file</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_11">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>500</y>
+      <width>111</width>
+      <height>35</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>From database</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>470</y>
+      <width>141</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Import references:</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QPushButton" name="pushButton_6">
+   <property name="geometry">
+    <rect>
+     <x>1020</x>
+     <y>210</y>
+     <width>111</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Create
+MCR project</string>
+   </property>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_5">
+   <property name="geometry">
+    <rect>
+     <x>1140</x>
+     <y>0</y>
+     <width>311</width>
+     <height>451</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>MCR projects</string>
+   </property>
+   <widget class="QListView" name="listView_datasets_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>30</y>
+      <width>301</width>
+      <height>411</height>
+     </rect>
+    </property>
    </widget>
   </widget>
  </widget>
