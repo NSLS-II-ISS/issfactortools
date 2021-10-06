@@ -292,8 +292,8 @@ def plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, figure1, figure2, energy = 
     ax_u = fig1.add_subplot(2, 1, 1)
     ax_v = fig1.add_subplot(2, 1, 2)
 
-    ax_s = allaxes[0]
-    ax_ac = allaxes[1]
+    ax_s = fig2.add_subplot(2, 1, 1)
+    ax_ac = fig2.add_subplot(2, 1, 2)
 
     # ax3 = fig.add_subplot(3, 3, 3)
     # ax4 = fig.add_subplot(3, 3, 4)
