@@ -100,10 +100,10 @@ Constraint Set</string>
     <widget class="QWidget" name="verticalLayoutWidget">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>30</y>
-       <width>281</width>
-       <height>161</height>
+       <x>9</x>
+       <y>19</y>
+       <width>291</width>
+       <height>171</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout"/>

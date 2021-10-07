@@ -2,11 +2,13 @@ import re
 import sys
 import numpy as np
 import pkg_resources
+import inspect
 import math
-
+import pymcr.constraints
 from PyQt5 import uic, QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import QThread, QSettings
 
+import issfactortools
 from issfactortools.widgets import widget_data_overview, widget_mcr_overview
 from issfactortools.elements.mcrproject import DataSet, ReferenceSet, ConstraintSet
 
@@ -23,12 +25,28 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         self.setupUi(self)
         self.parent = parent
 
-        self.push_import_dataset.clicked.connect(self.import_dataset)
+        self.pushButton_2.clicked.connect(self.import_dataset)
         self.model_datasets = QtGui.QStandardItemModel(self) # model that is used to show listview of datasets
         self.model_references = QtGui.QStandardItemModel(self)  # model that is used to show listview of references
         self.model_constraints = QtGui.QStandardItemModel(self)  # model that is used to show listview of constraints
 
-        #
+        self.allConstraints = pymcr.constraints.__all__
+        self.gridFilled = False
+        self.x = {}
+        for entry in self.allConstraints:
+            self.x.update({entry: 'inspect.signature(pymcr.constraints.' + entry + '.__init__)'})
+        self.createComboBox()
+
+        self.comboText = ""
+        self.columnNames = ""
+        self.num_cols = 0
+
+        print(self.x)
+        for key in self.x:
+            print(eval(self.x[key]))
+        print(self.x)
+
+    #
         # self.widget_data_overview = widget_data_overview.UIDataOverview()
         # self.layout_data_overview.addWidget(self.widget_data_overview)
         #
@@ -52,6 +70,95 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         item.dataset = DataSet(x, t, data, name)
         self._append_item_to_model(self.model_datasets, item)
         self.listView_datasets.setModel(self.model_datasets)
+
+    def createComboBox(self):
+        self.combo = QComboBox()
+        for key in self.x:
+            self.combo.addItem(key)
+
+        self.verticalLayout.addWidget(self.combo)
+        self.combo.currentIndexChanged.connect(self.constraintTable)
+
+    def constraintTable(self):
+        radioC = QRadioButton()
+        radioS = QRadioButton()
+        radioS.setText("S")
+        radioC.setText("C")
+        radioS.setChecked(False)
+        radioC.setChecked(False)
+        CSGroup = QButtonGroup()
+        CSGroup.addButton(radioS)
+        CSGroup.addButton(radioC)
+        #self.grid_layout.addWidget(radioS)
+        #self.grid_layout.addWidget(radioC)
+
+        text = QLabel()
+        text.setText("Which vector should the constraint be applied to?")
+        row0 = QHBoxLayout()
+        row0.addWidget(text)
+        row1 = QHBoxLayout()
+        row1.addWidget(radioC)
+        row1.addWidget(radioS)
+
+        if self.gridFilled == True:
+            self.verticalLayout.removeWidget(self.constraintT)
+            row0.removeWidget(text)
+            row1.removeWidget(radioS)
+            row1.removeWidget(radioC)
+            #self.grid_layout.removeWidget(row1)
+
+        self.verticalLayout.addLayout(row0)
+        self.verticalLayout.addLayout(row1)
+        self.constraintT = QTableWidget()
+        text = self.combo.currentText()
+        parameters = str(eval(self.x[text]))
+        print(parameters)
+        parametersList = list(parameters)
+        for char in parametersList: #remove any punctuation to make it neater in the grid
+            if char == ")" or char == "(":
+                del parametersList[parametersList.index(char)]
+
+        parameters = "".join(parametersList)
+        print(parameters)
+
+        radio = QRadioButton()
+
+
+
+        pArr = parameters.split(",")
+        if "self" in pArr[0]:
+            del pArr[0]
+        print(pArr)
+        self.constraintT.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
+        self.constraintT.setRowCount(len(pArr))
+        self.constraintT.setColumnCount(2)
+
+        self.constraintT.setHorizontalHeaderItem(0, QTableWidgetItem("PARAMETER"))
+        self.constraintT.setHorizontalHeaderItem(1, QTableWidgetItem("VALUE"))
+        #self.constraintT.setHorizontalHeaderItem(2, QTableWidgetItem("C"))
+        #self.constraintT.setHorizontalHeaderItem(3, QTableWidgetItem("S"))
+        for i in range(0, len(pArr)):
+            pArr[i] = pArr[i].split("=")
+
+        for i in range(0, self.constraintT.rowCount()):
+            for j in range(0, len(pArr[i])):
+                self.constraintT.setItem(i, j, QTableWidgetItem(str(pArr[i][j])))
+
+        #for i in range(0, self.constraintT.rowCount()):
+         #   bGroup = QButtonGroup()
+          #  for j in range(2, 4):
+           #     rad = QRadioButton()
+            #    self.constraintT.setCellWidget(i, j, rad)
+             #   bGroup.addButton(rad)
+
+        #self.constraintT.setCellWidget(0, 2, radio)
+
+        self.constraintT.horizontalHeader().setStretchLastSection(False)
+        self.constraintT.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        self.verticalLayout.addWidget(self.constraintT)
+
+        self.gridFilled = True
+
 
     # the two methods below are placeholders:
 
@@ -92,7 +199,8 @@ def main_show():
 
 
 if __name__ == '__main__':
-    from PyQt5.QtWidgets import QApplication
+    from PyQt5.QtWidgets import QApplication, QTableWidgetItem, QHeaderView, QRadioButton, QTableWidget, QHBoxLayout, \
+    QLabel, QButtonGroup, QComboBox
     from PyQt5.QtCore import QTimer
     import sys
 
