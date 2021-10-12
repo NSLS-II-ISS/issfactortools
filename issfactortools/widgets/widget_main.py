@@ -6,12 +6,12 @@ import inspect
 import math
 import pymcr.constraints
 from PyQt5 import uic, QtGui, QtCore, QtWidgets
-from PyQt5.QtCore import QThread, QSettings
+from PyQt5.QtCore import QThread, QSettings, Qt
 
 import issfactortools
 from issfactortools.widgets import widget_data_overview, widget_mcr_overview
 from issfactortools.elements.mcrproject import DataSet, ReferenceSet, ConstraintSet
-
+import issfactortools.widgets.QDialog
 ui_path = pkg_resources.resource_filename('issfactortools', 'ui/ui_main.ui')
 
 
@@ -30,6 +30,9 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         self.model_references = QtGui.QStandardItemModel(self)  # model that is used to show listview of references
         self.model_constraints = QtGui.QStandardItemModel(self)  # model that is used to show listview of constraints
 
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.showMenu)
+
         self.allConstraints = pymcr.constraints.__all__
         self.gridFilled = False
         self.x = {}
@@ -45,6 +48,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         for key in self.x:
             print(eval(self.x[key]))
         print(self.x)
+        self.dataOverview = issfactortools.widgets.widget_data_overview.UIDataOverview
 
     #
         # self.widget_data_overview = widget_data_overview.UIDataOverview()
@@ -160,6 +164,25 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         self.gridFilled = True
 
 
+
+    def showMenu(self, pos):
+        if (pos.x() >= 12 and pos.x() <= 310) and (pos.y() >= 32 and pos.y() <= 440):
+            menu = QMenu(self)
+
+            menuAction1 = QAction("Inspect", menu)
+            menu.addAction(menuAction1)
+            print(self.model_datasets.rowCount())
+            print(self.model_datasets.columnCount())
+            print(self.model_datasets.item(0, 0).checkState())
+
+            menuAction1.triggered.connect(self.inspectData)
+            #menuAction1.triggered.connect(self.verticalLines)
+            #menuAction2.triggered.connect(self.clearplot2)
+            #menuAction3.triggered.connect(self.normalizedLines)
+
+
+            menu.exec_(self.mapToGlobal(pos))
+        print("POS: ",pos.x(), pos.y())
     # the two methods below are placeholders:
 
     # def _create_reference_set(self, name='ReferenceSet'):
@@ -178,6 +201,9 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
 
 
     def import_dataset(self):
+
+
+        #self.dataOverview.show()
         filename = QtWidgets.QFileDialog.getOpenFileName(directory='/nsls2/xf08id/Sandbox',
                                                          filter='*.xas', parent=self)[0]
         filedata = np.genfromtxt(filename)
@@ -188,6 +214,20 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
 
 
 
+
+    def inspectData(self, Dialog):
+        rows = self.model_datasets.rowCount()
+        cols = self.model_datasets.columnCount()
+        filename = ""
+        for i in range(0, rows):
+            for j in range(0, cols):
+                item = self.model_datasets.item(i, j)
+                checkState = item.checkState()
+                if(checkState == 2):
+                    filename = item.text()
+        msgBox = issfactortools.widgets.QDialog.OpDialog()
+        msgBox.gui_initDataOverview(filename)
+        result = msgBox.exec()
 
 
 
@@ -200,7 +240,7 @@ def main_show():
 
 if __name__ == '__main__':
     from PyQt5.QtWidgets import QApplication, QTableWidgetItem, QHeaderView, QRadioButton, QTableWidget, QHBoxLayout, \
-    QLabel, QButtonGroup, QComboBox
+    QLabel, QButtonGroup, QComboBox, QMenu, QAction
     from PyQt5.QtCore import QTimer
     import sys
 

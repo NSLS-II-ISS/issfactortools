@@ -188,9 +188,10 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         self.figure_auto.tight_layout()
         self.canvas_auto.draw()
 
-    def import_data(self):
-        filename = QtWidgets.QFileDialog.getOpenFileName(directory='/nsls2/xf08id/Sandbox',
-                                                         filter='*.xas', parent=self)[0]
+    def import_data(self, filename):
+        #filename = QtWidgets.QFileDialog.getOpenFileName(directory='/nsls2/xf08id/Sandbox',
+                                                        # filter='*.xas', parent=self)[0]
+        print(filename)
         # if filename[-4:] == '.dat':
         #     filename = filename[:-4]
 

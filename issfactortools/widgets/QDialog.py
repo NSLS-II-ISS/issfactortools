@@ -7,6 +7,7 @@ import pkg_resources
 import traceback
 import math
 import issfactortools.widgets.widget_mcr_overview
+import issfactortools.widgets.widget_data_overview
 import isstools.widgets
 from PyQt5 import uic, QtWidgets, QtGui, QtCore
 from PyQt5.QtCore import QThread, QSettings, QPoint
@@ -29,10 +30,28 @@ class OpDialog(QDialog):
         "Create a new dialogue instance."
         super().__init__(*args, **kwargs)
         self.setWindowTitle("Column Selection")
-        mcr = issfactortools.widgets.widget_mcr_overview.UIDataOverview()
-        self.numC = mcr.getNumCols()
-        self.nameC = mcr.getColNammes()
+        #mcr = issfactortools.widgets.widget_mcr_overview.UIDataOverview()
+        #self.numC = mcr.getNumCols()
+        #self.nameC = mcr.getColNammes()
 
+
+
+    def gui_initDataOverview(self, filename):
+        dataOverview = issfactortools.widgets.widget_data_overview.UIDataOverview()
+        row_1 = QHBoxLayout()
+        row_1.addWidget(dataOverview)
+
+        self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.buttonBox.accepted.connect(self.accept)
+        self.buttonBox.rejected.connect(self.reject)
+        self.layout = QVBoxLayout()
+        self.layout.addWidget(self.buttonBox)
+        layout = QVBoxLayout()
+        #layout.addLayout(row_1)
+        #layout.addLayout(row_2)
+        layout.addLayout(row_1)
+        dataOverview.import_data(filename)
+        self.setLayout(layout)
 
     def gui_init(self, num_cols = 1, col_names = "XXX"):
         "Create and establish the widget layout."
