@@ -13,19 +13,6 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QPushButton" name="pushButton_import_data">
-   <property name="geometry">
-    <rect>
-     <x>100</x>
-     <y>650</y>
-     <width>151</width>
-     <height>36</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Import Dataset</string>
-   </property>
-  </widget>
   <widget class="QListWidget" name="list_data">
    <property name="geometry">
     <rect>

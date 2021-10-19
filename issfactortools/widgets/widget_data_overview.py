@@ -36,7 +36,7 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         self.mouseCoords = 0,0
 
         self.addCanvas()
-        self.pushButton_import_data.clicked.connect(self.import_data)
+
         self.clearButton.clicked.connect(self.clearText)
         self.pushButton_display_data.clicked.connect(self.display_data)
 
