@@ -220,14 +220,16 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         cols = self.model_datasets.columnCount()
         filename = ""
         for i in range(0, rows):
-            for j in range(0, cols):
-                item = self.model_datasets.item(i, j)
-                checkState = item.checkState()
-                if(checkState == 2):
-                    filename = item.text()
-        msgBox = issfactortools.widgets.QDialog.OpDialog()
-        msgBox.gui_initDataOverview(filename)
-        result = msgBox.exec()
+            item = self.model_datasets.item(i,0)
+            checkState = item.checkState() #do it by selection, not by checkstate
+            if(checkState == 2):
+                data = item.dataset._data
+                x = item.dataset._x
+                print("Data" + str(item.dataset._data))
+
+        dataOverview = issfactortools.widgets.widget_data_overview.UIDataOverview()
+        dataOverview.import_data(data)
+        dataOverview.show()
 
 
 
