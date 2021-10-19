@@ -12,12 +12,11 @@ import issfactortools
 from issfactortools.widgets import widget_data_overview, widget_mcr_overview
 from issfactortools.elements.mcrproject import DataSet, ReferenceSet, ConstraintSet
 import issfactortools.widgets.QDialog
+
 ui_path = pkg_resources.resource_filename('issfactortools', 'ui/ui_main.ui')
 
 
-
 class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
-
     progress_sig = QtCore.pyqtSignal()
 
     def __init__(self, parent=None, *args, **kwargs):
@@ -26,7 +25,9 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         self.parent = parent
 
         self.pushButton_2.clicked.connect(self.import_dataset)
-        self.model_datasets = QtGui.QStandardItemModel(self) # model that is used to show listview of datasets
+        self.pushButton_5.clicked.connect(self._create_constraint)
+        self.createReference.clicked.connect(self._create_reference)
+        self.model_datasets = QtGui.QStandardItemModel(self)  # model that is used to show listview of datasets
         self.model_references = QtGui.QStandardItemModel(self)  # model that is used to show listview of references
         self.model_constraints = QtGui.QStandardItemModel(self)  # model that is used to show listview of constraints
 
@@ -51,11 +52,11 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         self.dataOverview = issfactortools.widgets.widget_data_overview.UIDataOverview
 
     #
-        # self.widget_data_overview = widget_data_overview.UIDataOverview()
-        # self.layout_data_overview.addWidget(self.widget_data_overview)
-        #
-        # self.widget_mcr_overview = widget_mcr_overview.UIDataOverview()
-        # self.layout_mcr_analysis.addWidget(self.widget_mcr_overview)
+    # self.widget_data_overview = widget_data_overview.UIDataOverview()
+    # self.layout_data_overview.addWidget(self.widget_data_overview)
+    #
+    # self.widget_mcr_overview = widget_mcr_overview.UIDataOverview()
+    # self.layout_mcr_analysis.addWidget(self.widget_mcr_overview)
 
     def _append_item_to_model(self, model, item):
         parent = model.invisibleRootItem()
@@ -67,6 +68,22 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         item.setCheckable(True)
         item.setEditable(False)
         return item
+
+    def _create_constraint(self, name='Constraint'):
+        name = "New Constraint"
+        print(name)
+        item = self._make_item(name)
+        item.item_type = 'ConstraintSet'
+        item.constraint = ConstraintSet()
+        self._append_item_to_model(self.model_constraints, item)
+        self.listView_constraints.setModel(self.model_constraints)
+
+    def _create_reference(self, dict={}, name='New Reference'):
+        item = self._make_item(name)
+        item.item_type = 'ReferenceSet'
+        item.reference = ReferenceSet()
+        self._append_item_to_model(self.model_references, item)
+        self.listView_references.setModel(self.model_references)
 
     def _create_dataset(self, x, t, data, name='DataSet'):
         item = self._make_item(name)
@@ -93,8 +110,8 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         CSGroup = QButtonGroup()
         CSGroup.addButton(radioS)
         CSGroup.addButton(radioC)
-        #self.grid_layout.addWidget(radioS)
-        #self.grid_layout.addWidget(radioC)
+        # self.grid_layout.addWidget(radioS)
+        # self.grid_layout.addWidget(radioC)
 
         text = QLabel()
         text.setText("Which vector should the constraint be applied to?")
@@ -109,7 +126,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
             row0.removeWidget(text)
             row1.removeWidget(radioS)
             row1.removeWidget(radioC)
-            #self.grid_layout.removeWidget(row1)
+            # self.grid_layout.removeWidget(row1)
 
         self.verticalLayout.addLayout(row0)
         self.verticalLayout.addLayout(row1)
@@ -118,7 +135,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         parameters = str(eval(self.x[text]))
         print(parameters)
         parametersList = list(parameters)
-        for char in parametersList: #remove any punctuation to make it neater in the grid
+        for char in parametersList:  # remove any punctuation to make it neater in the grid
             if char == ")" or char == "(":
                 del parametersList[parametersList.index(char)]
 
@@ -126,8 +143,6 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         print(parameters)
 
         radio = QRadioButton()
-
-
 
         pArr = parameters.split(",")
         if "self" in pArr[0]:
@@ -139,8 +154,8 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
 
         self.constraintT.setHorizontalHeaderItem(0, QTableWidgetItem("PARAMETER"))
         self.constraintT.setHorizontalHeaderItem(1, QTableWidgetItem("VALUE"))
-        #self.constraintT.setHorizontalHeaderItem(2, QTableWidgetItem("C"))
-        #self.constraintT.setHorizontalHeaderItem(3, QTableWidgetItem("S"))
+        # self.constraintT.setHorizontalHeaderItem(2, QTableWidgetItem("C"))
+        # self.constraintT.setHorizontalHeaderItem(3, QTableWidgetItem("S"))
         for i in range(0, len(pArr)):
             pArr[i] = pArr[i].split("=")
 
@@ -148,22 +163,20 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
             for j in range(0, len(pArr[i])):
                 self.constraintT.setItem(i, j, QTableWidgetItem(str(pArr[i][j])))
 
-        #for i in range(0, self.constraintT.rowCount()):
-         #   bGroup = QButtonGroup()
-          #  for j in range(2, 4):
-           #     rad = QRadioButton()
-            #    self.constraintT.setCellWidget(i, j, rad)
-             #   bGroup.addButton(rad)
+        # for i in range(0, self.constraintT.rowCount()):
+        #   bGroup = QButtonGroup()
+        #  for j in range(2, 4):
+        #     rad = QRadioButton()
+        #    self.constraintT.setCellWidget(i, j, rad)
+        #   bGroup.addButton(rad)
 
-        #self.constraintT.setCellWidget(0, 2, radio)
+        # self.constraintT.setCellWidget(0, 2, radio)
 
         self.constraintT.horizontalHeader().setStretchLastSection(False)
         self.constraintT.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         self.verticalLayout.addWidget(self.constraintT)
 
         self.gridFilled = True
-
-
 
     def showMenu(self, pos):
         if (pos.x() >= 12 and pos.x() <= 310) and (pos.y() >= 32 and pos.y() <= 440):
@@ -176,34 +189,17 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
             print(self.model_datasets.item(0, 0).checkState())
 
             menuAction1.triggered.connect(self.inspectData)
-            #menuAction1.triggered.connect(self.verticalLines)
-            #menuAction2.triggered.connect(self.clearplot2)
-            #menuAction3.triggered.connect(self.normalizedLines)
-
+            # menuAction1.triggered.connect(self.verticalLines)
+            # menuAction2.triggered.connect(self.clearplot2)
+            # menuAction3.triggered.connect(self.normalizedLines)
 
             menu.exec_(self.mapToGlobal(pos))
-        print("POS: ",pos.x(), pos.y())
-    # the two methods below are placeholders:
-
-    # def _create_reference_set(self, name='ReferenceSet'):
-    #     item = self._make_item(name)
-    #     item.item_type = 'ReferenceSet'
-    #     item.references = ReferenceSet()
-    #     self._append_item_to_model(self.model_references, item)
-    #     self.listView_references.setModel(self.model_references)
-    #
-    # def _create_constraint_set(self, name='ConstraintSet'):
-    #     item = self._make_item(name)
-    #     item.item_type = 'ConstraintSet'
-    #     item.constraints = ConstraintSet()
-    #     self._append_item_to_model(self.model_constraints, item)
-    #     self.listView_constraints.setModel(self.model_constraints)
+        print("POS: ", pos.x(), pos.y())
 
 
     def import_dataset(self):
 
-
-        #self.dataOverview.show()
+        # self.dataOverview.show()
         filename = QtWidgets.QFileDialog.getOpenFileName(directory='/nsls2/xf08id/Sandbox',
                                                          filter='*.xas', parent=self)[0]
         filedata = np.genfromtxt(filename)
@@ -212,17 +208,14 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         t = np.arange(data.shape[1])
         self._create_dataset(x, t, data, name=filename)
 
-
-
-
     def inspectData(self, Dialog):
         rows = self.model_datasets.rowCount()
         cols = self.model_datasets.columnCount()
         filename = ""
         for i in range(0, rows):
-            item = self.model_datasets.item(i,0)
-            checkState = item.checkState() #do it by selection, not by checkstate
-            if(checkState == 2):
+            item = self.model_datasets.item(i, 0)
+            checkState = item.checkState()  # do it by selection, not by checkstate
+            if (checkState == 2):
                 data = item.dataset._data
                 x = item.dataset._x
                 print("Data" + str(item.dataset._data))
@@ -230,8 +223,6 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         dataOverview = issfactortools.widgets.widget_data_overview.UIDataOverview()
         dataOverview.import_data(data)
         dataOverview.show()
-
-
 
 
 def main_show():
@@ -242,7 +233,7 @@ def main_show():
 
 if __name__ == '__main__':
     from PyQt5.QtWidgets import QApplication, QTableWidgetItem, QHeaderView, QRadioButton, QTableWidget, QHBoxLayout, \
-    QLabel, QButtonGroup, QComboBox, QMenu, QAction
+        QLabel, QButtonGroup, QComboBox, QMenu, QAction
     from PyQt5.QtCore import QTimer
     import sys
 
@@ -251,12 +242,13 @@ if __name__ == '__main__':
     xfactor_gui = FactorAnalysisGUI()
     print('after init')
 
+
     def xfactor():
         xfactor_gui.show()
+
 
     QTimer.singleShot(1, xfactor)  # call startApp only after the GUI is ready
     sys.exit(app.exec_())
 
     sys.stdout = xlive_gui.emitstream_out
     sys.stderr = xlive_gui.emitstream_err
-
