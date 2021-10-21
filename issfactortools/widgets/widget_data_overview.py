@@ -60,13 +60,13 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
             ymin, ymax = self.figure_data.ax.get_ylim()
             col = ''
             print(ymax)
-            energy = self.dataset[:,0]
-            if(self.mouseCoords[0] <= energy[energy.size-1] and self.mouseCoords[0] >= energy[0]):
-                num = self.findclosest(self.dataset[:, 0], self.mouseCoords[0])
-                i= np.where(self.dataset[:,0] == num)
+            energy = self.dataset._x
+            if(self.mouseCoords[0] <= energy[646] and self.mouseCoords[0] >= energy[0]):
+                num = self.findclosest(self.dataset._x, self.mouseCoords[0])
+                i= np.where(self.dataset._x == num)
                 #print("Index: ", i[0])
-                shape = self.dataset[i[0], :].shape
-                arr1d = self.dataset[i[0], 1:].flatten()
+                shape = self.dataset._data[i[0], :].shape
+                arr1d = self.dataset._data[i[0], 1:].flatten()
                 #print(arr1d)
                 if self.offset_text == "":
                     col = self.figure_data.ax2.plot(arr1d, ".-")
@@ -80,27 +80,27 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
                 #self.figure_data.ax2.yaxis.tick_right()
 
             #self.figure_data.ax.vlines(self.mouseCoords[0], self.mouseCoords[1], self.mouseCoords[1] + 0.1, color= col[0].get_color())
-            self.figure_data.ax.vlines(self.mouseCoords[0], 0, ymax - (ymax*0.005), color=col[0].get_color())
+            #self.figure_data.ax.vlines(self.mouseCoords[0], 0, ymax - (ymax*0.005), color=col[0].get_color())
+            self.figure_data.ax.vlines(self.mouseCoords[0], 0, ymax, color=col[0].get_color())
             print(ymax)
 
             self.canvas_data.draw()
         else:
             QMessageBox.about(self, "ERROR", "You must import a dataset first.")
 
-
-
     def normalizedLines(self):
         if self.dataset is not None:
             ymin, ymax = self.figure_data.ax.get_ylim()
             col = ''
             print(ymax)
-            energy = self.dataset[:,0]
+            energy = self.dataset._x
             if(self.mouseCoords[0] <= energy[energy.size-1] and self.mouseCoords[0] >= energy[0]):
-                num = self.findclosest(self.dataset[:, 0], self.mouseCoords[0])
-                i= np.where(self.dataset[:,0] == num)
+                print("Here!")
+                num = self.findclosest(self.dataset._x, self.mouseCoords[0])
+                i= np.where(self.dataset._x == num)
                 print("Index: ", i[0])
-                shape = self.dataset[i[0], :].shape
-                arr1d = self.dataset[i[0], 1:].flatten()
+                shape = self.dataset._data[i[0], :].shape
+                arr1d = self.dataset._data[i[0], 1:].flatten()
                 max = np.max(arr1d)
                 min = np.min(arr1d)
                 print(max)
@@ -113,7 +113,7 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
                 print(arr1d)
                 col = self.figure_data.ax2.plot(newArr, ".-")
                 self.figure_data.ax.vlines(self.mouseCoords[0], 0, ymax - (ymax*0.005), col[0].get_color())
-            self.canvas_data.draw()
+            self.canvas_data.draw_idle()
         else:
             QMessageBox.about(self, "ERROR", "You must import a dataset first.")
 
@@ -273,9 +273,9 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         return offsetD, n_cmp_show, n_val_show, x
 
     def display_data(self):
-        # self.figure_data.ax2.clear()
-        # self.figure_stat.ax3.clear()
-        # self.figure_stat.ax4.clear()
+        self.figure_data.ax2.clear()
+        #self.figure_stat.ax3.clear()
+        #self.figure_stat.ax4.clear()
 
 
 
