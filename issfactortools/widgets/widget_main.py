@@ -213,13 +213,9 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         rows = self.model_datasets.rowCount()
         cols = self.model_datasets.columnCount()
         filename = ""
-        for i in range(0, rows):
-            item = self.model_datasets.item(i, 0)
-            checkState = item.checkState()  # do it by selection, not by checkstate
-            if (checkState == 2):
-                dataset = item.dataset
-
-
+        selected = self.listView_datasets.currentIndex().row()
+        item = self.model_datasets.item(selected, 0)
+        dataset = item.dataset
         self.dataOverview.parse_data(dataset)
         self.dataOverview.show()
 
