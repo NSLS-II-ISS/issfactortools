@@ -276,10 +276,9 @@ def doSVD(A):
 
 
 
-def plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, figure1, figure2, energy = None, n_cmp_show=3, limits = None, singlimits = None):
-    l = limits
-    l2 = singlimits
-    print("LIMITS: "+str(l))
+def plot_svd_results(x, t, u, s, v, lra_chisq, ac_u, ac_v, figure1, figure2, energy = None, n_cmp_show=3, n_val_show = 25):
+    l = n_val_show
+    l2 = n_val_show
     fig1 = plt.figure(figure1.number)
     fig2 = plt.figure(figure2.number)
     font = 12
@@ -317,12 +316,13 @@ def plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, figure1, figure2, energy = 
     subsetu = getSubset(0, n_cmp_show, u)
     subsetv = getSubset(0, n_cmp_show, v)
 
-    if energy is None:
-        plots("subset of U", subsetu, ax_u, font, fmt='-', lab = "Componenets")  # 2
-    else:
-        plots("subset of U", subsetu, ax_u, font, energy, fmt='-', lab = "Componenets")  # 2
+    # if energy is None:
+    #     plots("subset of U", subsetu, ax_u, font, fmt='-', lab = "Componenets")  # 2
+    # else:
+    plots("subset of U", subsetu, ax_u, font, x, fmt='-', lab = "Componenets")  # 2
+    # plots(x, subsetu, ax_u, fmt='-', lab="Componenets", "subset of U", font)  #
 
-    plots("subset of V", subsetv, ax_v, font, fmt='-', lab = "Comp")  # 3
+    plots("subset of V", subsetv, ax_v, font, t,  fmt='-', lab = "Comp")  # 3
 
     plots("Singular values", s, ax_s, font, fmt='k.-', limits = l2, semilogy=True, lab = "Singular Values")  # 7
     plots("Singular values", lra_chisq, ax_s,  font, fmt='bs-', limits = l2, semilogy=True, lab = "Chi Squared")  # 7

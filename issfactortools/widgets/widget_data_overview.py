@@ -166,8 +166,8 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         self.figure_data.canvas.mpl_connect('button_press_event', self.onclick)
 
         self.figure_svd= plt.figure()
-        self.figure_svd.ax = self.figure_svd.add_subplot(211)
-        self.figure_svd.ax2 = self.figure_svd.add_subplot(212)
+        # self.figure_svd.ax = self.figure_svd.add_subplot(211)
+        # self.figure_svd.ax2 = self.figure_svd.add_subplot(212)
 
         self.canvas = FigureCanvas(self.figure_svd)
         self.toolbar = NavigationToolbar(self.canvas, self)
@@ -177,18 +177,18 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         self.figure_svd.tight_layout()
         self.canvas.draw()
 
-        self.figure_auto = plt.figure()
-        self.figure_auto.ax3 = self.figure_auto.add_subplot(211)
-        self.figure_auto.ax4 = self.figure_auto.add_subplot(212)
-        self.canvas_auto = FigureCanvas(self.figure_auto)
+        self.figure_stat = plt.figure()
+        # self.figure_stat.ax3 = self.figure_stat.add_subplot(211)
+        # self.figure_stat.ax4 = self.figure_stat.add_subplot(212)
+        self.canvas_auto = FigureCanvas(self.figure_stat)
         self.toolbar_auto = NavigationToolbar(self.canvas_auto, self)
         self.toolbar.resize(1, 10)
         self.layout_auto_figure.addWidget(self.toolbar_auto)
         self.layout_auto_figure.addWidget(self.canvas_auto)
-        self.figure_auto.tight_layout()
+        self.figure_stat.tight_layout()
         self.canvas_auto.draw()
 
-    def import_data(self, dataset):
+    def parse_data(self, dataset):
         #filename = QtWidgets.QFileDialog.getOpenFileName(directory='/nsls2/xf08id/Sandbox',
                                                         # filter='*.xas', parent=self)[0]
         #print(filename)
@@ -196,8 +196,7 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         #     filename = filename[:-4]
 
         self.dataset = dataset
-        Myenergy = self.dataset[:, 0]
-        #print(Myenergy)
+
 
 
 
@@ -224,130 +223,126 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         print (closest)
         return closest
 
+    def validate_parameters(self):
+        cols_text = self.columnsText.toPlainText()
+        components_text = self.componentsText.toPlainText()
+        energy_text = self.energyText.toPlainText()
+        svdauto_text = self.svd_auto_limits.toPlainText()
+        singval_text = self.svd_sing_limits.toPlainText()
+        offsetD = self.dataOffsetWhole.toPlainText()
+        if offsetD == "":
+            offsetD = 0
+        else:
+            offsetD = int(offsetD)
+
+        if components_text == "":
+            components = 3
+        elif components_text != "":
+            if int(components_text) <= 0:
+                QMessageBox.about(self, "ERROR", "The number of components is too low. Retry.")
+            else:
+                components = int(components_text)
+
+        n_cmp_show = components
+
+
+        if svdauto_text != "":
+            n_val_show = int(svdauto_text)
+        else:
+            n_val_show = 25
+
+        if energy_text == "":
+            self.dataset = self.dataset
+            x = self.dataset
+        elif energy_text != "":
+            energy_text = energy_text.split(",")
+            if int(energy_text[0]) < self.dataset[0] or int(energy_text[1]) > self.dataset[len(self.dataset)-1]:
+                QMessageBox.about(self, "ERROR", "The energy range is invalid. Displaying default range.")
+                x = self.dataset._data
+            else:
+                i, firstRow = self.getFirstLimit(int(energy_text[0]), self.dataset)
+                secondRow = self.getSecondLimit(int(energy_text[1]), self.dataset, i)
+                print("First Row: " + str(firstRow))
+                print("Second Row: " + str(secondRow))
+                y = self.dataset._data[firstRow:secondRow, 1:]
+                x = y[firstRow:secondRow, 0]
+                x = np.array(x)
+                #print(self.dataset[:,0])
+
+
+        return offsetD, n_cmp_show, n_val_show, x
+
     def display_data(self):
-        self.figure_data.ax2.clear()
-        components = 3
-        if self.dataset is not None:
-            self.figure_auto.ax3.clear()
-            self.figure_auto.ax4.clear()
-            cols_text = self.columnsText.toPlainText()
-            components_text = self.componentsText.toPlainText()
-            energy_text = self.energyText.toPlainText()
-            svdauto_text = self.svd_auto_limits.toPlainText()
-            singval_text = self.svd_sing_limits.toPlainText()
-            offsetD = self.dataOffsetWhole.toPlainText()
-            if offsetD == "":
-                offsetD = 0
-
-            if components_text == "":
-                components = 3
-            elif components_text != "":
-                if int(components_text) <= 0:
-                    QMessageBox.about(self, "ERROR", "The number of components is too low. Retry.")
-                else:
-                    components = int(components_text)
-
-
-            self.figure_data.ax.clear()
-
-            Myenergy = self.dataset[:, 0]
-            Mydataset = self.dataset[:, 1:]
-
-            if energy_text == "":
-                Myenergy = self.dataset[:, 0]
-                Mydataset = self.dataset[:, 1:]
-            elif energy_text != "":
-                energy_text = energy_text.split(",")
-                if int(energy_text[0]) < Myenergy[0] or int(energy_text[1]) > Myenergy[len(Myenergy)-1]:
-                    QMessageBox.about(self, "ERROR", "The energy range is invalid. Displaying default range.")
-                else:
-                    i, firstRow = self.getFirstLimit(int(energy_text[0]), Myenergy)
-                    secondRow = self.getSecondLimit(int(energy_text[1]), Myenergy, i)
-                    print("First Row: " + str(firstRow))
-                    print("Second Row: " + str(secondRow))
-                    Mydataset = self.dataset[firstRow:secondRow, 1:]
-                    Myenergy = self.dataset[firstRow:secondRow, 0]
-                    Myenergy = np.array(Myenergy)
-                    print(self.dataset[:,0])
-
-            try:
-                if cols_text == "":
-                    self.figure_data.ax.plot(Myenergy, Mydataset + float(offsetD))
-                elif cols_text != "":
-                    cols = cols_text.split(",")
-                    self.figure_data.ax.plot(Myenergy, Mydataset[:, int(cols[0]):int(cols[1])] + float(offsetD))
-                    Mydataset = Mydataset[:, int(cols[0]):int(cols[1])]
-            except Exception as err:
-                print(err)
-                QMessageBox.about(self, "INDEX ERROR", "The Rows and Columns Dimensions Are Invalid. Retry.")
-
-            self.figure_data.ax.set_xlabel("Energy(eV)")
-            self.figure_data.ax.set_ylabel("Mu Normalized")
-            #self.figure_data.ax.yaxis.tick_right()
-
-
-            if svdauto_text != "":
-                l = int(svdauto_text)
-            else:
-                l = None
-            if singval_text != "":
-                l2 = int(singval_text)
-            else:
-                l2 = None
+        # self.figure_data.ax2.clear()
+        # self.figure_stat.ax3.clear()
+        # self.figure_stat.ax4.clear()
 
 
 
-            u, s, v, lra_chisq, ac_u, ac_v = doSVD(Mydataset)
-            self.figure_svd.clear()
+        self.figure_data.ax.clear()
+        self.figure_svd.clear()
+        self.figure_stat.clear()
 
 
-            print(l is int)
-            if (isinstance(l, int) and l <= 0) or (isinstance(l2, int) and l2 <= 0):
-                plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, self.figure_svd, self.figure_auto, Myenergy,n_cmp_show=components, limits=25, singlimits=25)
-                QMessageBox.about(self, "ERROR", "Invalid number of points to display.")
-            elif l2 is not None and l is not None:
-                plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, self.figure_svd, self.figure_auto, Myenergy,n_cmp_show=components, limits=l, singlimits=l2)
-            elif l is None and l2 is not None:
-                plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, self.figure_svd, self.figure_auto, Myenergy,n_cmp_show=components, limits=25, singlimits=l2)
-            elif l is not None and l2 is None:
-                plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, self.figure_svd, self.figure_auto, Myenergy,n_cmp_show=components, limits=l, singlimits=25)
-            elif l is None and l2 is None:
-                plot_svd_results(u, s, v, lra_chisq, ac_u, ac_v, self.figure_svd, self.figure_auto, Myenergy, n_cmp_show=components, limits=25, singlimits=25)
+        self.dataset.plot_data(ax=self.figure_data.ax)
+        # x = self.dataset.x
+        # t = self.dataset.t
+        # data = self.dataset.data
+        # x_label = f"{self.dataset.x_name}, {self.dataset.x_units}"
+        # t_label = f"{self.dataset.t_name}, {self.dataset.t_units}"
+        # data_label = f"{self.dataset.data_name}, {self.dataset.data_units}"
+        #
+
+        # try:
+        #     if cols_text == "":
+        #         self.figure_data.ax.plot(x, data + float(offsetD))
+        #     elif cols_text != "":
+        #         cols = cols_text.split(",")
+        #         self.figure_data.ax.plot(x, data[:, int(cols[0]):int(cols[1])] + float(offsetD))
+        #         data = data[:, int(cols[0]):int(cols[1])]
+        # except Exception as err:
+        #     print(err)
+        #     QMessageBox.about(self, "INDEX ERROR", "The Rows and Columns Dimensions Are Invalid. Retry.")
+
+        offsetD, n_cmp_show, n_val_show, x = self.validate_parameters()
 
 
+        self.figure_svd.clear()
 
+        n_val_show = n_val_show
+        n_cmp_show = n_cmp_show
+        self.dataset = x
+        self.dataset.plot_svd(self.figure_svd, self.figure_stat, n_cmp_show=n_cmp_show, n_val_show=n_val_show)
 
+        # self.figure_data.ax.title.set_text("Data")
+        # self.figure_data.ax.set_xlabel("Energy(eV)")
+        # self.figure_data.ax.set_ylabel("Mu Normalized")
 
-            self.figure_data.ax.title.set_text("Data")
-            self.figure_data.ax.set_xlabel("Energy(eV)")
-            self.figure_data.ax.set_ylabel("Mu Normalized")
-            ymin, ymax = self.figure_data.ax.get_ylim()
-            self.figure_data.ax.set_ylim(top=ymax)
+        #
+        # self.figure_data.ax2.title.set_text("Data Cuts")
+        # self.figure_data.ax2.set_xlabel("Curve Index")
+        # self.figure_data.ax2.set_ylabel("Mu Normalized")
+        #
+        #
+        # self.figure_svd.ax.title.set_text("Subset of U")
+        #
+        # self.figure_svd.ax2.title.set_text("Subset of V")
+        # self.figure_svd.ax2.legend()
+        #
+        # self.figure_stat.ax3.title.set_text("Significance Testing")#sing
+        # self.figure_stat.ax3.set_xlabel("Component Index")
+        # self.figure_stat.ax3.set_ylabel("Singular Values")
+        #
+        # self.figure_stat.ax4.title.set_text("Significance Testing") #auto
+        # self.figure_stat.ax4.set_xlabel("Component Index")
+        # self.figure_stat.ax4.set_ylabel("Autocorrelation")
 
-            self.figure_data.ax2.title.set_text("Data Cuts")
-            self.figure_data.ax2.set_xlabel("Curve Index")
-            self.figure_data.ax2.set_ylabel("Mu Normalized")
+        self.figure_data.tight_layout()
+        self.figure_svd.tight_layout()
+        self.figure_stat.tight_layout()
 
-
-            self.figure_svd.ax.title.set_text("Subset of U")
-
-            self.figure_svd.ax2.title.set_text("Subset of V")
-            self.figure_svd.ax2.legend()
-
-            self.figure_auto.ax3.title.set_text("Significance Testing")#sing
-            self.figure_auto.ax3.set_xlabel("Component Index")
-            self.figure_auto.ax3.set_ylabel("Singular Values")
-
-            self.figure_auto.ax4.title.set_text("Significance Testing") #auto
-            self.figure_auto.ax4.set_xlabel("Component Index")
-            self.figure_auto.ax4.set_ylabel("Autocorrelation")
-
-            self.figure_data.tight_layout()
-            self.figure_svd.tight_layout()
-            self.figure_auto.tight_layout()
-
-            self.canvas.draw_idle()
-            self.canvas_data.draw_idle()
-            self.canvas_auto.draw_idle()
+        self.canvas.draw_idle()
+        self.canvas_data.draw_idle()
+        self.canvas_auto.draw_idle()
 
 

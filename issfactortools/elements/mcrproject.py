@@ -1,5 +1,8 @@
+import matplotlib.pyplot as plt
 from pymcr.mcr import McrAR
 import numpy as np
+
+from issfactortools.elements.svd import doSVD, plot_svd_results
 
 
 class DataSet:
@@ -58,7 +61,56 @@ class DataSet:
     def t(self):
         return self.t[self.t_mask]
 
+    def compute_svd(self):
+        self.u, self.s, self.v, self.lra_chisq, self.ac_u, self.ac_v = doSVD(self.data)
 
+
+    def plot_data(self, ax=None):
+        if ax is None:
+            _, ax = plt.subplots(1, 1, 1)
+        x = self._x
+        # t = self.t
+        data = self._data
+        x_label = f"{self.x_name}, {self.x_units}"
+        # t_label = f"{self.t_name}, {self.t_units}"
+        data_label = f"{self.data_name}, {self.data_units}"
+        ax.plot(x, data)
+        ax.set_xlabel(x_label)
+        ax.set_ylabel(data_label)
+        ax.title.set_text("Data")
+        _ymin, _ymax = ax.get_ylim()
+        _yspan = _ymax - _ymin
+        ymax = _ymax + 0.05 * _yspan
+        ymin = _ymin - 0.05 * _yspan
+        ax.set_ylim(top=ymax, bottom=ymin)
+
+
+    def plot_data_cut(self, cut_indices, ax=None):
+        if ax is None:
+            _, ax = plt.subplots(1, 1, 1)
+        #x = self.x
+        t = self.t
+        cuts = self.data[cut_indices, :]
+        #x_label = f"{self.x_name}, {self.x_units}"
+        t_label = f"{self.t_name}, {self.t_units}"
+        data_label = f"{self.data_name}, {self.data_units}"
+        ax.plot(t, cuts)
+        ax.set_xlabel(t_label)
+        ax.set_ylabel(data_label)
+        ax.title.set_text("Data")
+        _ymin, _ymax = ax.get_ylim()
+        _yspan = _ymax - _ymin
+        ymax = _ymax + 0.05 * _yspan
+        ymin = _ymin - 0.05 * _yspan
+        ax.set_ylim(top=ymax, bottom=ymin)
+
+    def plot_svd(self, figure_svd=None, figure_stat=None, n_cmp_show=3, n_val_show=25):
+        if figure_svd is None:
+            figure_svd = plt.figure()
+        if figure_stat is None:
+            figure_stat = plt.figure()
+        self.compute_svd()
+        plot_svd_results(self._x, self._t, self.u, self.s, self.v, self.lra_chisq, self.ac_u, self.ac_v, figure_svd, figure_stat, n_cmp_show=n_cmp_show, n_val_show=n_val_show)
 
 class ReferenceSet:
     def __init__(self):

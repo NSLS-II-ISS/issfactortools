@@ -24,6 +24,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         self.setupUi(self)
         self.parent = parent
 
+
         self.pushButton_2.clicked.connect(self.import_dataset)
         self.pushButton_5.clicked.connect(self._create_constraint)
         self.createReference.clicked.connect(self._create_reference)
@@ -49,7 +50,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         for key in self.x:
             print(eval(self.x[key]))
         print(self.x)
-        self.dataOverview = issfactortools.widgets.widget_data_overview.UIDataOverview
+        self.dataOverview = issfactortools.widgets.widget_data_overview.UIDataOverview()
 
     #
     # self.widget_data_overview = widget_data_overview.UIDataOverview()
@@ -216,13 +217,11 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
             item = self.model_datasets.item(i, 0)
             checkState = item.checkState()  # do it by selection, not by checkstate
             if (checkState == 2):
-                data = item.dataset._data
-                x = item.dataset._x
-                print("Data" + str(item.dataset._data))
+                dataset = item.dataset
 
-        dataOverview = issfactortools.widgets.widget_data_overview.UIDataOverview()
-        dataOverview.import_data(data)
-        dataOverview.show()
+
+        self.dataOverview.parse_data(dataset)
+        self.dataOverview.show()
 
 
 def main_show():
