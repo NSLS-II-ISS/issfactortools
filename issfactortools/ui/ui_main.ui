@@ -61,7 +61,7 @@
    <property name="title">
     <string>Constraints</string>
    </property>
-   <widget class="QPushButton" name="pushButton_5">
+   <widget class="QPushButton" name="pushButton_create_constraint_set">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -90,10 +90,10 @@ Constraint Set</string>
     <widget class="QWidget" name="verticalLayoutWidget">
      <property name="geometry">
       <rect>
-       <x>9</x>
-       <y>19</y>
-       <width>291</width>
-       <height>171</height>
+       <x>10</x>
+       <y>30</y>
+       <width>281</width>
+       <height>161</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout"/>
@@ -169,19 +169,6 @@ Constraint Set</string>
       <width>301</width>
       <height>411</height>
      </rect>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="createReference">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>570</y>
-      <width>121</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Create Reference</string>
     </property>
    </widget>
   </widget>
