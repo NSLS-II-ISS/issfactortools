@@ -8,6 +8,11 @@ import pymcr.constraints
 from PyQt5 import uic, QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import QThread, QSettings, Qt
 
+from PyQt5.QtWidgets import QApplication, QTableWidgetItem, QHeaderView, QRadioButton, QTableWidget, QHBoxLayout, \
+        QLabel, QButtonGroup, QComboBox, QMenu, QAction
+from PyQt5.QtCore import QTimer
+import sys
+
 import issfactortools
 from issfactortools.widgets import widget_data_overview, widget_mcr_overview
 from issfactortools.elements.mcrproject import DataSet, ReferenceSet, ConstraintSet
@@ -16,7 +21,9 @@ import issfactortools.widgets.QDialog
 ui_path = pkg_resources.resource_filename('issfactortools', 'ui/ui_main.ui')
 
 
+
 class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
+
     progress_sig = QtCore.pyqtSignal()
 
     def __init__(self, parent=None, *args, **kwargs):
@@ -199,8 +206,6 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
 
 
     def import_dataset(self):
-
-        # self.dataOverview.show()
         filename = QtWidgets.QFileDialog.getOpenFileName(directory='/nsls2/xf08id/Sandbox',
                                                          filter='*.xas', parent=self)[0]
         filedata = np.genfromtxt(filename)
@@ -208,6 +213,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         data = filedata[:, 1:]
         t = np.arange(data.shape[1])
         self._create_dataset(x, t, data, name=filename)
+
 
     def inspectData(self, Dialog):
         rows = self.model_datasets.rowCount()
@@ -227,10 +233,7 @@ def main_show():
 
 
 if __name__ == '__main__':
-    from PyQt5.QtWidgets import QApplication, QTableWidgetItem, QHeaderView, QRadioButton, QTableWidget, QHBoxLayout, \
-        QLabel, QButtonGroup, QComboBox, QMenu, QAction
-    from PyQt5.QtCore import QTimer
-    import sys
+
 
     app = QApplication(sys.argv)
     print('before init')
@@ -247,3 +250,4 @@ if __name__ == '__main__':
 
     sys.stdout = xlive_gui.emitstream_out
     sys.stderr = xlive_gui.emitstream_err
+

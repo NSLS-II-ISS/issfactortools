@@ -59,7 +59,7 @@ def getChiSq(x):
     return np.sum((x ** 2))
 
 
-def plots(name, matrix, fig=None, font=None, energy = None, fmt='ks-', limits = None, semilogy=False, lab = None):
+def plots(name, matrix, fig=None, font=None, energy=None, fmt='ks-', limits=None, semilogy=False, lab = None):
     if fig is not None:
         fig.set_title(name, fontsize=font)
         if semilogy:
@@ -279,8 +279,11 @@ def doSVD(A):
 def plot_svd_results(x, t, u, s, v, lra_chisq, ac_u, ac_v, figure1, figure2, energy = None, n_cmp_show=3, n_val_show = 25):
     l = n_val_show
     l2 = n_val_show
-    fig1 = plt.figure(figure1.number)
-    fig2 = plt.figure(figure2.number)
+    # fig1 = plt.figure(figure1.number)
+    # fig2 = plt.figure(figure2.number)
+    fig1 = figure1
+    fig2 = figure2
+
     font = 12
     #font = (fig1.get_figwidth() + fig1.get_figheight()) / 2
     # fig.set_figheight(20)

@@ -61,16 +61,6 @@
    <property name="title">
     <string>Constraints</string>
    </property>
-   <widget class="QListView" name="listView_constraints">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>30</y>
-      <width>301</width>
-      <height>411</height>
-     </rect>
-    </property>
-   </widget>
    <widget class="QPushButton" name="pushButton_5">
     <property name="geometry">
      <rect>
@@ -109,6 +99,16 @@ Constraint Set</string>
      <layout class="QVBoxLayout" name="verticalLayout"/>
     </widget>
    </widget>
+   <widget class="QTreeView" name="treeView_constraints">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>30</y>
+      <width>301</width>
+      <height>411</height>
+     </rect>
+    </property>
+   </widget>
   </widget>
   <widget class="QGroupBox" name="groupBox_3">
    <property name="geometry">
@@ -122,16 +122,6 @@ Constraint Set</string>
    <property name="title">
     <string>References</string>
    </property>
-   <widget class="QListView" name="listView_references">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>30</y>
-      <width>301</width>
-      <height>411</height>
-     </rect>
-    </property>
-   </widget>
    <widget class="QPushButton" name="pushButton_9">
     <property name="geometry">
      <rect>
@@ -169,6 +159,16 @@ Constraint Set</string>
     </property>
     <property name="text">
      <string>Import references:</string>
+    </property>
+   </widget>
+   <widget class="QTreeView" name="treeView_references">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>30</y>
+      <width>301</width>
+      <height>411</height>
+     </rect>
     </property>
    </widget>
    <widget class="QPushButton" name="createReference">

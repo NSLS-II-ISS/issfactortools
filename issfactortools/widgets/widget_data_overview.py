@@ -165,9 +165,10 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         self.canvas_data.draw()
         self.figure_data.canvas.mpl_connect('button_press_event', self.onclick)
 
-        self.figure_svd= plt.figure()
-        # self.figure_svd.ax = self.figure_svd.add_subplot(211)
-        # self.figure_svd.ax2 = self.figure_svd.add_subplot(212)
+        # self.figure_svd= plt.figure()
+        self.figure_svd = Figure()
+        self.figure_svd.ax = self.figure_svd.add_subplot(211)
+        self.figure_svd.ax2 = self.figure_svd.add_subplot(212)
 
         self.canvas = FigureCanvas(self.figure_svd)
         self.toolbar = NavigationToolbar(self.canvas, self)
@@ -177,9 +178,10 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         self.figure_svd.tight_layout()
         self.canvas.draw()
 
-        self.figure_stat = plt.figure()
-        # self.figure_stat.ax3 = self.figure_stat.add_subplot(211)
-        # self.figure_stat.ax4 = self.figure_stat.add_subplot(212)
+        # self.figure_stat = plt.figure()
+        self.figure_stat = Figure()
+        self.figure_stat.ax3 = self.figure_stat.add_subplot(211)
+        self.figure_stat.ax4 = self.figure_stat.add_subplot(212)
         self.canvas_auto = FigureCanvas(self.figure_stat)
         self.toolbar_auto = NavigationToolbar(self.canvas_auto, self)
         self.toolbar.resize(1, 10)
