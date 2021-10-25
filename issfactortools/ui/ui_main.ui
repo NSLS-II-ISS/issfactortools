@@ -109,6 +109,20 @@ Constraint Set</string>
      </rect>
     </property>
    </widget>
+   <widget class="QPushButton" name="appendConstraint">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>470</y>
+      <width>111</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Append
+Constraint Set</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QGroupBox" name="groupBox_3">
    <property name="geometry">

@@ -9,7 +9,7 @@ from PyQt5 import uic, QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import QThread, QSettings, Qt
 
 from PyQt5.QtWidgets import QApplication, QTableWidgetItem, QHeaderView, QRadioButton, QTableWidget, QHBoxLayout, \
-        QLabel, QButtonGroup, QComboBox, QMenu, QAction
+    QLabel, QButtonGroup, QComboBox, QMenu, QAction, QMessageBox
 from PyQt5.QtCore import QTimer
 import sys
 
@@ -31,9 +31,11 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         self.setupUi(self)
         self.parent = parent
 
-
+        self.c_clicked = False
+        self.s_clicked = False
         self.pushButton_2.clicked.connect(self.import_dataset)
         self.pushButton_create_constraint_set.clicked.connect(self._create_constraint)
+        self.appendConstraint.clicked.connect(self.append_Constraint)
         self.createReference.clicked.connect(self._create_reference)
         self.model_datasets = QtGui.QStandardItemModel(self)  # model that is used to show listview of datasets
         self.model_references = QtGui.QStandardItemModel(self)  # model that is used to show listview of references
@@ -77,9 +79,9 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         item.setEditable(False)
         return item
 
-    def _create_constraint(self, name='Constraint'):
+    def _create_constraint(self, name='New Constraint'):
         name = "New Constraint"
-        print(name)
+        #print(name)
         item = self._make_item(name)
         item.item_type = 'ConstraintSet'
         item.constraint = ConstraintSet()
@@ -102,6 +104,22 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         self._append_item_to_model(self.model_datasets, item)
         self.listView_datasets.setModel(self.model_datasets)
 
+    def append_Constraint(self):
+        if(self.c_clicked == False and self.s_clicked == False):
+            QMessageBox.about(self, "ERROR", "No Vector Selected")
+        else:
+            selected = self.treeView_constraints.currentIndex().row()
+            if selected == -1:
+                QMessageBox.about(self, "ERROR", "No Constraint Selected")
+            else:
+                item = self.model_constraints.item(selected, 0)
+                if(self.c_clicked == True):
+                    item.constraint.append_c_constraint("X")
+                elif(self.s_clicked == True):
+                    item.constraint.append_st_constraint("Y")
+                print(item.constraint.c_constraints)
+                print(item.constraint.st_constraints)
+
     def createComboBox(self):
         self.combo = QComboBox()
         for key in self.x:
@@ -110,6 +128,13 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         self.verticalLayout.addWidget(self.combo)
         self.combo.currentIndexChanged.connect(self.constraintTable)
 
+    def SEnabled(self):
+        self.s_clicked = True
+        self.c_clicked = False
+    def CEnabled(self):
+        self.s_clicked = False
+        self.c_clicked = True
+
     def constraintTable(self):
         radioC = QRadioButton()
         radioS = QRadioButton()
@@ -117,9 +142,11 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         radioC.setText("C")
         radioS.setChecked(False)
         radioC.setChecked(False)
-        CSGroup = QButtonGroup()
-        CSGroup.addButton(radioS)
-        CSGroup.addButton(radioC)
+        radioS.clicked.connect(self.SEnabled)
+        radioC.clicked.connect(self.CEnabled)
+        self.CSGroup = QButtonGroup()
+        self.CSGroup.addButton(radioS)
+        self.CSGroup.addButton(radioC)
         # self.grid_layout.addWidget(radioS)
         # self.grid_layout.addWidget(radioC)
 
