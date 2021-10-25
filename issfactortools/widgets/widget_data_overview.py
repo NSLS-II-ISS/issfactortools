@@ -1,4 +1,4 @@
-
+import copy
 import re
 import sys
 import numpy as np
@@ -247,32 +247,32 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
 
         n_cmp_show = components
 
-
+        tempSet = copy.deepcopy((self.dataset))
         if svdauto_text != "":
             n_val_show = int(svdauto_text)
         else:
             n_val_show = 25
 
         if energy_text == "":
-            self.dataset = self.dataset
-            x = self.dataset
+            pass
         elif energy_text != "":
             energy_text = energy_text.split(",")
-            if int(energy_text[0]) < self.dataset[0] or int(energy_text[1]) > self.dataset[len(self.dataset)-1]:
+            if int(energy_text[0]) < tempSet._x[0] or int(energy_text[1]) > tempSet._x[len(tempSet._x)-1]:
                 QMessageBox.about(self, "ERROR", "The energy range is invalid. Displaying default range.")
-                x = self.dataset._data
+                tempSet = tempSet
             else:
-                i, firstRow = self.getFirstLimit(int(energy_text[0]), self.dataset)
-                secondRow = self.getSecondLimit(int(energy_text[1]), self.dataset, i)
+                i, firstRow = self.getFirstLimit(int(energy_text[0]), tempSet._x)
+                secondRow = self.getSecondLimit(int(energy_text[1]), tempSet._x, i)
                 print("First Row: " + str(firstRow))
                 print("Second Row: " + str(secondRow))
-                y = self.dataset._data[firstRow:secondRow, 1:]
-                x = y[firstRow:secondRow, 0]
-                x = np.array(x)
+                tempSet._data = tempSet._data[firstRow:secondRow, 1:]
+                #tempSet._x = np.array(tempSet._x)
+                tempSet._x = tempSet._x[firstRow:secondRow]
+                #x = np.array(x)
                 #print(self.dataset[:,0])
 
 
-        return offsetD, n_cmp_show, n_val_show, x
+        return offsetD, n_cmp_show, n_val_show, tempSet
 
     def display_data(self):
         self.figure_data.ax2.clear()
@@ -306,14 +306,14 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         #     print(err)
         #     QMessageBox.about(self, "INDEX ERROR", "The Rows and Columns Dimensions Are Invalid. Retry.")
 
-        offsetD, n_cmp_show, n_val_show, x = self.validate_parameters()
+        offsetD, n_cmp_show, n_val_show, tempSet = self.validate_parameters()
 
 
         self.figure_svd.clear()
 
         n_val_show = n_val_show
         n_cmp_show = n_cmp_show
-        self.dataset = x
+        self.dataset = tempSet
         self.dataset.plot_svd(self.figure_svd, self.figure_stat, n_cmp_show=n_cmp_show, n_val_show=n_val_show)
 
         # self.figure_data.ax.title.set_text("Data")

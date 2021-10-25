@@ -171,6 +171,19 @@ Constraint Set</string>
      </rect>
     </property>
    </widget>
+   <widget class="QPushButton" name="createReference">
+    <property name="geometry">
+     <rect>
+      <x>140</x>
+      <y>450</y>
+      <width>111</width>
+      <height>35</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Create Reference</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QPushButton" name="pushButton_6">
    <property name="geometry">

@@ -34,7 +34,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
 
         self.pushButton_2.clicked.connect(self.import_dataset)
         self.pushButton_create_constraint_set.clicked.connect(self._create_constraint)
-        # self.createReference.clicked.connect(self._create_reference)
+        self.createReference.clicked.connect(self._create_reference)
         self.model_datasets = QtGui.QStandardItemModel(self)  # model that is used to show listview of datasets
         self.model_references = QtGui.QStandardItemModel(self)  # model that is used to show listview of references
         self.model_constraints = QtGui.QStandardItemModel(self)  # model that is used to show listview of constraints
@@ -85,6 +85,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         item.constraint = ConstraintSet()
         self._append_item_to_model(self.model_constraints, item)
         self.treeView_constraints.setModel(self.model_constraints)
+        self.treeView_constraints.setHeaderHidden(True)
 
     def _create_reference(self, dict={}, name='New Reference'):
         item = self._make_item(name)
@@ -92,6 +93,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         item.reference = ReferenceSet()
         self._append_item_to_model(self.model_references, item)
         self.treeView_references.setModel(self.model_references)
+        self.treeView_references.setHeaderHidden(True)
 
     def _create_dataset(self, x, t, data, name='DataSet'):
         item = self._make_item(name)

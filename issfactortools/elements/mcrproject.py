@@ -62,7 +62,7 @@ class DataSet:
         return self.t[self.t_mask]
 
     def compute_svd(self):
-        self.u, self.s, self.v, self.lra_chisq, self.ac_u, self.ac_v = doSVD(self.data)
+        self.u, self.s, self.v, self.lra_chisq, self.ac_u, self.ac_v = doSVD(self._data)
 
 
     def plot_data(self, ax=None):
