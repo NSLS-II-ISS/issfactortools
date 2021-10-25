@@ -9,7 +9,7 @@ from PyQt5 import uic, QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import QThread, QSettings, Qt
 
 from PyQt5.QtWidgets import QApplication, QTableWidgetItem, QHeaderView, QRadioButton, QTableWidget, QHBoxLayout, \
-    QLabel, QButtonGroup, QComboBox, QMenu, QAction, QMessageBox
+    QLabel, QButtonGroup, QComboBox, QMenu, QAction, QMessageBox, QInputDialog
 from PyQt5.QtCore import QTimer
 import sys
 
@@ -231,7 +231,22 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
             # menuAction3.triggered.connect(self.normalizedLines)
 
             menu.exec_(self.mapToGlobal(pos))
+        elif(pos.x() >= 683 and pos.x() <= 980) and (pos.y() >= 32 and pos.y()<=440):
+            menu = QMenu(self)
+            menuAction1 = QAction("Rename", menu)
+            menu.addAction(menuAction1)
+            menuAction1.triggered.connect(self.renameItem)
+            menu.exec_(self.mapToGlobal(pos))
+            print("Hello")
         print("POS: ", pos.x(), pos.y())
+
+
+
+    def renameItem(self): #currently will only work for constraints, later will work for database and references as well
+        text, ok = QInputDialog.getText(self, 'Rename Item', 'Enter the new name:')
+        selected = self.treeView_constraints.currentIndex().row()
+        item = self.model_constraints.item(selected, 0)
+        item.setText(text)
 
 
     def import_dataset(self):
