@@ -68,14 +68,21 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
     # self.widget_mcr_overview = widget_mcr_overview.UIDataOverview()
     # self.layout_mcr_analysis.addWidget(self.widget_mcr_overview)
 
+
     def _append_item_to_model(self, model, item):
         parent = model.invisibleRootItem()
         parent.appendRow(item)
 
-    def _make_item(self, name):
+    def _append_child_to_item(self, child, item):
+        item.appendRow(child)
+
+    def _make_item(self, name, checkable = True, dropdown = False):
         item = QtGui.QStandardItem(name)
         item.setDropEnabled(False)
-        item.setCheckable(True)
+        if checkable:
+            item.setCheckable(True)
+        else:
+            item.setCheckable(False)
         item.setEditable(False)
         return item
 
@@ -88,6 +95,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         self._append_item_to_model(self.model_constraints, item)
         self.treeView_constraints.setModel(self.model_constraints)
         self.treeView_constraints.setHeaderHidden(True)
+
 
     def _create_reference(self, dict={}, name='New Reference'):
         item = self._make_item(name)
@@ -105,6 +113,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         self.listView_datasets.setModel(self.model_datasets)
 
     def append_Constraint(self):
+        constr_params = {}
         if(self.c_clicked == False and self.s_clicked == False):
             QMessageBox.about(self, "ERROR", "No Vector Selected")
         else:
@@ -113,10 +122,26 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
                 QMessageBox.about(self, "ERROR", "No Constraint Selected")
             else:
                 item = self.model_constraints.item(selected, 0)
-                if(self.c_clicked == True):
-                    item.constraint.append_c_constraint("X")
-                elif(self.s_clicked == True):
-                    item.constraint.append_st_constraint("Y")
+                for i in range(0, self.constraintT.rowCount()):
+                    for j in range(0, len(self.pArr[i])):
+                        if j == 0:
+                            if self.constraintT.item(i, j+1) is None:
+                                constr_params[str(self.constraintT.item(i, j).text())] = "None"
+                            else:
+                                constr_params[str(self.constraintT.item(i, j).text())] = self.constraintT.item(i, j+1).text()
+
+                        #constr =  self.constraintT.item(i, j).text()
+                        #constr_params += str(constr)
+                if self.c_clicked:
+                    item.constraint.append_c_constraint(constr_params)
+                    vector = " C"
+                elif self.s_clicked:
+                    item.constraint.append_st_constraint(constr_params)
+                    vector = " S"
+
+                constraint_item = self._make_item(self.combo.currentText() + vector, False) #go through combobox
+
+                self._append_child_to_item(constraint_item, item)
                 print(item.constraint.c_constraints)
                 print(item.constraint.st_constraints)
 
@@ -181,24 +206,24 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
 
         radio = QRadioButton()
 
-        pArr = parameters.split(",")
-        if "self" in pArr[0]:
-            del pArr[0]
-        print(pArr)
+        self.pArr = parameters.split(",")
+        if "self" in self.pArr[0]:
+            del self.pArr[0]
+        print(self.pArr)
         self.constraintT.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
-        self.constraintT.setRowCount(len(pArr))
+        self.constraintT.setRowCount(len(self.pArr))
         self.constraintT.setColumnCount(2)
 
         self.constraintT.setHorizontalHeaderItem(0, QTableWidgetItem("PARAMETER"))
         self.constraintT.setHorizontalHeaderItem(1, QTableWidgetItem("VALUE"))
         # self.constraintT.setHorizontalHeaderItem(2, QTableWidgetItem("C"))
         # self.constraintT.setHorizontalHeaderItem(3, QTableWidgetItem("S"))
-        for i in range(0, len(pArr)):
-            pArr[i] = pArr[i].split("=")
+        for i in range(0, len(self.pArr)):
+            self.pArr[i] = self.pArr[i].split("=")
 
         for i in range(0, self.constraintT.rowCount()):
-            for j in range(0, len(pArr[i])):
-                self.constraintT.setItem(i, j, QTableWidgetItem(str(pArr[i][j])))
+            for j in range(0, len(self.pArr[i])):
+                self.constraintT.setItem(i, j, QTableWidgetItem(str(self.pArr[i][j])))   #use this for getting the proper constraints
 
         # for i in range(0, self.constraintT.rowCount()):
         #   bGroup = QButtonGroup()
