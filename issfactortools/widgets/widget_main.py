@@ -125,37 +125,43 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
             print("No! I'm here!")
             del item.st_constraints[index]
     def append_Constraint(self):
+        index = self.treeView_constraints.selectedIndexes()[0]
+        crawler = index.model().itemFromIndex(index)
         constr_params = {}
-        if(self.c_clicked == False and self.s_clicked == False):
-            QMessageBox.about(self, "ERROR", "No Vector Selected")
-        else:
-            selected = self.treeView_constraints.currentIndex().row()
-            if selected == -1:
-                QMessageBox.about(self, "ERROR", "No Constraint Selected")
+        try:
+            print(crawler.parent.text())
+            QMessageBox.about(self, "ERROR", "Invalid Constraint Set Selected")
+        except:
+            if(self.c_clicked == False and self.s_clicked == False):
+                QMessageBox.about(self, "ERROR", "No Vector Selected")
             else:
-                item = self.model_constraints.item(selected, 0)
-                for i in range(0, self.constraintT.rowCount()):
-                    for j in range(0, len(self.pArr[i])):
-                        if j == 0:
-                            if self.constraintT.item(i, j+1) is None:
-                                constr_params[str(self.constraintT.item(i, j).text())] = "None"
-                            else:
-                                constr_params[str(self.constraintT.item(i, j).text())] = self.constraintT.item(i, j+1).text()
+                selected = self.treeView_constraints.currentIndex().row()
+                if selected == -1:
+                    QMessageBox.about(self, "ERROR", "No Constraint Selected")
+                else:
+                    item = self.model_constraints.item(selected, 0)
+                    for i in range(0, self.constraintT.rowCount()):
+                        for j in range(0, len(self.pArr[i])):
+                            if j == 0:
+                                if self.constraintT.item(i, j+1) is None:
+                                    constr_params[str(self.constraintT.item(i, j).text())] = "None"
+                                else:
+                                    constr_params[str(self.constraintT.item(i, j).text())] = self.constraintT.item(i, j+1).text()
 
-                        #constr =  self.constraintT.item(i, j).text()
-                        #constr_params += str(constr)
-                if self.c_clicked:
-                    item.constraint.append_c_constraint(constr_params)
-                    vector = " C"
-                elif self.s_clicked:
-                    item.constraint.append_st_constraint(constr_params)
-                    vector = " S"
+                            #constr =  self.constraintT.item(i, j).text()
+                            #constr_params += str(constr)
+                    if self.c_clicked:
+                        item.constraint.append_c_constraint(constr_params)
+                        vector = " C"
+                    elif self.s_clicked:
+                        item.constraint.append_st_constraint(constr_params)
+                        vector = " S"
 
-                constraint_item = self._make_item(self.combo.currentText() + vector, False) #go through combobox
+                    constraint_item = self._make_item(self.combo.currentText() + vector, False) #go through combobox
 
-                self._append_child_to_item(constraint_item, item)
-                print(item.constraint.c_constraints)
-                print(item.constraint.st_constraints)
+                    self._append_child_to_item(constraint_item, item)
+                    print(item.constraint.c_constraints)
+                    print(item.constraint.st_constraints)
 
     def createComboBox(self):
         self.combo = QComboBox()
@@ -302,8 +308,6 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
                             arrIndex = arrIndex+1
                             if(child == crawler):
                                 break
-
-
                     item = self.model_constraints.item(parentAt, 0).takeRow(index.row())
                     self.unAppend_Constraint(constraintItem.constraint, arrIndex, vector)
                     break
