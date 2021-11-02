@@ -287,6 +287,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         vector = crawler.text()[len(crawler.text())-1]
         vector = vector.lower()
         try:
+            print(crawler.parent.text())
             parentAt = None
             arrIndex = -1
             for i in range(0, self.model_constraints.rowCount()):
