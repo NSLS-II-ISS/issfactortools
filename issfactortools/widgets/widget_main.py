@@ -72,9 +72,13 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
     def _append_item_to_model(self, model, item):
         parent = model.invisibleRootItem()
         parent.appendRow(item)
+        item.parent = model
 
     def _append_child_to_item(self, child, item):
         item.appendRow(child)
+        child.parent = item
+
+
 
     def _make_item(self, name, checkable = True, dropdown = False):
         item = QtGui.QStandardItem(name)
@@ -112,6 +116,14 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         self._append_item_to_model(self.model_datasets, item)
         self.listView_datasets.setModel(self.model_datasets)
 
+    def unAppend_Constraint(self, item, index, cs):
+        print("Do I run?")
+        if(cs == "c"):
+            print("Here!")
+            del item.c_constraints[index]
+        else:
+            print("No! I'm here!")
+            del item.st_constraints[index]
     def append_Constraint(self):
         constr_params = {}
         if(self.c_clicked == False and self.s_clicked == False):
@@ -259,17 +271,50 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         elif(pos.x() >= 683 and pos.x() <= 980) and (pos.y() >= 32 and pos.y()<=440):
             menu = QMenu(self)
             menuAction1 = QAction("Rename", menu)
+            menuAction2 = QAction("Delete", menu)
             menu.addAction(menuAction1)
+            menu.addAction(menuAction2)
             menuAction1.triggered.connect(self.renameItem)
+            menuAction2.triggered.connect(self.deleteConstraint)
             menu.exec_(self.mapToGlobal(pos))
             print("Hello")
         print("POS: ", pos.x(), pos.y())
+
+
+    def deleteConstraint(self):
+        index = self.treeView_constraints.selectedIndexes()[0]
+        crawler = index.model().itemFromIndex(index)
+        vector = crawler.text()[len(crawler.text())-1]
+        vector = vector.lower()
+        try:
+            parentAt = None
+            arrIndex = -1
+            for i in range(0, self.model_constraints.rowCount()):
+                x = self.model_constraints.item(i, 0)
+                if (x == crawler.parent):
+                    parentAt = i
+                    constraintItem = self.model_constraints.item(parentAt)
+                    numChildren = constraintItem.rowCount()
+                    for j in range(0, numChildren):
+                        child = constraintItem.child(j, 0)
+                        if(child.text()[len(child.text())-1].lower() == vector):
+                            arrIndex = arrIndex+1
+                            if(child == crawler):
+                                break
+
+
+                    item = self.model_constraints.item(parentAt, 0).takeRow(index.row())
+                    self.unAppend_Constraint(constraintItem.constraint, arrIndex, vector)
+                    break
+        except:
+              self.model_constraints.removeRow(index.row())
 
 
 
     def renameItem(self): #currently will only work for constraints, later will work for database and references as well
         text, ok = QInputDialog.getText(self, 'Rename Item', 'Enter the new name:')
         selected = self.treeView_constraints.currentIndex().row()
+        print(selected)
         item = self.model_constraints.item(selected, 0)
         item.setText(text)
 
