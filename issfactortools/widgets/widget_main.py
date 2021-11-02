@@ -1,3 +1,4 @@
+import copy
 import re
 import sys
 import numpy as np
@@ -278,15 +279,31 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
             menu = QMenu(self)
             menuAction1 = QAction("Rename", menu)
             menuAction2 = QAction("Delete", menu)
+            menuAction3 = QAction("Duplicate", menu)
             menu.addAction(menuAction1)
             menu.addAction(menuAction2)
+            menu.addAction(menuAction3)
             menuAction1.triggered.connect(self.renameItem)
             menuAction2.triggered.connect(self.deleteConstraint)
+            menuAction3.triggered.connect(self.duplicateConstraint)
             menu.exec_(self.mapToGlobal(pos))
             print("Hello")
         print("POS: ", pos.x(), pos.y())
 
 
+    def duplicateConstraint(self):
+        index = self.treeView_constraints.selectedIndexes()[0]
+        crawler = index.model().itemFromIndex(index)
+        crawlercopy = copy.deepcopy(crawler.constraint)
+        parentAt = 0
+        for i in range(0, self.model_constraints.rowCount()):
+            x = self.model_constraints.item(i, 0)
+            if (x == crawler.parent):
+                parentAt = i
+                parentItem = self.model_constraints.item(parentAt)
+                break
+        self._append_child_to_item(crawlercopy, parentItem)
+        #parentItem.setChild(parentItem.rowCount(), 0, crawlercopy)
     def deleteConstraint(self):
         index = self.treeView_constraints.selectedIndexes()[0]
         crawler = index.model().itemFromIndex(index)
