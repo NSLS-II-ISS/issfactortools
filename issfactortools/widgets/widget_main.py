@@ -8,6 +8,7 @@ import math
 import pymcr.constraints
 from PyQt5 import uic, QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import QThread, QSettings, Qt
+from PyQt5.QtGui import QStandardItem
 
 from PyQt5.QtWidgets import QApplication, QTableWidgetItem, QHeaderView, QRadioButton, QTableWidget, QHBoxLayout, \
     QLabel, QButtonGroup, QComboBox, QMenu, QAction, QMessageBox, QInputDialog
@@ -125,6 +126,8 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         else:
             print("No! I'm here!")
             del item.st_constraints[index]
+
+
     def append_Constraint(self):
         index = self.treeView_constraints.selectedIndexes()[0]
         crawler = index.model().itemFromIndex(index)
@@ -293,17 +296,18 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
 
     def duplicateConstraint(self):
         index = self.treeView_constraints.selectedIndexes()[0]
-        crawler = index.model().itemFromIndex(index)
-        crawlercopy = copy.deepcopy(crawler.constraint)
-        parentAt = 0
-        for i in range(0, self.model_constraints.rowCount()):
-            x = self.model_constraints.item(i, 0)
-            if (x == crawler.parent):
-                parentAt = i
-                parentItem = self.model_constraints.item(parentAt)
-                break
-        self._append_child_to_item(crawlercopy, parentItem)
-        #parentItem.setChild(parentItem.rowCount(), 0, crawlercopy)
+        item = self.model_constraints.item(index.row(), 0)
+        itemcopy = self._make_item(item.text() + " Copy")
+        itemcopy.item_type = 'ConstraintSet'
+        itemcopy.constraint = copy.deepcopy(item.constraint)
+        self._append_item_to_model(self.model_constraints, itemcopy)
+        self.treeView_constraints.setModel(self.model_constraints)
+        self.treeView_constraints.setHeaderHidden(True)
+        for i in range(0, item.rowCount()):
+            child = item.child(i, 0)
+            childcopy = self._make_item(child.text(), False)
+            self._append_child_to_item(childcopy, itemcopy)
+
     def deleteConstraint(self):
         index = self.treeView_constraints.selectedIndexes()[0]
         crawler = index.model().itemFromIndex(index)
