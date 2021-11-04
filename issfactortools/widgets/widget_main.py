@@ -42,7 +42,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         self.model_datasets = QtGui.QStandardItemModel(self)  # model that is used to show listview of datasets
         self.model_references = QtGui.QStandardItemModel(self)  # model that is used to show listview of references
         self.model_constraints = QtGui.QStandardItemModel(self)  # model that is used to show listview of constraints
-
+        self.treeView_constraints.clicked.connect(self.updateComboBox)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.showMenu)
 
@@ -69,7 +69,6 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
     #
     # self.widget_mcr_overview = widget_mcr_overview.UIDataOverview()
     # self.layout_mcr_analysis.addWidget(self.widget_mcr_overview)
-
 
     def _append_item_to_model(self, model, item):
         parent = model.invisibleRootItem()
@@ -127,6 +126,16 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
             print("No! I'm here!")
             del item.st_constraints[index]
 
+    def updateComboBox(self):
+        index = self.treeView_constraints.selectedIndexes()[0]
+        crawler = index.model().itemFromIndex(index)
+        try:
+            constraint = crawler.text()
+            constraint = constraint[0:len(constraint)-2]
+            comboIndex = self.combo.findText(constraint)
+            self.combo.setCurrentIndex(comboIndex)
+        except:
+            pass
 
     def append_Constraint(self):
         index = self.treeView_constraints.selectedIndexes()[0]
