@@ -185,6 +185,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
     def constraintTable(self):
         radioC = QRadioButton()
         radioS = QRadioButton()
+        radioC.setChecked(True)
         radioS.setText("S")
         radioC.setText("C")
         radioS.setChecked(False)
