@@ -201,6 +201,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         radioC = QRadioButton()
         radioS = QRadioButton()
         radioC.setChecked(True)
+        self.c_clicked = True
         radioS.setText("S")
         radioC.setText("C")
         radioS.setChecked(False)
