@@ -70,6 +70,22 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
     # self.widget_mcr_overview = widget_mcr_overview.UIDataOverview()
     # self.layout_mcr_analysis.addWidget(self.widget_mcr_overview)
 
+    def updateComboBox(self):
+        index = self.treeView_constraints.selectedIndexes()[0]
+        crawler = index.model().itemFromIndex(index)
+        try:
+            constraint = crawler.text()
+            constraint = constraint[0:len(constraint)-2]
+            comboIndex = self.combo.findText(constraint)
+            for i in range(0, self.combo.count()):
+                if self.combo.itemText(i) == constraint:
+                    comboIndex = i
+                    break
+            self.combo.setCurrentIndex(i)
+        except:
+            pass
+        print("YOOOOOOOOOO")
+
     def _append_item_to_model(self, model, item):
         parent = model.invisibleRootItem()
         parent.appendRow(item)
@@ -126,16 +142,6 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
             print("No! I'm here!")
             del item.st_constraints[index]
 
-    def updateComboBox(self):
-        index = self.treeView_constraints.selectedIndexes()[0]
-        crawler = index.model().itemFromIndex(index)
-        try:
-            constraint = crawler.text()
-            constraint = constraint[0:len(constraint)-2]
-            comboIndex = self.combo.findText(constraint)
-            self.combo.setCurrentIndex(comboIndex)
-        except:
-            pass
 
     def append_Constraint(self):
         index = self.treeView_constraints.selectedIndexes()[0]
@@ -301,8 +307,33 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
             menuAction3.triggered.connect(self.duplicateConstraint)
             menu.exec_(self.mapToGlobal(pos))
             print("Hello")
+        elif(pos.x() >= 341 and pos.x() <= 637) and (pos.y() >= 32 and pos.y() <= 440):
+            menu = QMenu(self)
+            menuAction1 = QAction("Rename", menu)
+            menuAction2 = QAction("Delete", menu)
+            menuAction3 = QAction("Duplicate", menu)
+            menu.addAction(menuAction1)
+            menu.addAction(menuAction2)
+            menu.addAction(menuAction3)
+            menuAction1.triggered.connect(self.renameItem)
+            menuAction2.triggered.connect(self.deleteReference)
+            menuAction3.triggered.connect(self.duplicateReference)
+            menu.exec_(self.mapToGlobal(pos))
         print("POS: ", pos.x(), pos.y())
 
+    def duplicateReference(self):
+        index = self.treeView_references.selectedIndexes()[0]
+        item = self.model_references.item(index.row(), 0)
+        itemcopy = self._make_item(item.text() + " Copy")
+        itemcopy.item_type = 'ReferenceSet'
+        itemcopy.reference = copy.deepcopy(item.reference)
+        self._append_item_to_model(self.model_references, itemcopy)
+        self.treeView_references.setModel(self.model_references)
+        self.treeView_references.setHeaderHidden(True)
+
+    def deleteReference(self):
+        index = self.treeView_references.selectedIndexes()[0]
+        self.model_references.removeRow(index.row())
 
     def duplicateConstraint(self):
         index = self.treeView_constraints.selectedIndexes()[0]
