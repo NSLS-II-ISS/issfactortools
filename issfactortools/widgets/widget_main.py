@@ -302,7 +302,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
             menu.addAction(menuAction1)
             menu.addAction(menuAction2)
             menu.addAction(menuAction3)
-            menuAction1.triggered.connect(self.renameItem)
+            menuAction1.triggered.connect(self.renameConstraint)
             menuAction2.triggered.connect(self.deleteConstraint)
             menuAction3.triggered.connect(self.duplicateConstraint)
             menu.exec_(self.mapToGlobal(pos))
@@ -315,7 +315,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
             menu.addAction(menuAction1)
             menu.addAction(menuAction2)
             menu.addAction(menuAction3)
-            menuAction1.triggered.connect(self.renameItem)
+            menuAction1.triggered.connect(self.renameReference)
             menuAction2.triggered.connect(self.deleteReference)
             menuAction3.triggered.connect(self.duplicateReference)
             menu.exec_(self.mapToGlobal(pos))
@@ -378,11 +378,18 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
 
 
 
-    def renameItem(self): #currently will only work for constraints, later will work for database and references as well
+    def renameConstraint(self):
         text, ok = QInputDialog.getText(self, 'Rename Item', 'Enter the new name:')
         selected = self.treeView_constraints.currentIndex().row()
         print(selected)
         item = self.model_constraints.item(selected, 0)
+        item.setText(text)
+
+    def renameReference(self):
+        text, ok = QInputDialog.getText(self, 'Rename Item', 'Enter the new name:')
+        selected = self.treeView_references.currentIndex().row()
+        print(selected)
+        item = self.model_references.item(selected, 0)
         item.setText(text)
 
 
