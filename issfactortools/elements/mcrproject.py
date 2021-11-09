@@ -116,7 +116,7 @@ class ReferenceSet:
     def __init__(self):
         self.reference_dict = {}
 
-    def append_reference(self, x, data, label:str, fixed:bool):
+    def append_reference(self, x, data, label:str = "Reference", fixed:bool = False):
         self.validate_reference(x, data, label)
         _d = {'x' : x, 'data': data, 'fixed' : fixed}
         self.reference_dict = {label : _d}
@@ -128,10 +128,10 @@ class ReferenceSet:
 
         size_match = (data.size == x.size)
         if not size_match:
-            raise Exception(f'{label} Reference data size mismatch: data.size should be == x.size; currently: data.size={data.ize} and x.size={x.size}')
+            raise Exception(f'{label} Reference data size mismatch: data.size should be == x.size; currently: data.size={data.size} and x.size={x.size}')
 
         label_match = (label in self.labels)
-        if not label_match:
+        if label_match:
             raise KeyError(f'Provided labels must be unique. {label} already exists')
 
     @property

@@ -39,6 +39,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         self.pushButton_create_constraint_set.clicked.connect(self._create_constraint)
         self.appendConstraint.clicked.connect(self.append_Constraint)
         self.createReference.clicked.connect(self._create_reference)
+        self.fromFile.clicked.connect(self.import_from_file)
         self.model_datasets = QtGui.QStandardItemModel(self)  # model that is used to show listview of datasets
         self.model_references = QtGui.QStandardItemModel(self)  # model that is used to show listview of references
         self.model_constraints = QtGui.QStandardItemModel(self)  # model that is used to show listview of constraints
@@ -132,6 +133,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         item.dataset = DataSet(x, t, data, name)
         self._append_item_to_model(self.model_datasets, item)
         self.listView_datasets.setModel(self.model_datasets)
+
 
     def unAppend_Constraint(self, item, index, cs):
         print("Do I run?")
@@ -331,10 +333,37 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         self._append_item_to_model(self.model_references, itemcopy)
         self.treeView_references.setModel(self.model_references)
         self.treeView_references.setHeaderHidden(True)
+        for i in range(0, item.rowCount()):
+            child = item.child(i, 0)
+            childcopy = self._make_item(child.text(), False)
+            self._append_child_to_item(childcopy, itemcopy)
 
     def deleteReference(self):
         index = self.treeView_references.selectedIndexes()[0]
-        self.model_references.removeRow(index.row())
+        crawler = index.model().itemFromIndex(index)
+        vector = crawler.text()[len(crawler.text()) - 1]
+        vector = vector.lower()
+        try:
+            print(crawler.parent.text())
+            parentAt = None
+            arrIndex = -1
+            for i in range(0, self.model_references.rowCount()):
+                x = self.model_references.item(i, 0)
+                if (x == crawler.parent):
+                    parentAt = i
+                    referenceItem = self.model_references.item(parentAt)
+                    numChildren = referenceItem.rowCount()
+                    for j in range(0, numChildren):
+                        child = referenceItem.child(j, 0)
+                        if (child.text()[len(child.text()) - 1].lower() == vector):
+                            arrIndex = arrIndex + 1
+                            if (child == crawler):
+                                break
+                    item = self.model_references.item(parentAt, 0).takeRow(index.row())
+                    #self.unAppend_Constraint(constraintItem.constraint, arrIndex, vector)
+                    break
+        except:
+            self.model_references.removeRow(index.row())
 
     def duplicateConstraint(self):
         index = self.treeView_constraints.selectedIndexes()[0]
@@ -392,6 +421,20 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         print(selected)
         item = self.model_references.item(selected, 0)
         item.setText(text)
+
+    def import_from_file(self):
+        index = self.treeView_references.selectedIndexes()[0]
+        item = self.model_references.item(index.row(), 0)
+        filename = QtWidgets.QFileDialog.getOpenFileName(directory='/nsls2/xf08id/Sandbox',filter='*.xas', parent=self)[0]
+        filedata = np.genfromtxt(filename)
+        x = filedata[:, 0]
+        data = filedata[:, 1:]
+        t = np.arange(data.shape[0])
+        item.reference.append_reference(x, data[:, 0], filename)
+        print(item.reference.reference_dict)
+        referenceFile = self._make_item(filename, False)
+        self._append_child_to_item(referenceFile, item)
+        #self._create_dataset(x, t, data, name=filename)
 
 
     def import_dataset(self):
