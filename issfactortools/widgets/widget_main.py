@@ -341,8 +341,6 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
     def deleteReference(self):
         index = self.treeView_references.selectedIndexes()[0]
         crawler = index.model().itemFromIndex(index)
-        vector = crawler.text()[len(crawler.text()) - 1]
-        vector = vector.lower()
         try:
             print(crawler.parent.text())
             parentAt = None
@@ -353,17 +351,14 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
                     parentAt = i
                     referenceItem = self.model_references.item(parentAt)
                     numChildren = referenceItem.rowCount()
-                    for j in range(0, numChildren):
-                        child = referenceItem.child(j, 0)
-                        if (child.text()[len(child.text()) - 1].lower() == vector):
-                            arrIndex = arrIndex + 1
-                            if (child == crawler):
-                                break
                     item = self.model_references.item(parentAt, 0).takeRow(index.row())
-                    #self.unAppend_Constraint(constraintItem.constraint, arrIndex, vector)
+                    self.removeFromReferenceSet(referenceItem.reference.reference_dict, crawler.text())
                     break
-        except:
+        except Exception as e:
             self.model_references.removeRow(index.row())
+
+    def removeFromReferenceSet(self, dict, key):
+        dict.pop(key)
 
     def duplicateConstraint(self):
         index = self.treeView_constraints.selectedIndexes()[0]
@@ -401,6 +396,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
                             if(child == crawler):
                                 break
                     item = self.model_constraints.item(parentAt, 0).takeRow(index.row())
+
                     self.unAppend_Constraint(constraintItem.constraint, arrIndex, vector)
                     break
         except:
@@ -423,18 +419,24 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         item.setText(text)
 
     def import_from_file(self):
-        index = self.treeView_references.selectedIndexes()[0]
-        item = self.model_references.item(index.row(), 0)
-        filename = QtWidgets.QFileDialog.getOpenFileName(directory='/nsls2/xf08id/Sandbox',filter='*.xas', parent=self)[0]
-        filedata = np.genfromtxt(filename)
-        x = filedata[:, 0]
-        data = filedata[:, 1:]
-        t = np.arange(data.shape[0])
-        item.reference.append_reference(x, data[:, 0], filename)
-        print(item.reference.reference_dict)
-        referenceFile = self._make_item(filename, False)
-        self._append_child_to_item(referenceFile, item)
-        #self._create_dataset(x, t, data, name=filename)
+        try:
+            index = self.treeView_references.selectedIndexes()[0]
+            item = self.model_references.item(index.row(), 0)
+            filename = \
+            QtWidgets.QFileDialog.getOpenFileName(directory='/nsls2/xf08id/Sandbox', filter='*.xas', parent=self)[0]
+            filedata = np.genfromtxt(filename)
+            x = filedata[:, 0]
+            data = filedata[:, 1]
+            t = np.arange(data.shape[0])
+            item.reference.append_reference(x, data, filename)
+            print(item.reference.reference_dict)
+            referenceFile = self._make_item(filename, False)
+            self._append_child_to_item(referenceFile, item)
+            # self._create_dataset(x, t, data, name=filename)
+        except:
+            QMessageBox.about(self, "ERROR", "No Reference Set Selected")
+
+
 
 
     def import_dataset(self):

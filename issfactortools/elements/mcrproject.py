@@ -119,7 +119,8 @@ class ReferenceSet:
     def append_reference(self, x, data, label:str = "Reference", fixed:bool = False):
         self.validate_reference(x, data, label)
         _d = {'x' : x, 'data': data, 'fixed' : fixed}
-        self.reference_dict = {label : _d}
+        #self.reference_dict = {label : _d}
+        self.reference_dict[label] = _d
 
     def validate_reference(self, x, data, label):
         shape_match = (len(data.shape) == 1)
