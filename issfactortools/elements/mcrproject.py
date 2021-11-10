@@ -154,9 +154,9 @@ class ConstraintSet:
 
 from pymcr.regressors import OLS, NNLS
 class Optimizer:
-    def __init__(self, c_optimizer=OLS, st_optimizer=OLS):
+    def __init__(self, c_optimizer=OLS(), st_optimizer=OLS()):
         self.c_optimizer = c_optimizer
-        self.st_optmizer = st_optmizer
+        self.st_optmizer = st_optimizer
 
 
 class MCRProject:
@@ -185,42 +185,60 @@ class MCRProject:
     def _check_refset_limits(self):
         bad_labels = ''
         for label in self.refset.labels:
-            ref_dict = self.refset.reference_dict[key]
-            if not ((ref_dict['x'].min() >= self.dataset.xmin) and
-                    (ref_dict['x'].max() <= self.dataset.xmax)):
+            ref_dict = self.refset.reference_dict[label]
+            if not ((ref_dict['x'].min() <= self.dataset.xmin) and
+                    (ref_dict['x'].max() >= self.dataset.xmax)):
                 bad_labels += (label + ' ')
         if len(bad_labels) > 0:
             msg = bad_labels + 'Reference(s) energy grid does not cover experimental energy grid'
-            assert len(bad_ref_labels) == 0, msg
+            assert len(bad_labels) == 0, msg
 
     def _interp_refset(self):
         self._check_refset_limits()
         x_interp = self.dataset.x
-        self.data_ref = np.zeros((x_interp.size, len(labels)))
+        self.data_ref = np.zeros((x_interp.size, len(self.refset.labels)))
         self.fix_ref = []
         for i, label in enumerate(self.refset.labels):
-            ref_dict = self.refset.reference_dict[key]
+            ref_dict = self.refset.reference_dict[label]
             x = ref_dict['x']
             y = ref_dict['data']
             self.data_ref[:, i] = np.interp(x_interp, x, y)
-            self.fix_ref.append(ref_dict['fixed'])
+            if ref_dict['fixed']:
+                self.fix_ref.append(i)
+        if len(self.fix_ref) == 0:
+            self.fix_ref = None
 
 
     def fit(self):
         self.mcr.fit(self.dataset.data.T, ST=self.data_ref.T,
-                     c_fix=[],
+                     # c_fix=[],
                      st_fix=self.fix_ref)
 
         self.data_ref_fit = self.mcr.ST_opt_.T
         self.c_fit = self.mcr.C_opt_.T
         self.data_fit = (self.data_ref_fit @ self.c_fit)
 
-    def plot_resutls(self, fig=None):
+    def plot_results(self, fig=None):
         if fig is None:
             fig = plt.figure()
         plt.figure(fig.number)
-        plt.subplot(211)
-        offset = np.arange(self.dataset.data.shape[1])[]
+        plt.subplot(121)
+        plt.plot(self.dataset.x, self.dataset.data, 'k')
+        plt.plot(self.dataset.x, self.data_fit, 'r')
+        plt.title('Data Fit')
+
+        plt.subplot(222)
+        plt.plot(self.dataset.x, self.data_ref, 'k')
+        plt.plot(self.dataset.x, self.data_ref_fit, 'r')
+        plt.title('Refined References')
+
+        plt.subplot(224)
+        plt.plot(self.dataset.t, self.c_fit.T)
+        plt.title('Refined concentrations')
+
+
+
+
 
 
 
