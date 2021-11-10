@@ -38,9 +38,9 @@ class DataSet:
             raise Exception('x, t, and data sizes/shapes do not match')
 
     def set_x_limits(self, xmin, xmax):
-        self.xmin = xmin
-        self.xmax = xmax
-        self.x_mask = (self._x >= self.xmin) & (self._x <= self.xmax)
+        self.x_mask = (self._x >= xmin) & (self._x <= xmax)
+        self.xmin = self.x.min()
+        self.xmax = self.x.max()
 
     def set_t_mask(self, t_mask):
         if t_mask.size == self._t.size:
@@ -55,22 +55,22 @@ class DataSet:
 
     @property
     def x(self):
-        return self.x[self.x_mask]
+        return self._x[self.x_mask]
 
     @property
     def t(self):
-        return self.t[self.t_mask]
+        return self._t[self.t_mask]
 
     def compute_svd(self):
-        self.u, self.s, self.v, self.lra_chisq, self.ac_u, self.ac_v = doSVD(self._data)
+        self.u, self.s, self.v, self.lra_chisq, self.ac_u, self.ac_v = doSVD(self.data)
 
 
     def plot_data(self, ax=None):
         if ax is None:
-            _, ax = plt.subplots(1, 1, 1)
-        x = self._x
+            _, ax = plt.subplots(1)
+        x = self.x
         # t = self.t
-        data = self._data
+        data = self.data
         x_label = f"{self.x_name}, {self.x_units}"
         # t_label = f"{self.t_name}, {self.t_units}"
         data_label = f"{self.data_name}, {self.data_units}"
@@ -110,7 +110,7 @@ class DataSet:
         if figure_stat is None:
             figure_stat = plt.figure()
         self.compute_svd()
-        plot_svd_results(self._x, self._t, self.u, self.s, self.v, self.lra_chisq, self.ac_u, self.ac_v, figure_svd, figure_stat, n_cmp_show=n_cmp_show, n_val_show=n_val_show)
+        plot_svd_results(self.x, self.t, self.u, self.s, self.v, self.lra_chisq, self.ac_u, self.ac_v, figure_svd, figure_stat, n_cmp_show=n_cmp_show, n_val_show=n_val_show)
 
 class ReferenceSet:
     def __init__(self):
@@ -152,48 +152,76 @@ class ConstraintSet:
         self.st_constraints.append(st_constraint)
 
 
+from pymcr.regressors import OLS, NNLS
+class Optimizer:
+    def __init__(self, c_optimizer=OLS, st_optimizer=OLS):
+        self.c_optimizer = c_optimizer
+        self.st_optmizer = st_optmizer
 
 
 class MCRProject:
 
-    def __init__(self, data=None,
-                 data_ref = None,
-                 c_fix=None, st_fix=None,
-                 c_constraints=None, st_constraints=None,
-                 c_regr=None, st_regr=None, max_iter:int=1000):
-        self.data = data
-        self.data_ref = data_ref
-        self.c_fix = None
-        self.st_fix = None
-        self.c_constraints = c_constraints
-        self.st_constraints = st_constraints
-        self.c_regr = c_regr
-        self.st_regr = st_regr
+    def __init__(self,
+                 dataset : DataSet,
+                 refset : ReferenceSet,
+                 conset : ConstraintSet,
+                 optimizer : Optimizer,
+                 max_iter : int = 1000):
+
+        self.dataset = dataset
+        self.refset = refset
+        self.conset = conset
+        self.optimizer = optimizer
         self.max_iter = max_iter
 
-        if ((data is not None) and
-            (data_ref is not None) and
-            (c_fix is not None) and
-            (st_fix is not None) and
-            (c_constraints is not None) and
-            (st_constraints is not None) and
-            (c_regr is not None) and
-            (st_regr is not None)
-            (max_iter is not None)):
+        self._interp_refset()
 
-            self.mcr = McrAR(st_regr=self.s_optmizer, c_regr=self.c_optimizer,
-                             c_constraints=self.c_constraints,
-                             st_constraints=self.st_constraints,
-                             max_iter=self.max_iter)
+        self.mcr = McrAR(c_regr=self.optimizer.c_optimizer,
+                         st_regr=self.optimizer.st_optmizer,
+                         c_constraints=self.conset.c_constraints,
+                         st_constraints=self.conset.st_constraints,
+                         max_iter=self.max_iter)
+
+    def _check_refset_limits(self):
+        bad_labels = ''
+        for label in self.refset.labels:
+            ref_dict = self.refset.reference_dict[key]
+            if not ((ref_dict['x'].min() >= self.dataset.xmin) and
+                    (ref_dict['x'].max() <= self.dataset.xmax)):
+                bad_labels += (label + ' ')
+        if len(bad_labels) > 0:
+            msg = bad_labels + 'Reference(s) energy grid does not cover experimental energy grid'
+            assert len(bad_ref_labels) == 0, msg
+
+    def _interp_refset(self):
+        self._check_refset_limits()
+        x_interp = self.dataset.x
+        self.data_ref = np.zeros((x_interp.size, len(labels)))
+        self.fix_ref = []
+        for i, label in enumerate(self.refset.labels):
+            ref_dict = self.refset.reference_dict[key]
+            x = ref_dict['x']
+            y = ref_dict['data']
+            self.data_ref[:, i] = np.interp(x_interp, x, y)
+            self.fix_ref.append(ref_dict['fixed'])
+
 
     def fit(self):
-        self.mcr.fit(self.data.T, ST=self.data_ref.T,
-                     c_fix=self.c_fix,
-                     st_fix=self.st_fix)
+        self.mcr.fit(self.dataset.data.T, ST=self.data_ref.T,
+                     c_fix=[],
+                     st_fix=self.fix_ref)
 
         self.data_ref_fit = self.mcr.ST_opt_.T
         self.c_fit = self.mcr.C_opt_.T
         self.data_fit = (self.data_ref_fit @ self.c_fit)
+
+    def plot_resutls(self, fig=None):
+        if fig is None:
+            fig = plt.figure()
+        plt.figure(fig.number)
+        plt.subplot(211)
+        offset = np.arange(self.dataset.data.shape[1])[]
+
 
 
 
