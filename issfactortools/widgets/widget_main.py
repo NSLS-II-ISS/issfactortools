@@ -77,7 +77,6 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         self.columnNames = ""
         self.num_cols = 0
 
-        print(self.x)
         self.dataOverview = issfactortools.widgets.widget_data_overview.UIDataOverview()
 
     #
@@ -155,12 +154,12 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
 
 
     def unAppend_Constraint(self, item, index, cs):
-        print("Do I run?")
+
         if(cs == "c"):
-            print("Here!")
+
             del item.c_constraints[index]
         else:
-            print("No! I'm here!")
+
             del item.st_constraints[index]
 
 
@@ -330,7 +329,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
             menuAction2.triggered.connect(self.deleteConstraint)
             menuAction3.triggered.connect(self.duplicateConstraint)
             menu.exec_(self.mapToGlobal(pos))
-            print("Hello")
+
         elif(pos.x() >= 341 and pos.x() <= 637) and (pos.y() >= 32 and pos.y() <= 440):
             menu = QMenu(self)
             menuAction1 = QAction("Rename", menu)
@@ -428,14 +427,14 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
     def renameConstraint(self):
         text, ok = QInputDialog.getText(self, 'Rename Item', 'Enter the new name:')
         selected = self.treeView_constraints.currentIndex().row()
-        print(selected)
+
         item = self.model_constraints.item(selected, 0)
         item.setText(text)
 
     def renameReference(self):
         text, ok = QInputDialog.getText(self, 'Rename Item', 'Enter the new name:')
         selected = self.treeView_references.currentIndex().row()
-        print(selected)
+
         item = self.model_references.item(selected, 0)
         item.setText(text)
 
@@ -484,6 +483,9 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         Datasetrows = self.model_datasets.rowCount()
         Referencerows = self.model_references.rowCount()
         Constraintrows = self.model_constraints.rowCount()
+        dataset = None
+        referenceset = None
+        constraintset = None
         for i in range(0, Datasetrows):
             if self.model_datasets.item(i,0).checkState() == 2:
                 dataset = self.model_datasets.item(i, 0).dataset
@@ -496,15 +498,19 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
             if self.model_constraints.item(i,0).checkState() == 2:
                 constraintset = self.model_constraints.item(i,0).constraint
                 break
-        optimize = self._make_item("Optimizer")
-        optimize.item_type = 'Optimizer'
-        optimize.optimizer = Optimizer()
 
-        project = self._make_item("MCR Project")
-        project.item_type = "MCR Project"
-        project.mcrproject = MCRProject(dataset, referenceset, constraintset, optimize.optimizer)
-        self._append_item_to_model(self.model_mcrprojects, project)
-        self.listView_datasets_2.setModel(self.model_mcrprojects)
+        if (dataset == None) or (referenceset == None) or (constraintset == None):
+            QMessageBox.about(self, "ERROR", "Must select a data set, reference set, and constraint set")
+        else:
+            optimize = self._make_item("Optimizer")
+            optimize.item_type = 'Optimizer'
+            optimize.optimizer = Optimizer()
+
+            project = self._make_item("MCR Project")
+            project.item_type = "MCR Project"
+            project.mcrproject = MCRProject(dataset, referenceset, constraintset, optimize.optimizer)
+            self._append_item_to_model(self.model_mcrprojects, project)
+            self.listView_datasets_2.setModel(self.model_mcrprojects)
 
     def fitMCR(self):
         index = self.listView_datasets_2.selectedIndexes()[0]
