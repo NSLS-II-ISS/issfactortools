@@ -55,17 +55,28 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         print(self.allConstraints)
         self.gridFilled = False
         self.x = {}
+        self.y = {}
         for entry in self.allConstraints:
-            self.x.update({entry: 'inspect.signature(pymcr.constraints.' + entry + '.__init__)'})
+            if(entry == 'Constraint'):
+                pass
+            elif(entry == "ConstraintPlanarize"):
+                cons = eval("pymcr.constraints." + entry + "([], [])")
+                self.x.update({entry: cons})
+                self.y.update({entry: 'inspect.signature(pymcr.constraints.' + entry + '.__init__)'})
+            else:
+                cons = eval("pymcr.constraints."+entry+"()")
+                self.x.update({entry: cons})
+                self.y.update({entry: 'inspect.signature(pymcr.constraints.' + entry + '.__init__)'})
+            #self.x.update({entry: 'inspect.signature(pymcr.constraints.' + entry + '.__init__)'})
+            #self.x.update({entry: 'cons = '+entry+'()'})
+
+
         self.createComboBox()
 
         self.comboText = ""
         self.columnNames = ""
         self.num_cols = 0
 
-        print(self.x)
-        for key in self.x:
-            print(eval(self.x[key]))
         print(self.x)
         self.dataOverview = issfactortools.widgets.widget_data_overview.UIDataOverview()
 
@@ -156,7 +167,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
     def append_Constraint(self):
         index = self.treeView_constraints.selectedIndexes()[0]
         crawler = index.model().itemFromIndex(index)
-        constr_params = {}
+        constr_params = None
         try:
             print(crawler.parent.text())
             QMessageBox.about(self, "ERROR", "Invalid Constraint Set Selected")
@@ -169,13 +180,15 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
                     QMessageBox.about(self, "ERROR", "No Constraint Selected")
                 else:
                     item = self.model_constraints.item(selected, 0)
-                    for i in range(0, self.constraintT.rowCount()):
-                        for j in range(0, len(self.pArr[i])):
-                            if j == 0:
-                                if self.constraintT.item(i, j+1) is None:
-                                    constr_params[str(self.constraintT.item(i, j).text())] = "None"
-                                else:
-                                    constr_params[str(self.constraintT.item(i, j).text())] = self.constraintT.item(i, j+1).text()
+                    txt = self.combo.currentText()
+                    constr_params = self.x[txt]
+                    # for i in range(0, self.constraintT.rowCount()):
+                    #     for j in range(0, len(self.pArr[i])):
+                    #         if j == 0:
+                    #             if self.constraintT.item(i, j+1) is None:
+                    #                 constr_params[str(self.constraintT.item(i, j).text())] = "None"
+                    #             else:
+                    #                 constr_params[str(self.constraintT.item(i, j).text())] = self.constraintT.item(i, j+1).text()
 
                             #constr =  self.constraintT.item(i, j).text()
                             #constr_params += str(constr)
@@ -243,7 +256,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         self.verticalLayout.addLayout(row1)
         self.constraintT = QTableWidget()
         text = self.combo.currentText()
-        parameters = str(eval(self.x[text]))
+        parameters = str(eval(self.y[text]))
         print(parameters)
         parametersList = list(parameters)
         for char in parametersList:  # remove any punctuation to make it neater in the grid

@@ -236,8 +236,7 @@ class MCRProject:
         plt.subplot(224)
         plt.plot(self.dataset.t, self.c_fit.T)
         plt.title('Refined concentrations')
-        if fig is None:
-            plt.show()
+        plt.show()
 
 
 
