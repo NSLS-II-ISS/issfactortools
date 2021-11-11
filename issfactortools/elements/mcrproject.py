@@ -218,6 +218,7 @@ class MCRProject:
         self.c_fit = self.mcr.C_opt_.T
         self.data_fit = (self.data_ref_fit @ self.c_fit)
 
+
     def plot_results(self, fig=None):
         if fig is None:
             fig = plt.figure()
@@ -235,6 +236,9 @@ class MCRProject:
         plt.subplot(224)
         plt.plot(self.dataset.t, self.c_fit.T)
         plt.title('Refined concentrations')
+        if fig is None:
+            plt.show()
+
 
 
 

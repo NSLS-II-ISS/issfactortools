@@ -199,7 +199,7 @@ Constraint</string>
     </property>
    </widget>
   </widget>
-  <widget class="QPushButton" name="pushButton_6">
+  <widget class="QPushButton" name="createMCRProject">
    <property name="geometry">
     <rect>
      <x>1020</x>
@@ -235,6 +235,33 @@ MCR project</string>
      </rect>
     </property>
    </widget>
+  </widget>
+  <widget class="QPushButton" name="fitMCRProject">
+   <property name="geometry">
+    <rect>
+     <x>1020</x>
+     <y>280</y>
+     <width>111</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Fit
+MCR project</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="plotMCRProject">
+   <property name="geometry">
+    <rect>
+     <x>1020</x>
+     <y>350</y>
+     <width>111</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Plot MCR Results</string>
+   </property>
   </widget>
  </widget>
  <resources/>

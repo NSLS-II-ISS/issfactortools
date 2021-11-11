@@ -17,7 +17,7 @@ import sys
 
 import issfactortools
 from issfactortools.widgets import widget_data_overview, widget_mcr_overview
-from issfactortools.elements.mcrproject import DataSet, ReferenceSet, ConstraintSet
+from issfactortools.elements.mcrproject import DataSet, ReferenceSet, ConstraintSet, Optimizer, MCRProject
 import issfactortools.widgets.QDialog
 
 ui_path = pkg_resources.resource_filename('issfactortools', 'ui/ui_main.ui')
@@ -40,14 +40,19 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         self.appendConstraint.clicked.connect(self.append_Constraint)
         self.createReference.clicked.connect(self._create_reference)
         self.fromFile.clicked.connect(self.import_from_file)
+        self.plotMCRProject.clicked.connect(self.plotMCR)
+        self.fitMCRProject.clicked.connect(self.fitMCR)
         self.model_datasets = QtGui.QStandardItemModel(self)  # model that is used to show listview of datasets
         self.model_references = QtGui.QStandardItemModel(self)  # model that is used to show listview of references
         self.model_constraints = QtGui.QStandardItemModel(self)  # model that is used to show listview of constraints
+        self.model_mcrprojects = QtGui.QStandardItemModel(self)
         self.treeView_constraints.clicked.connect(self.updateComboBox)
+        self.createMCRProject.clicked.connect(self.createMCR)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.showMenu)
 
         self.allConstraints = pymcr.constraints.__all__
+        print(self.allConstraints)
         self.gridFilled = False
         self.x = {}
         for entry in self.allConstraints:
@@ -72,8 +77,11 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
     # self.layout_mcr_analysis.addWidget(self.widget_mcr_overview)
 
     def updateComboBox(self):
-        index = self.treeView_constraints.selectedIndexes()[0]
-        crawler = index.model().itemFromIndex(index)
+        try:
+            index = self.treeView_constraints.selectedIndexes()[0]
+            crawler = index.model().itemFromIndex(index)
+        except:
+            pass
         try:
             constraint = crawler.text()
             constraint = constraint[0:len(constraint)-2]
@@ -85,7 +93,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
             self.combo.setCurrentIndex(i)
         except:
             pass
-        print("YOOOOOOOOOO")
+
 
     def _append_item_to_model(self, model, item):
         parent = model.invisibleRootItem()
@@ -458,6 +466,43 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         dataset = item.dataset
         self.dataOverview.parse_data(dataset)
         self.dataOverview.show()
+
+    def createMCR(self):
+        Datasetrows = self.model_datasets.rowCount()
+        Referencerows = self.model_references.rowCount()
+        Constraintrows = self.model_constraints.rowCount()
+        for i in range(0, Datasetrows):
+            if self.model_datasets.item(i,0).checkState() == 2:
+                dataset = self.model_datasets.item(i, 0).dataset
+                break
+        for i in range(0, Referencerows):
+            if self.model_references.item(i,0).checkState() == 2:
+                referenceset = self.model_references.item(i,0).reference
+                break
+        for i in range(0, Constraintrows):
+            if self.model_constraints.item(i,0).checkState() == 2:
+                constraintset = self.model_constraints.item(i,0).constraint
+                break
+        optimize = self._make_item("Optimizer")
+        optimize.item_type = 'Optimizer'
+        optimize.optimizer = Optimizer()
+
+        project = self._make_item("MCR Project")
+        project.item_type = "MCR Project"
+        project.mcrproject = MCRProject(dataset, referenceset, constraintset, optimize.optimizer)
+        self._append_item_to_model(self.model_mcrprojects, project)
+        self.listView_datasets_2.setModel(self.model_mcrprojects)
+
+    def fitMCR(self):
+        index = self.listView_datasets_2.selectedIndexes()[0]
+        item = self.model_mcrprojects.item(index.row(), 0)
+        mcrProject = item.mcrproject
+        mcrProject.fit()
+    def plotMCR(self):
+        index = self.listView_datasets_2.selectedIndexes()[0]
+        item = self.model_mcrprojects.item(index.row(), 0)
+        mcrProject = item.mcrproject
+        mcrProject.plot_results()
 
 
 def main_show():
