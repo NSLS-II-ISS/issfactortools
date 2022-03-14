@@ -61,7 +61,7 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
             col = ''
             print(ymax)
             energy = self.dataset._x
-            if(self.mouseCoords[0] <= energy[646] and self.mouseCoords[0] >= energy[0]):
+            if(self.mouseCoords[0] <= energy.max() and self.mouseCoords[0] >= energy.min()):
                 num = self.findclosest(self.dataset._x, self.mouseCoords[0])
                 i= np.where(self.dataset._x == num)
                 #print("Index: ", i[0])
@@ -198,6 +198,7 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         #     filename = filename[:-4]
 
         self.dataset = dataset
+        self.list_data
 
 
 
@@ -278,45 +279,21 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         return offsetD, n_cmp_show, n_val_show#, tempSet
 
     def display_data(self):
-        self.figure_data.ax2.clear()
-        #self.figure_stat.ax3.clear()
-        #self.figure_stat.ax4.clear()
-
-
 
         self.figure_data.ax.clear()
+        self.figure_data.ax2.clear()
         self.figure_svd.clear()
         self.figure_stat.clear()
 
-
         self.dataset.plot_data(ax=self.figure_data.ax)
-        # x = self.dataset.x
-        # t = self.dataset.t
-        # data = self.dataset.data
-        # x_label = f"{self.dataset.x_name}, {self.dataset.x_units}"
-        # t_label = f"{self.dataset.t_name}, {self.dataset.t_units}"
-        # data_label = f"{self.dataset.data_name}, {self.dataset.data_units}"
-        #
 
-        # try:
-        #     if cols_text == "":
-        #         self.figure_data.ax.plot(x, data + float(offsetD))
-        #     elif cols_text != "":
-        #         cols = cols_text.split(",")
-        #         self.figure_data.ax.plot(x, data[:, int(cols[0]):int(cols[1])] + float(offsetD))
-        #         data = data[:, int(cols[0]):int(cols[1])]
-        # except Exception as err:
-        #     print(err)
-        #     QMessageBox.about(self, "INDEX ERROR", "The Rows and Columns Dimensions Are Invalid. Retry.")
-
-        # offsetD, n_cmp_show, n_val_show, tempSet = self.validate_parameters()
         offsetD, n_cmp_show, n_val_show = self.validate_parameters()
 
 
-        self.figure_svd.clear()
+        # self.figure_svd.clear()
 
-        n_val_show = n_val_show
-        n_cmp_show = n_cmp_show
+        # n_val_show = n_val_show
+        # n_cmp_show = n_cmp_show
         # self.dataset = tempSet
         self.dataset.plot_svd(self.figure_svd, self.figure_stat, n_cmp_show=n_cmp_show, n_val_show=n_val_show)
 

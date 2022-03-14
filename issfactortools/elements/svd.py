@@ -59,75 +59,88 @@ def getChiSq(x):
     return np.sum((x ** 2))
 
 
-def plots(name, matrix, fig=None, font=None, energy=None, fmt='ks-', limits=None, semilogy=False, lab = None):
-    if fig is not None:
-        fig.set_title(name, fontsize=font)
-        if semilogy:
+def plot_data(x=None, data=None, ax=None, fmt='ks-', limits=None,
+              yscale='log', labels=None, plot_title='', font = None):
+
+    if ax is None:
+        _, ax = plt.subplots(111)
+
+    if x is None:
+        a, b = data.shape
+        x = np.arange(a)
+
+    ax.plot(data)
+
+
+
+    if ax is not None:
+        ax.set_title(plot_title, fontsize=font)
+        if yscale:
             if limits is not None:
                 #matrix = matrix[0:limits]
                 print("L2: " + str(limits))
-                if lab is None:
-                    fig.semilogy(matrix[0:limits], fmt )
+                if labels is None:
+                    ax.semilogy(data[0:limits], fmt)
                 else:
-                    fig.semilogy(matrix[0:limits], fmt, label = lab)
-                    fig.legend()
-                fig.legend()
+                    ax.semilogy(data[0:limits], fmt, label = labels)
+                    ax.legend()
+                ax.legend()
             else:
-                if lab is None:
-                    fig.semilogy(matrix, fmt)
+                if labels is None:
+                    ax.semilogy(data, fmt)
                 else:
-                    fig.semilogy(matrix, fmt, label = lab)
-                    fig.legend()
+                    ax.semilogy(data, fmt, label = labels)
+                    ax.legend()
         else:
-            if energy is None:
+            if x is None:
                 if limits is not None:
                     #matrix = matrix[0:limits]
                     print("L1: "+str(limits))
-                    if lab is None:
-                        fig.plot(matrix[0:limits], fmt)
+                    if labels is None:
+                        ax.plot(data[0:limits], fmt)
                     else:
-                        fig.plot(matrix[0:limits], fmt, label = lab)
-                        fig.legend()
-                    fig.legend()
+                        ax.plot(data[0:limits], fmt, label = labels)
+                        ax.legend()
+                    ax.legend()
                 else:
-                    if lab is None:
-                        fig.plot(matrix[0:limits], fmt)
+                    if labels is None:
+                        ax.plot(data[0:limits], fmt)
                     else:
-                        fig.plot(matrix[0:limits], fmt, label = lab)
-                        fig.legend()
-                    fig.plot(matrix, fmt)
-                    fig.legend()
+                        ax.plot(data[0:limits], fmt, label = labels)
+                        ax.legend()
+                    ax.plot(data, fmt)
+                    ax.legend()
             else:
                 if limits is not None:
                     #matrix = matrix[0:limits]
                     print("L3: " + str(limits))
-                    if lab is None:
-                        fig.plot(matrix[0:limits], fmt)
+                    if labels is None:
+                        ax.plot(data[0:limits], fmt)
                     else:
-                        fig.plot(matrix[0:limits], fmt, label = lab)
-                        fig.legend()
-                    fig.legend()
+                        ax.plot(data[0:limits], fmt, label = labels)
+                        ax.legend()
+                    ax.legend()
                 else:
-                    if lab is None:
-                        fig.plot(energy, matrix, fmt)
+                    if labels is None:
+                        ax.plot(x, data, fmt)
                     else:
-                        fig.plot(energy, matrix, fmt, label = lab)
-                        fig.legend()
+                        ax.plot(x, data, fmt, label = labels)
+                        ax.legend()
 
     else:
         plt.figure()
-        plt.title(name)
-        if semilogy:
+        plt.title(plot_title)
+        if yscale:
 
-            fig.semilogy(matrix, fmt)
-            fig.legend()
+            ax.semilogy(data, fmt)
+            ax.legend()
         else:
-            if energy is None:
-                fig.plot(matrix, fmt)
-                fig.legend()
+            if x is None:
+                ax.plot(data, fmt)
+                ax.legend()
             else:
-                fig.plot(matrix, energy, fmt)
-                fig.legend()
+                ax.plot(data, x, fmt)
+                ax.legend()
         plt.show()
 
 
@@ -276,64 +289,31 @@ def doSVD(A):
 
 
 
-def plot_svd_results(x, t, u, s, v, lra_chisq, ac_u, ac_v, figure1, figure2, energy = None, n_cmp_show=3, n_val_show = 25):
-    l = n_val_show
-    l2 = n_val_show
-    # fig1 = plt.figure(figure1.number)
-    # fig2 = plt.figure(figure2.number)
-    fig1 = figure1
-    fig2 = figure2
+def plot_svd_results(x, t, u, s, v, lra_chisq, ac_u, ac_v, figure1, figure2, energy = None, n_cmp_show=3, n_val_show = 25, font=8):
 
-    font = 12
-    #font = (fig1.get_figwidth() + fig1.get_figheight()) / 2
-    # fig.set_figheight(20)
-    # fig.set_figwidth(20)
+    ax_u = figure1.add_subplot(2, 1, 1)
+    ax_v = figure1.add_subplot(2, 1, 2)
 
-    allaxes = fig2.get_axes()
+    ax_s = figure2.add_subplot(2, 1, 1)
+    ax_ac = figure2.add_subplot(2, 1, 2)
 
-    ax_u = fig1.add_subplot(2, 1, 1)
-    ax_v = fig1.add_subplot(2, 1, 2)
-
-    ax_s = fig2.add_subplot(2, 1, 1)
-    ax_ac = fig2.add_subplot(2, 1, 2)
-
-    # ax3 = fig.add_subplot(3, 3, 3)
-    # ax4 = fig.add_subplot(3, 3, 4)
-    # ax5 = fig.add_subplot(3, 3, 5)
-    # ax6 = fig.add_subplot(3, 3, 6)
-    # ax7 = fig.add_subplot(3, 3, 7)
-    subplotList = [ax_u, ax_v, ax_s, ax_ac]
-    plt.subplots_adjust(left=0.125,
-                        bottom=0.1,
-                        right=0.9,
-                        top=0.9,
-                        wspace=10,
-                        hspace=10)
-    for sub in subplotList:
-        for label in (sub.get_xticklabels() + sub.get_yticklabels()):
-            label.set_fontsize(font)
-
-    fig1.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=0.25, hspace=0.5)
-    fig2.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=0.25, hspace=0.5)
 
     subsetu = getSubset(0, n_cmp_show, u)
     subsetv = getSubset(0, n_cmp_show, v)
 
-    # if energy is None:
-    #     plots("subset of U", subsetu, ax_u, font, fmt='-', lab = "Componenets")  # 2
-    # else:
-    plots("subset of U", subsetu, ax_u, font, x, fmt='-', lab = "Componenets")  # 2
-    # plots(x, subsetu, ax_u, fmt='-', lab="Componenets", "subset of U", font)  #
+    plot_data(x, subsetu, ax_u, fmt='-', plot_title="subset of U", font=font)  #, lab = "Componenets")  # 2
+    plot_data(t, subsetv, ax_v, fmt='-', plot_title="subset of V", font=font)  #, lab = "Comp")  # 3
 
-    plots("subset of V", subsetv, ax_v, font, t,  fmt='-', lab = "Comp")  # 3
+    plot_data(data=s, ax=ax_s, fmt='k.-', limits=n_val_show, yscale=True, labels="Singular Values",
+              plot_title="Singular values", font=font)  # 7
+    plot_data(data=lra_chisq, ax=ax_s, fmt='bs-', limits=n_val_show, yscale=True, labels="Chi Squared",
+              plot_title="Singular values", font=font)  # 7
 
-    plots("Singular values", s, ax_s, font, fmt='k.-', limits = l2, semilogy=True, lab = "Singular Values")  # 7
-    plots("Singular values", lra_chisq, ax_s,  font, fmt='bs-', limits = l2, semilogy=True, lab = "Chi Squared")  # 7
+    plot_data(data=ac_u, ax=ax_ac, fmt='ks-', limits=n_val_show, labels="AC_U", plot_title="", font=font)  # 3
+    plot_data(data=ac_v, ax=ax_ac, fmt='r.-', limits=n_val_show, labels="AC_V", plot_title="autocorrelation",
+              font=font)  # 3
 
-    plots("autocorrelation of U", ac_u, ax_ac, font, fmt='ks-', limits = l, lab = "U")  # 3
-    plots("autocorrelation of V", ac_v, ax_ac, font, fmt='r.-', limits = l, lab = "V")  # 3
-
-    plt.tight_layout()
+    # plt.tight_layout()
 
 
     #

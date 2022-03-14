@@ -110,7 +110,32 @@ class DataSet:
         if figure_stat is None:
             figure_stat = plt.figure()
         self.compute_svd()
-        plot_svd_results(self.x, self.t, self.u, self.s, self.v, self.lra_chisq, self.ac_u, self.ac_v, figure_svd, figure_stat, n_cmp_show=n_cmp_show, n_val_show=n_val_show)
+
+        ax_u = figure_svd.add_subplot(2, 1, 1)
+        ax_v = figure_svd.add_subplot(2, 1, 2)
+
+        ax_s = figure_stat.add_subplot(2, 1, 1)
+        ax_ac = figure_stat.add_subplot(2, 1, 2)
+
+        ax_u.plot(self.x, self.u[:, :n_cmp_show])
+        ax_u.set_xlabel(f"{self.x_name}, {self.x_units}")
+        ax_u.legend([str(i + 1) for i in range(n_cmp_show)])
+
+        ax_v.plot(self.t, self.v[:, :n_cmp_show])
+        ax_v.set_xlabel(f"{self.t_name}, {self.t_units}")
+        ax_v.legend([str(i + 1) for i in range(n_cmp_show)])
+
+        ax_s.semilogy(self.s[:n_val_show], 'k.-', label='Singular values')
+        ax_s.semilogy(self.lra_chisq[:n_val_show], 'bs-', label='chisq')
+        ax_s.legend()
+        ax_s.set_xlabel(f"component index")
+
+        ax_ac.plot(self.ac_u[:n_val_show], 'k.-', label='AC$_U$')
+        ax_ac.plot(self.ac_v[:n_val_show], 'r.-', label='AC$_V$')
+        ax_ac.legend()
+        ax_ac.set_xlabel(f"component index")
+
+        # plot_svd_results(self.x, self.t, self.u, self.s, self.v, self.lra_chisq, self.ac_u, self.ac_v, figure_svd, figure_stat, n_cmp_show=n_cmp_show, n_val_show=n_val_show)
 
 class ReferenceSet:
     def __init__(self):
