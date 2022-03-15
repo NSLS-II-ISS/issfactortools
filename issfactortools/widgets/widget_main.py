@@ -145,10 +145,16 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         self.treeView_references.setModel(self.model_references)
         self.treeView_references.setHeaderHidden(True)
 
-    def _create_dataset(self, x, t, data, name='DataSet'):
+    def _create_dataset(self, x, t_dict, data,
+                        x_name='energy', t_name='index', data_name='mu norm',
+                        x_units='eV', t_units='i', data_units='a.u.',
+                        name='dataset'):
         item = self._make_item(name)
         item.item_type = 'DataSet'
-        item.dataset = DataSet(x, t, data, name)
+        item.dataset = DataSet(x, t_dict, data,
+                               x_name=x_name, t_name=t_name, data_name=data_name,
+                               x_units=x_units, t_units=t_units, data_units=data_units,
+                               name=name)
         self._append_item_to_model(self.model_datasets, item)
         self.listView_datasets.setModel(self.model_datasets)
 
@@ -469,10 +475,10 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         self._create_dataset(x, t, data, name=filename)
 
 
-    def inspectData(self, Dialog):
+    def inspectData(self):#, Dialog):
         rows = self.model_datasets.rowCount()
         cols = self.model_datasets.columnCount()
-        filename = ""
+        # filename = ""
         selected = self.listView_datasets.currentIndex().row()
         item = self.model_datasets.item(selected, 0)
         dataset = item.dataset

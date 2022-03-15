@@ -7,19 +7,22 @@ from issfactortools.elements.svd import doSVD, plot_svd_results
 
 class DataSet:
 
-    def __init__(self, x, t, data,
-                 x_name='energy', t_name='curve index', data_name='mu norm',
-                 x_units='eV', t_units='', data_units='',
+    def __init__(self, x, t_dict, data,
+                 x_name='energy', t_name='index', data_name='mu norm',
+                 x_units='eV', t_units='i', data_units='',
                  name='dataset'):
 
-        self._validate_input(x, t, data)
+        # self._validate_input(x, t, data)
         self._x = x
-        self._t = t
+        self._t = np.array(t_dict[t_name])
+        self._validate_input(self._x, self._t, data)
+        self.t_dict = t_dict
         self._data = data
 
         self.set_x_limits(x.min(), x.max())
 
-        self.t_mask = np.ones(t.size, dtype=bool)
+        # self.t_mask = np.ones(t.size, dtype=bool)
+        self.reset_t_mask()
 
         self.x_name = x_name
         self.t_name = t_name
@@ -30,6 +33,9 @@ class DataSet:
         self.data_units = data_units
 
         self.name = name
+
+    def reset_t_mask(self):
+        self.t_mask = np.ones(self._t.size, dtype=bool)
 
     def _validate_input(self, x, t, data):
         nx, nt = data.shape
@@ -48,6 +54,10 @@ class DataSet:
         else:
             raise Exception('Error: t_mask must be the same size as t')
 
+    def set_t(self, key):
+        self._t = np.array(self.t_dict[key])
+        # self.reset_t_mask()
+
     @property
     def data(self):
         # return self._data[self.x_mask, self.t_mask]
@@ -60,6 +70,14 @@ class DataSet:
     @property
     def t(self):
         return self._t[self.t_mask]
+
+    @property
+    def name_list(self):
+        return self.t_dict['name']
+
+    @property
+    def is_included_list(self):
+        return self.t_mask.tolist()
 
     def compute_svd(self):
         self.u, self.s, self.v, self.lra_chisq, self.ac_u, self.ac_v = doSVD(self.data)

@@ -12,7 +12,7 @@ from PyQt5 import uic, QtWidgets, QtGui, QtCore
 from PyQt5.QtCore import QThread, QSettings, QPoint
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QCursor, QMouseEvent
-from PyQt5.QtWidgets import QMessageBox, QApplication, QWidget, QPushButton, QVBoxLayout, QMenu, QAction, QRadioButton
+from PyQt5.QtWidgets import QMessageBox, QApplication, QWidget, QPushButton, QVBoxLayout, QMenu, QAction, QRadioButton, QListWidgetItem
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas, \
     NavigationToolbar2QT as NavigationToolbar
@@ -198,10 +198,14 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         #     filename = filename[:-4]
 
         self.dataset = dataset
-        self.list_data
 
-
-
+        for name, included in zip(dataset.name_list, dataset.is_included_list):
+            item = QListWidgetItem(name)
+            # item.setDropEnabled(False)
+            item.setCheckState(int(included)*2)
+            # item.setEditable(False)
+            self.listWidget_data.addItem(item)
+        self.display_data()
 
     def getFirstLimit(self, num, arr):
         i = 0
