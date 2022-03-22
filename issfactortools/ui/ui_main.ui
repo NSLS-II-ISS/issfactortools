@@ -136,7 +136,7 @@ Constraint</string>
    <property name="title">
     <string>References</string>
    </property>
-   <widget class="QPushButton" name="fromFile">
+   <widget class="QPushButton" name="pushButton_reference_from_file">
     <property name="geometry">
      <rect>
       <x>10</x>

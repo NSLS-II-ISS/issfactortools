@@ -5,6 +5,7 @@ import numpy as np
 import pkg_resources
 import inspect
 import math
+import os
 import pymcr.constraints
 from PyQt5 import uic, QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import QThread, QSettings, Qt
@@ -19,6 +20,9 @@ import issfactortools
 from issfactortools.widgets import widget_data_overview, widget_mcr_overview
 from issfactortools.elements.mcrproject import DataSet, ReferenceSet, ConstraintSet, Optimizer, MCRProject
 import issfactortools.widgets.QDialog
+
+from issfactortools.dialogs.AddReferenceDialog import AddReferenceDialog
+
 
 ui_path = pkg_resources.resource_filename('issfactortools', 'ui/ui_main.ui')
 
@@ -39,7 +43,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         self.pushButton_create_constraint_set.clicked.connect(self._create_constraint)
         self.appendConstraint.clicked.connect(self.append_Constraint)
         self.createReference.clicked.connect(self._create_reference)
-        self.fromFile.clicked.connect(self.import_from_file)
+        self.pushButton_reference_from_file.clicked.connect(self.import_reference_from_file)
         self.plotMCRProject.clicked.connect(self.plotMCR)
         self.fitMCRProject.clicked.connect(self.fitMCR)
         self.model_datasets = QtGui.QStandardItemModel(self)  # model that is used to show listview of datasets
@@ -444,24 +448,61 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         item = self.model_references.item(selected, 0)
         item.setText(text)
 
-    def import_from_file(self):
-        try:
-            index = self.treeView_references.selectedIndexes()[0]
-            item = self.model_references.item(index.row(), 0)
-            filename = \
-            QtWidgets.QFileDialog.getOpenFileName(directory='/nsls2/xf08id/Sandbox', filter='*.xas', parent=self)[0]
-            filedata = np.genfromtxt(filename)
-            x = filedata[:, 0]
-            data = filedata[:, 1]
-            t = np.arange(data.shape[0])
-            item.reference.append_reference(x, data, filename)
-            print(item.reference.reference_dict)
-            referenceFile = self._make_item(filename, False)
-            self._append_child_to_item(referenceFile, item)
-            # self._create_dataset(x, t, data, name=filename)
-        except:
-            QMessageBox.about(self, "ERROR", "No Reference Set Selected")
+    def get_selected_reference_set_index(self):
+        selection = self.treeView_references.selectedIndexes()
+        if len(selection) == 0:
+            QMessageBox.about(self, "ERROR", "No reference set selected")
+            return
+        elif len(selection) > 2:
+            QMessageBox.about(self, "ERROR", "More than one reference set selected")
+            return
+        return self.treeView_references.selectedIndexes()[0]
 
+    def add_references_to_set(self, x_list, data_list, label_list, index=None):
+        if index is None:
+            index = self.get_selected_reference_set_index()
+
+        item = self.model_references.item(index.row(), 0)
+        for x, data, label in zip(x_list, data_list, label_list):
+            item.reference.append_reference(x, data, label)
+            item_child = self._make_item(label, False)
+            self._append_child_to_item(item_child, item)
+
+    def add_references_to_specific_set(self, x_list, data_list, label_list, make_new_set=False):
+        n_ref_sets = self.model_references.rowCount()
+        if (n_ref_sets == 0):
+            make_new_set = True
+
+        if make_new_set:
+            self._create_reference()
+            last_index = self.model_references.rowCount() - 1
+            index = self.model_references.item(last_index).index()
+            self.add_references_to_set(x_list, data_list, label_list, index=index)
+        else:
+            refset_names = [self.model_references.item(i).text() for i in range(self.model_references.rowCount())]
+            self.dialog = AddReferenceDialog(refset_names, parent=self)
+            self.dialog.show()
+            idx = self.dialog.get_value()
+            if idx == None:
+                self.add_references_to_specific_set(x_list, data_list, label_list, make_new_set=True)
+
+
+
+
+    def import_reference_from_file(self):
+        filename = QtWidgets.QFileDialog.getOpenFileName(directory='/nsls2/xf08id/Sandbox', filter='*.xas', parent=self)[0]
+        filedata = np.genfromtxt(filename)
+        x = filedata[:, 0]
+        data = filedata[:, 1]
+        label = os.path.split(filename)
+        self.add_references_to_set([x], [data], [label])
+
+    # def _add_references_from_db_proc(self, db_proc, uids):
+    #     x_list = []
+    #     data_list = []
+    #     label_list = []
+    #     for uid in uids:
+    #         db_proc[uid]
 
 
 
