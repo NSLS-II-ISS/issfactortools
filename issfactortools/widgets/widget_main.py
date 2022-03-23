@@ -56,7 +56,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         self.customContextMenuRequested.connect(self.showMenu)
 
         self.allConstraints = pymcr.constraints.__all__
-        print(self.allConstraints)
+        # print(self.allConstraints)
         self.gridFilled = False
         self.x = {}
         self.y = {}
@@ -480,11 +480,16 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
             self.add_references_to_set(x_list, data_list, label_list, index=index)
         else:
             refset_names = [self.model_references.item(i).text() for i in range(self.model_references.rowCount())]
+            # print('BEFORE DIALOG')
             self.dialog = AddReferenceDialog(refset_names, parent=self)
-            self.dialog.show()
-            idx = self.dialog.get_value()
-            if idx == None:
-                self.add_references_to_specific_set(x_list, data_list, label_list, make_new_set=True)
+            ret = self.dialog.exec_()
+            # print(ret)
+            if ret:
+                idx = self.dialog.get_value()
+                if idx == None:
+                    self.add_references_to_specific_set(x_list, data_list, label_list, make_new_set=True)
+                index = self.model_references.item(idx).index()
+                self.add_references_to_set(x_list, data_list, label_list, index=index)
 
 
 
@@ -564,6 +569,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         item = self.model_mcrprojects.item(index.row(), 0)
         mcrProject = item.mcrproject
         mcrProject.fit()
+
     def plotMCR(self):
         index = self.listView_datasets_2.selectedIndexes()[0]
         item = self.model_mcrprojects.item(index.row(), 0)

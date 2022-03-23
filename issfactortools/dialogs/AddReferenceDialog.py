@@ -31,11 +31,11 @@ class AddReferenceDialog(*uic.loadUiType(ui_path)):
         selection = self.listWidget_reference_sets.selectedIndexes()
         if len(selection) == 1:
             self.value = selection[0].row()
-            self.close()
+            self.done(1)
 
     def add_to_new_set(self):
         self.value = None
-        self.close()
+        self.done(1)
 
     def get_value(self):
         return self.value
