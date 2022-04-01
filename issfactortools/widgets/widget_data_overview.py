@@ -143,10 +143,13 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
             menuAction3 = QAction("Add line(normalized)", menu)
             menu.addAction(menuAction3)
 
+            menu_sort_by_int = QAction("Sort by signal at this energy", menu)
+            menu.addAction(menu_sort_by_int)
+
             menuAction1.triggered.connect(self.verticalLines)
             menuAction2.triggered.connect(self.clearplot2)
             menuAction3.triggered.connect(self.normalizedLines)
-
+            menu_sort_by_int.triggered.connect(self.sort_data_by)
 
             menu.exec_(self.mapToGlobal(pos))
         print("POS: ",pos.x(), pos.y())
@@ -332,4 +335,21 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         self.canvas_data.draw_idle()
         self.canvas_auto.draw_idle()
 
+
+    def sort_data_by(self):
+        if self.dataset is not None:
+            energy = self.dataset._x
+            if(self.mouseCoords[0] <= energy.max() and self.mouseCoords[0] >= energy.min()):
+                num = self.findclosest(energy, self.mouseCoords[0])
+                i = np.where(energy == num)[0][0]
+
+                idx_order = np.argsort(self.dataset._data[i, :]).squeeze()
+
+                self.dataset._data = self.dataset._data[:, idx_order]
+                for key in self.dataset.t_dict.keys():
+                    this_list = self.dataset.t_dict[key]
+                    self.dataset.t_dict[key] = [this_list[k] for k in idx_order]
+                        # self.dataset.t_dict[key][idx_order]
+                self.dataset.t_dict['index'] = list(range(len(self.dataset.t_dict['index'])))
+                self.dataset.set_t('index')
 
