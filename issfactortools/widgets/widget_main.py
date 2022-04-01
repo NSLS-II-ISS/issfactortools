@@ -132,7 +132,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
 
     def _create_constraint(self, name='New Constraint'):
         name = "New Constraint"
-        #print(name) #
+        #print(name) ##
         item = self._make_item(name)
         item.item_type = 'ConstraintSet'
         item.constraint = ConstraintSet()
