@@ -263,6 +263,34 @@ MCR project</string>
     <string>Plot MCR Results</string>
    </property>
   </widget>
+  <widget class="QPushButton" name="pushButton_save_workspace">
+   <property name="geometry">
+    <rect>
+     <x>1220</x>
+     <y>650</y>
+     <width>111</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Save
+workspace</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_load_workspace">
+   <property name="geometry">
+    <rect>
+     <x>1340</x>
+     <y>650</y>
+     <width>111</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Load
+workspace</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

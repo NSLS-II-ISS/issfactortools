@@ -1,6 +1,9 @@
+import copy
+
 import matplotlib.pyplot as plt
 from pymcr.mcr import McrAR
 import numpy as np
+import json
 
 from issfactortools.elements.svd import doSVD, plot_svd_results
 
@@ -18,7 +21,7 @@ class DataSet:
         self._validate_input(self._x, self._t, data)
         self.t_dict = t_dict
         self._data = data
-
+        self.xmin, self.xmax = 0, 1
         self.set_x_limits(x.min(), x.max())
 
         # self.t_mask = np.ones(t.size, dtype=bool)
@@ -153,6 +156,42 @@ class DataSet:
         ax_ac.legend()
         ax_ac.set_xlabel(f"component index")
 
+    def to_dict(self):
+        return {'x' : self._x.tolist(),
+                't_dict' : self.t_dict,
+                'data' : self._data.tolist(),
+                'x_name' : self.x_name,
+                't_name' : self.t_name,
+                'data_name' : self.data_name,
+                'x_units' : self.x_units,
+                't_units' : self.t_units,
+                'data_units' : self.data_units,
+                'name' : self.name,
+                'xmin' : self.xmin,
+                'xmax' : self.xmax,
+                't_mask' : self.t_mask.tolist()}
+
+    # def to_json(self, filename):
+    #     data_dict = self.to_dict()
+    #     with open(filename, 'w') as f:
+    #         f.write(json.dumps(data_dict))
+
+    @classmethod
+    def from_dict(cls, data_dict):
+        output = cls(np.array(data_dict['x']), data_dict['t_dict'], np.array(data_dict['data']),
+                     x_name=data_dict['x_name'], t_name=data_dict['t_name'], data_name=data_dict['data_name'],
+                     x_units=data_dict['x_units'], t_units=data_dict['t_units'], data_units=data_dict['data_units'],
+                     name=data_dict['name'])
+        output.set_t_mask(np.array(data_dict['t_mask']))
+        output.set_x_limits(data_dict['xmin'], data_dict['xmax'])
+        return output
+
+    # @classmethod
+    # def from_json(cls, filename):
+    #     with open(filename, 'r') as f:
+    #         data_dict = json.loads(f.read())
+    #     return cls.from_dict(data_dict)
+
         # plot_svd_results(self.x, self.t, self.u, self.s, self.v, self.lra_chisq, self.ac_u, self.ac_v, figure_svd, figure_stat, n_cmp_show=n_cmp_show, n_val_show=n_val_show)
 
 class ReferenceSet:
@@ -181,6 +220,21 @@ class ReferenceSet:
     @property
     def labels(self):
         return list(self.reference_dict.keys())
+
+    def to_dict(self):
+        data_dict = copy.deepcopy(self.reference_dict)
+        for label, val in data_dict.items():
+            for key, arr in val.items():
+                if type(arr) == np.ndarray:
+                    val[key] = arr.tolist()
+        return data_dict
+
+    @classmethod
+    def from_dict(cls, data_dict):
+        output = cls()
+        for label, item in data_dict.items():
+            output.append_reference(np.array(item['x']), np.array(item['data']), label=label, fixed=item['fixed'])
+        return output
 
 
 class ConstraintSet:

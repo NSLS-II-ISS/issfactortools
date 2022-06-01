@@ -6,7 +6,7 @@ import pkg_resources
 import inspect
 import math
 import os
-import pymcr.constraints
+from pymcr.constraints import *
 from PyQt5 import uic, QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import QThread, QSettings, Qt
 from PyQt5.QtGui import QStandardItem
@@ -26,6 +26,28 @@ from issfactortools.dialogs.AddReferenceDialog import AddReferenceDialog
 
 ui_path = pkg_resources.resource_filename('issfactortools', 'ui/ui_main.ui')
 
+
+constraints_obj_dict = { 'ConstraintNonneg' : ConstraintNonneg,
+                         'ConstraintCumsumNonneg' : ConstraintCumsumNonneg,
+                         'ConstraintZeroEndPoints' : ConstraintZeroEndPoints,
+                         'ConstraintZeroCumSumEndPoints' : ConstraintZeroCumSumEndPoints,
+                         'ConstraintNorm' : ConstraintNorm,
+                         'ConstraintCutBelow' : ConstraintCutBelow,
+                         'ConstraintCutAbove' : ConstraintCutAbove,
+                         'ConstraintCompressBelow' : ConstraintCompressBelow,
+                         'ConstraintCompressAbove' : ConstraintCompressAbove,
+                         'ConstraintReplaceZeros' : ConstraintReplaceZeros,
+                         'ConstraintPlanarize' : ConstraintPlanarize}
+
+def _constraint_parameter_list(constr_key):
+    parameters = []
+    signature = inspect.signature(constraints_obj_dict[constr_key].__init__)
+    for key, value in signature.parameters.items():
+        if key != 'self':
+            parameters.append({'name': value.name,
+                               'value': value.default,
+                               'type': type(value.default)})
+    return parameters
 
 
 class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
@@ -50,38 +72,40 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         self.model_references = QtGui.QStandardItemModel(self)  # model that is used to show listview of references
         self.model_constraints = QtGui.QStandardItemModel(self)  # model that is used to show listview of constraints
         self.model_mcrprojects = QtGui.QStandardItemModel(self)
-        self.treeView_constraints.clicked.connect(self.updateComboBox)
+        # self.treeView_constraints.clicked.connect(self.updateComboBox)
         self.createMCRProject.clicked.connect(self.createMCR)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.showMenu)
 
-        self.allConstraints = pymcr.constraints.__all__
-        # print(self.allConstraints)
+        # self.allConstraints = pymcr.constraints.__all__
+        # # print(self.allConstraints)
         self.gridFilled = False
-        self.x = {}
-        self.y = {}
-        for entry in self.allConstraints:
-            if(entry == 'Constraint'):
-                pass
-            elif(entry == "ConstraintPlanarize"):
-                cons = eval("pymcr.constraints." + entry + "([], [])")
-                self.x.update({entry: cons})
-                self.y.update({entry: 'inspect.signature(pymcr.constraints.' + entry + '.__init__)'})
-            else:
-                cons = eval("pymcr.constraints."+entry+"()")
-                self.x.update({entry: cons})
-                self.y.update({entry: 'inspect.signature(pymcr.constraints.' + entry + '.__init__)'})
-            #self.x.update({entry: 'inspect.signature(pymcr.constraints.' + entry + '.__init__)'})
-            #self.x.update({entry: 'cons = '+entry+'()'})
-
-
+        # self.x = {}
+        # self.y = {}
+        # for entry in self.allConstraints:
+        #     if(entry == 'Constraint'):
+        #         pass
+        #     elif(entry == "ConstraintPlanarize"):
+        #         cons = eval("pymcr.constraints." + entry + "([], [])")
+        #         self.x.update({entry: cons})
+        #         self.y.update({entry: 'inspect.signature(pymcr.constraints.' + entry + '.__init__)'})
+        #     else:
+        #         cons = eval("pymcr.constraints."+entry+"()")
+        #         self.x.update({entry: cons})
+        #         self.y.update({entry: 'inspect.signature(pymcr.constraints.' + entry + '.__init__)'})
+        #     #self.x.update({entry: 'inspect.signature(pymcr.constraints.' + entry + '.__init__)'})
+        #     #self.x.update({entry: 'cons = '+entry+'()'})
+        #
+        #
         self.createComboBox()
 
-        self.comboText = ""
-        self.columnNames = ""
-        self.num_cols = 0
+        # self.comboText = ""
+        # self.columnNames = ""
+        # self.num_cols = 0
 
         self.dataOverview = issfactortools.widgets.widget_data_overview.UIDataOverview()
+        self.pushButton_save_workspace.clicked.connect(self.save_workspace)
+        self.pushButton_load_workspace.clicked.connect(self.load_workspace)
 
     #
     # self.widget_data_overview = widget_data_overview.UIDataOverview()
@@ -90,23 +114,25 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
     # self.widget_mcr_overview = widget_mcr_overview.UIDataOverview()
     # self.layout_mcr_analysis.addWidget(self.widget_mcr_overview)
 
-    def updateComboBox(self):
-        try:
-            index = self.treeView_constraints.selectedIndexes()[0]
-            crawler = index.model().itemFromIndex(index)
-        except:
-            pass
-        try:
-            constraint = crawler.text()
-            constraint = constraint[0:len(constraint)-2]
-            comboIndex = self.combo.findText(constraint)
-            for i in range(0, self.combo.count()):
-                if self.combo.itemText(i) == constraint:
-                    comboIndex = i
-                    break
-            self.combo.setCurrentIndex(i)
-        except:
-            pass
+
+
+    # def updateComboBox(self):
+    #     try:
+    #         index = self.treeView_constraints.selectedIndexes()[0]
+    #         crawler = index.model().itemFromIndex(index)
+    #     except:
+    #         pass
+    #     try:
+    #         constraint = crawler.text()
+    #         constraint = constraint[0:len(constraint)-2]
+    #         comboIndex = self.combo.findText(constraint)
+    #         for i in range(0, self.combo.count()):
+    #             if self.combo.itemText(i) == constraint:
+    #                 comboIndex = i
+    #                 break
+    #         self.combo.setCurrentIndex(i)
+    #     except:
+    #         pass
 
 
     def _append_item_to_model(self, model, item):
@@ -163,9 +189,11 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         self.listView_datasets.setModel(self.model_datasets)
 
 
+
+
     def unAppend_Constraint(self, item, index, cs):
 
-        if(cs == "c"):
+        if (cs == "c"):
 
             del item.c_constraints[index]
         else:
@@ -189,8 +217,11 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
                     QMessageBox.about(self, "ERROR", "No Constraint Selected")
                 else:
                     item = self.model_constraints.item(selected, 0)
-                    txt = self.combo.currentText()
-                    constr_params = self.x[txt]
+                    constr_parameters = self.constr_parameters()
+                    constr_obj = constraints_obj_dict[constr_parameters['constraint_key']](**constr_parameters['constraint_kwargs'])
+                    #
+                    #  = self.combo.currentText()
+                    # constr_params = self.x[txt]
                     # for i in range(0, self.constraintT.rowCount()):
                     #     for j in range(0, len(self.pArr[i])):
                     #         if j == 0:
@@ -202,21 +233,22 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
                             #constr =  self.constraintT.item(i, j).text()
                             #constr_params += str(constr)
                     if self.c_clicked:
-                        item.constraint.append_c_constraint(constr_params)
-                        vector = " C"
+                        item.constraint.append_c_constraint(constr_obj)
+                        vector = 'C'
                     elif self.s_clicked:
-                        item.constraint.append_st_constraint(constr_params)
-                        vector = " S"
+                        item.constraint.append_st_constraint(constr_obj)
+                        vector = 'S'
+                    constr_parameters['vector'] = vector
 
-                    constraint_item = self._make_item(self.combo.currentText() + vector, False) #go through combobox
-
+                    constraint_item = self._make_item(f'{self.combo.currentText()} {vector}', False) #go through combobox
+                    constraint_item.constr_parameters = constr_parameters
                     self._append_child_to_item(constraint_item, item)
-                    print(item.constraint.c_constraints)
-                    print(item.constraint.st_constraints)
+                    # print(item.constraint.c_constraints)
+                    # print(item.constraint.st_constraints)
 
     def createComboBox(self):
         self.combo = QComboBox()
-        for key in self.x:
+        for key in constraints_obj_dict.keys():
             self.combo.addItem(key)
 
         self.verticalLayout.addWidget(self.combo)
@@ -264,37 +296,28 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         self.verticalLayout.addLayout(row0)
         self.verticalLayout.addLayout(row1)
         self.constraintT = QTableWidget()
-        text = self.combo.currentText()
-        parameters = str(eval(self.y[text]))
-        print(parameters)
-        parametersList = list(parameters)
-        for char in parametersList:  # remove any punctuation to make it neater in the grid
-            if char == ")" or char == "(":
-                del parametersList[parametersList.index(char)]
+        constr_key = self.combo.currentText()
 
-        parameters = "".join(parametersList)
-        print(parameters)
+        parameters = _constraint_parameter_list(constr_key)
 
-        radio = QRadioButton()
 
-        self.pArr = parameters.split(",")
-        if "self" in self.pArr[0]:
-            del self.pArr[0]
-        print(self.pArr)
+
+
         self.constraintT.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
-        self.constraintT.setRowCount(len(self.pArr))
+        self.constraintT.setRowCount(len(parameters))
         self.constraintT.setColumnCount(2)
 
         self.constraintT.setHorizontalHeaderItem(0, QTableWidgetItem("PARAMETER"))
         self.constraintT.setHorizontalHeaderItem(1, QTableWidgetItem("VALUE"))
         # self.constraintT.setHorizontalHeaderItem(2, QTableWidgetItem("C"))
         # self.constraintT.setHorizontalHeaderItem(3, QTableWidgetItem("S"))
-        for i in range(0, len(self.pArr)):
-            self.pArr[i] = self.pArr[i].split("=")
+        for i, parameter in enumerate(parameters):
+            self.constraintT.setItem(i, 0, QTableWidgetItem(parameter['name']))
+            self.constraintT.setItem(i, 1, QTableWidgetItem(str(parameter['value'])))
 
-        for i in range(0, self.constraintT.rowCount()):
-            for j in range(0, len(self.pArr[i])):
-                self.constraintT.setItem(i, j, QTableWidgetItem(str(self.pArr[i][j])))   #use this for getting the proper constraints
+        # for i in range(0, self.constraintT.rowCount()):
+        #     for j in range(0, len(self.pArr[i])):
+        #         self.constraintT.setItem(i, j, QTableWidgetItem(str(self.pArr[i][j])))   #use this for getting the proper constraints
 
         # for i in range(0, self.constraintT.rowCount()):
         #   bGroup = QButtonGroup()
@@ -310,6 +333,46 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         self.verticalLayout.addWidget(self.constraintT)
 
         self.gridFilled = True
+
+
+
+
+    # @property
+    def constr_parameters(self):
+        constr_key = self.combo.currentText()
+        constr_dict = {'constraint_key' : self.combo.currentText()}
+        default_parameters = _constraint_parameter_list(constr_key)
+        current_table_parameters = self._constr_table_to_dict()
+        actual_parameters = {}
+        for parameter in default_parameters:
+            this_type = parameter['type']
+            this_key = parameter['name']
+            actual_value = current_table_parameters[this_key]
+            if this_type == str:
+                v = str(actual_value)
+            elif this_type == bool:
+                v = (actual_value == 'True')
+            elif this_type == int:
+                v = int(actual_value)
+            elif this_type == float:
+                v = float(actual_value)
+            else:
+                v = actual_value
+
+            actual_parameters[this_key] = v
+        constr_dict['constraint_kwargs'] = actual_parameters
+        return constr_dict
+
+    #@property
+    def _constr_table_to_dict(self):
+        pars = {}
+        for i in range(self.constraintT.rowCount()):
+            key = self.constraintT.item(i, 0).text()
+            text = self.constraintT.item(i, 1).text()
+            pars[key] = text
+        return pars
+
+
 
     def showMenu(self, pos):
         if (pos.x() >= 12 and pos.x() <= 310) and (pos.y() >= 32 and pos.y() <= 440):
@@ -474,10 +537,13 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
             make_new_set = True
 
         if make_new_set:
-            self._create_reference()
-            last_index = self.model_references.rowCount() - 1
-            index = self.model_references.item(last_index).index()
-            self.add_references_to_set(x_list, data_list, label_list, index=index)
+            name, ok = QtWidgets.QInputDialog.getText(self, 'Reference Set name', 'Enter name:',
+                                                      QtWidgets.QLineEdit.Normal, 'New Reference Set')
+            if ok:
+                self._create_reference(name=name)
+                last_index = self.model_references.rowCount() - 1
+                index = self.model_references.item(last_index).index()
+                self.add_references_to_set(x_list, data_list, label_list, index=index)
         else:
             refset_names = [self.model_references.item(i).text() for i in range(self.model_references.rowCount())]
             # print('BEFORE DIALOG')
@@ -575,6 +641,63 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         item = self.model_mcrprojects.item(index.row(), 0)
         mcrProject = item.mcrproject
         mcrProject.plot_results()
+
+    @property
+    def current_datasets(self):
+        for i in range(self.model_datasets.rowCount()):
+            yield self.model_datasets.item(i).dataset
+
+    @property
+    def current_refsets(self):
+        for i in range(self.model_references.rowCount()):
+            yield self.model_datasets.item(i).reference
+
+    # @property
+    def current_constrsets_items(self):
+        for i in range(self.model_constraints.rowCount()):
+            yield self.model_constraints.item(i)
+
+    # @property
+    def current_constrsets_as_dicts(self):
+        for item in self.current_constrsets_items():
+            output = {}
+            output['name'] = item.text()
+            constr_list = []
+            for i in range(item.rowCount()):
+                child = item.child(i)
+                constr_list.append(child.constr_parameters)
+            output['constraints'] = constr_list
+            yield output
+
+    @property
+    def current_mcrprojects(self):
+        for i in range(self.model_mcrprojects.rowCount()):
+            yield self.model_mcrprojects.item(i).mcrproject
+
+    def all_to_dict(self):
+        output = []
+        for ds in self.current_datasets:
+            output.append({'kind' : 'dataset', 'data' : ds.to_dict()})
+
+        for rs in self.current_refsets:
+            output.append({'kind': 'refset', 'data': rs.to_dict()})
+
+        return output
+
+    def save_workspace(self):
+        options = QtWidgets.QFileDialog.DontUseNativeDialog
+        filename, _ = QtWidgets.QFileDialog.getSaveFileName(self, 'Save MCR Workspace',
+                                                                    self.parent.widget_data.working_folder,
+                                                                    'MCR workspace (*.json)', options=options)
+        # if filename:
+
+
+            # for ds in self.current_datasets:
+            #     output.append({'dataset': ds.to_dict()})
+
+    def load_workspace(self):
+        pass
+
 
 
 def main_show():
