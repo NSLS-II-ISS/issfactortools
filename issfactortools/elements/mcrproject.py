@@ -157,19 +157,20 @@ class DataSet:
         ax_ac.set_xlabel(f"component index")
 
     def to_dict(self):
-        return {'x' : self._x.tolist(),
-                't_dict' : self.t_dict,
-                'data' : self._data.tolist(),
-                'x_name' : self.x_name,
-                't_name' : self.t_name,
-                'data_name' : self.data_name,
-                'x_units' : self.x_units,
-                't_units' : self.t_units,
-                'data_units' : self.data_units,
-                'name' : self.name,
-                'xmin' : self.xmin,
-                'xmax' : self.xmax,
-                't_mask' : self.t_mask.tolist()}
+        data_dict= {'x' : self._x.tolist(),
+                    't_dict' : self.t_dict,
+                    'data' : self._data.tolist(),
+                    'x_name' : self.x_name,
+                    't_name' : self.t_name,
+                    'data_name' : self.data_name,
+                    'x_units' : self.x_units,
+                    't_units' : self.t_units,
+                    'data_units' : self.data_units,
+                    'name' : self.name,
+                    'xmin' : self.xmin,
+                    'xmax' : self.xmax,
+                    't_mask' : self.t_mask.tolist()}
+        return {'kind' : 'dataset', 'data' : data_dict}
 
     # def to_json(self, filename):
     #     data_dict = self.to_dict()
@@ -178,6 +179,7 @@ class DataSet:
 
     @classmethod
     def from_dict(cls, data_dict):
+        # data_dict = input_dict['data']
         output = cls(np.array(data_dict['x']), data_dict['t_dict'], np.array(data_dict['data']),
                      x_name=data_dict['x_name'], t_name=data_dict['t_name'], data_name=data_dict['data_name'],
                      x_units=data_dict['x_units'], t_units=data_dict['t_units'], data_units=data_dict['data_units'],
@@ -195,8 +197,9 @@ class DataSet:
         # plot_svd_results(self.x, self.t, self.u, self.s, self.v, self.lra_chisq, self.ac_u, self.ac_v, figure_svd, figure_stat, n_cmp_show=n_cmp_show, n_val_show=n_val_show)
 
 class ReferenceSet:
-    def __init__(self):
+    def __init__(self, name='Reference Set'):
         self.reference_dict = {}
+        self.name = name
 
     def append_reference(self, x, data, label:str = "Reference", fixed:bool = False):
         self.validate_reference(x, data, label)
@@ -227,11 +230,12 @@ class ReferenceSet:
             for key, arr in val.items():
                 if type(arr) == np.ndarray:
                     val[key] = arr.tolist()
-        return data_dict
+        return {'kind' : 'refset', 'data' : data_dict, 'name': self.name}
 
     @classmethod
-    def from_dict(cls, data_dict):
-        output = cls()
+    def from_dict(cls, input_dict, name='Reference Set'):
+        data_dict = input_dict
+        output = cls(name=name)
         for label, item in data_dict.items():
             output.append_reference(np.array(item['x']), np.array(item['data']), label=label, fixed=item['fixed'])
         return output
@@ -248,6 +252,43 @@ class ConstraintSet:
     def append_st_constraint(self, st_constraint):
         self.st_constraints.append(st_constraint)
 
+    @property
+    def constraints(self):
+        return self.c_constraints + self.st_constraints
+
+    @property
+    def constraints_without_objects(self):
+        output = []
+        for _constr in self.constraints:
+            constr = copy.deepcopy(_constr)
+            constr.pop('object')
+            output.append(constr)
+        return output
+
+    @property
+    def c_constraint_obj(self):
+        output = []
+        for element in self.c_constraints:
+            output.append(element['object'])
+        return output
+
+    @property
+    def st_constraint_obj(self):
+        output = []
+        for element in self.st_constraints:
+            output.append(element['object'])
+        return output
+
+
+# def to_dict(self):
+    #     output = []
+    #     for _constraint in (self.c_constraints + self.st_constraints):
+    #         constraint = copy.deepcopy(_constraint)
+    #         constraint.pop('object')
+    #         output.append(constraint)
+    #     return output
+
+
 
 from pymcr.regressors import OLS, NNLS
 class Optimizer:
@@ -263,13 +304,15 @@ class MCRProject:
                  refset : ReferenceSet,
                  conset : ConstraintSet,
                  optimizer : Optimizer,
-                 max_iter : int = 1000):
+                 max_iter : int = 1000,
+                 name : str = 'MCR project'):
 
         self.dataset = dataset
         self.refset = refset
         self.conset = conset
         self.optimizer = optimizer
         self.max_iter = max_iter
+        self.name = name
 
         self._interp_refset()
 
@@ -334,6 +377,17 @@ class MCRProject:
         plt.plot(self.dataset.t, self.c_fit.T)
         plt.title('Refined concentrations')
         plt.show()
+
+    def to_dict(self):
+        output = {}
+        output['dataset'] = self.dataset.to_dict()
+        output['refset'] = self.refset.to_dict()
+        output['conset'] = self.conset.constraints_without_objects
+        output['max_iter'] = self.max_iter
+        output['name'] = self.name
+        return {'kind' : 'mcrproj', 'data' : output}
+
+
 
 
 

@@ -6,6 +6,7 @@ import pkg_resources
 import inspect
 import math
 import os
+import json
 from pymcr.constraints import *
 from PyQt5 import uic, QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import QThread, QSettings, Qt
@@ -165,30 +166,49 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         self._append_item_to_model(self.model_constraints, item)
         self.treeView_constraints.setModel(self.model_constraints)
         self.treeView_constraints.setHeaderHidden(True)
+        return item
 
 
     def _create_reference(self, dict={}, name='New Reference'):
-        item = self._make_item(name)
-        item.item_type = 'ReferenceSet'
-        item.reference = ReferenceSet()
-        self._append_item_to_model(self.model_references, item)
-        self.treeView_references.setModel(self.model_references)
-        self.treeView_references.setHeaderHidden(True)
+        # item = self._make_item(name)
+        # item.item_type = 'ReferenceSet'
+        refset = ReferenceSet(name=name)
+        self._create_refset_item_only(refset)
+        # self._append_item_to_model(self.model_references, item)
+        # self.treeView_references.setModel(self.model_references)
+        # self.treeView_references.setHeaderHidden(True)
 
     def _create_dataset(self, x, t_dict, data,
                         x_name='energy', t_name='index', data_name='mu norm',
                         x_units='eV', t_units='i', data_units='a.u.',
                         name='dataset'):
-        item = self._make_item(name)
+        # item = self._make_item(name)
+        # item.item_type = 'DataSet'
+        dataset = DataSet(x, t_dict, data,
+                          x_name=x_name, t_name=t_name, data_name=data_name,
+                          x_units=x_units, t_units=t_units, data_units=data_units,
+                          name=name)
+        self._create_dataset_item_only(dataset)
+        # self._append_item_to_model(self.model_datasets, item)
+        # self.listView_datasets.setModel(self.model_datasets)
+
+    def _create_dataset_item_only(self, dataset):
+        item = self._make_item(dataset.name)
         item.item_type = 'DataSet'
-        item.dataset = DataSet(x, t_dict, data,
-                               x_name=x_name, t_name=t_name, data_name=data_name,
-                               x_units=x_units, t_units=t_units, data_units=data_units,
-                               name=name)
+        item.dataset = dataset
         self._append_item_to_model(self.model_datasets, item)
         self.listView_datasets.setModel(self.model_datasets)
 
-
+    def _create_refset_item_only(self, refset):
+        item = self._make_item(refset.name)
+        item.item_type = 'ReferenceSet'
+        item.reference = refset
+        self._append_item_to_model(self.model_references, item)
+        for label in refset.labels:
+            item_child = self._make_item(label, False)
+            self._append_child_to_item(item_child, item)
+        self.treeView_references.setModel(self.model_references)
+        self.treeView_references.setHeaderHidden(True)
 
 
     def unAppend_Constraint(self, item, index, cs):
@@ -217,8 +237,9 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
                     QMessageBox.about(self, "ERROR", "No Constraint Selected")
                 else:
                     item = self.model_constraints.item(selected, 0)
-                    constr_parameters = self.constr_parameters()
-                    constr_obj = constraints_obj_dict[constr_parameters['constraint_key']](**constr_parameters['constraint_kwargs'])
+                    constr_dict = self.constr_parameters()
+                    constr_obj = constraints_obj_dict[constr_dict['constraint_key']](**constr_dict['constraint_kwargs'])
+                    constr_dict['object'] = constr_obj
                     #
                     #  = self.combo.currentText()
                     # constr_params = self.x[txt]
@@ -233,18 +254,36 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
                             #constr =  self.constraintT.item(i, j).text()
                             #constr_params += str(constr)
                     if self.c_clicked:
-                        item.constraint.append_c_constraint(constr_obj)
-                        vector = 'C'
+                        constr_dict['vector'] = 'C'
+                        item.constraint.append_c_constraint(constr_dict)
                     elif self.s_clicked:
-                        item.constraint.append_st_constraint(constr_obj)
-                        vector = 'S'
-                    constr_parameters['vector'] = vector
+                        constr_dict['vector'] = 'S'
+                        item.constraint.append_st_constraint(constr_dict)
 
-                    constraint_item = self._make_item(f'{self.combo.currentText()} {vector}', False) #go through combobox
-                    constraint_item.constr_parameters = constr_parameters
-                    self._append_child_to_item(constraint_item, item)
+
+
+                    child_item = self._make_item(f'{constr_dict["constraint_key"]} {constr_dict["vector"]}', False) #go through combobox
+                    child_item.constr_dict = constr_dict
+                    self._append_child_to_item(child_item, item)
                     # print(item.constraint.c_constraints)
                     # print(item.constraint.st_constraints)
+
+    def recover_constraint_set(self, constr_set_dict):
+        name = constr_set_dict['name']
+        constr_list = constr_set_dict['constraints']
+        item = self._create_constraint(name)
+        for constr_dict in constr_list:
+            constr_dict['object'] = constraints_obj_dict[constr_dict['constraint_key']](**constr_dict['constraint_kwargs'])
+            if constr_dict['vector'] == 'C':
+                item.constraint.append_c_constraint(constr_dict)
+            elif constr_dict['vector'] == 'S':
+                item.constraint.append_st_constraint(constr_dict)
+
+            child_item = self._make_item(f'{constr_dict["constraint_key"]} {constr_dict["vector"]}',
+                                              False)  # go through combobox
+            child_item.constr_dict = constr_dict
+            self._append_child_to_item(child_item, item)
+
 
     def createComboBox(self):
         self.combo = QComboBox()
@@ -630,6 +669,36 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
             self._append_item_to_model(self.model_mcrprojects, project)
             self.listView_datasets_2.setModel(self.model_mcrprojects)
 
+
+    def constraint_set_from_dict(self, constr_list):
+        CS = ConstraintSet()
+        for constr_dict in constr_list:
+            constr_dict['object'] = constraints_obj_dict[constr_dict['constraint_key']](**constr_dict['constraint_kwargs'])
+            if constr_dict['vector'] == 'C':
+                CS.append_c_constraint(constr_dict)
+            elif constr_dict['vector'] == 'S':
+                CS.append_st_constraint(constr_dict)
+        return CS
+
+    def recover_mcr_proj(self, mcrproj_dict):
+
+        dataset = DataSet.from_dict(mcrproj_dict['dataset']['data'])
+        refset = ReferenceSet.from_dict(mcrproj_dict['refset']['data'])
+        conset = self.constraint_set_from_dict(mcrproj_dict['conset'])
+        max_iter = mcrproj_dict['max_iter']
+        name = mcrproj_dict['name']
+
+        optimize = self._make_item("Optimizer")
+        optimize.item_type = 'Optimizer'
+        optimize.optimizer = Optimizer()
+
+        project = self._make_item(name)
+        project.item_type = "MCR Project"
+
+        project.mcrproject = MCRProject(dataset, refset, conset, optimize.optimizer, max_iter=max_iter, name=name)
+        self._append_item_to_model(self.model_mcrprojects, project)
+        self.listView_datasets_2.setModel(self.model_mcrprojects)
+
     def fitMCR(self):
         index = self.listView_datasets_2.selectedIndexes()[0]
         item = self.model_mcrprojects.item(index.row(), 0)
@@ -650,7 +719,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
     @property
     def current_refsets(self):
         for i in range(self.model_references.rowCount()):
-            yield self.model_datasets.item(i).reference
+            yield self.model_references.item(i).reference
 
     # @property
     def current_constrsets_items(self):
@@ -658,16 +727,24 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
             yield self.model_constraints.item(i)
 
     # @property
-    def current_constrsets_as_dicts(self):
+    def current_constrsets_as_list(self, return_obj=False):
         for item in self.current_constrsets_items():
             output = {}
             output['name'] = item.text()
             constr_list = []
             for i in range(item.rowCount()):
                 child = item.child(i)
-                constr_list.append(child.constr_parameters)
+                constr_dict = child.constr_dict
+                if not return_obj:
+                    constr_dict = self._remove_object_from_dict(constr_dict)
+                constr_list.append(constr_dict)
             output['constraints'] = constr_list
             yield output
+
+    def _remove_object_from_dict(self, input_dict):
+        output_dict = copy.deepcopy(input_dict)
+        output_dict.pop('object')
+        return output_dict
 
     @property
     def current_mcrprojects(self):
@@ -677,26 +754,55 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
     def all_to_dict(self):
         output = []
         for ds in self.current_datasets:
-            output.append({'kind' : 'dataset', 'data' : ds.to_dict()})
+            output.append(ds.to_dict())
 
         for rs in self.current_refsets:
-            output.append({'kind': 'refset', 'data': rs.to_dict()})
+            output.append(rs.to_dict())
+
+        for cs in self.current_constrsets_as_list():
+            output.append({'kind': 'conset', 'data': cs})
+
+        for mcrp in self.current_mcrprojects:
+            output.append(mcrp.to_dict())
 
         return output
+
+    def all_from_dict(self, input):
+        for element in input:
+            if element['kind'] == 'dataset':
+                dataset = DataSet.from_dict(element['data'])
+                self._create_dataset_item_only(dataset)
+            elif element['kind'] == 'refset':
+                refset = ReferenceSet.from_dict(element['data'], name=element['name'])
+                self._create_refset_item_only(refset)
+            elif element['kind'] == 'conset':
+                self.recover_constraint_set(element['data'])
+            elif element['kind'] == 'mcrproj':
+                self.recover_mcr_proj(element['data'])
+            else:
+                print('unidentified element')
+
+
 
     def save_workspace(self):
         options = QtWidgets.QFileDialog.DontUseNativeDialog
         filename, _ = QtWidgets.QFileDialog.getSaveFileName(self, 'Save MCR Workspace',
                                                                     self.parent.widget_data.working_folder,
                                                                     'MCR workspace (*.json)', options=options)
-        # if filename:
-
-
-            # for ds in self.current_datasets:
-            #     output.append({'dataset': ds.to_dict()})
+        if filename:
+            workspace = self.all_to_dict()
+            with open(filename, 'w') as f:
+                f.write(json.dumps(workspace))
 
     def load_workspace(self):
-        pass
+        options = QtWidgets.QFileDialog.DontUseNativeDialog
+        filename, _ = QtWidgets.QFileDialog.getOpenFileName(self, 'Load MCR Workspace',
+                                                            self.parent.widget_data.working_folder,
+                                                            'MCR workspace (*.json)', options=options)
+        if filename:
+            with open(filename, 'r') as f:
+                workspace = json.loads(f.read())
+            self.all_from_dict(workspace)
 
 
 
