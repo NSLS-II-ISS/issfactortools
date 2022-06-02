@@ -266,14 +266,14 @@ class ConstraintSet:
         return output
 
     @property
-    def c_constraint_obj(self):
+    def c_constraints_obj(self):
         output = []
         for element in self.c_constraints:
             output.append(element['object'])
         return output
 
     @property
-    def st_constraint_obj(self):
+    def st_constraints_obj(self):
         output = []
         for element in self.st_constraints:
             output.append(element['object'])
@@ -318,8 +318,8 @@ class MCRProject:
 
         self.mcr = McrAR(c_regr=self.optimizer.c_optimizer,
                          st_regr=self.optimizer.st_optmizer,
-                         c_constraints=self.conset.c_constraints,
-                         st_constraints=self.conset.st_constraints,
+                         c_constraints=self.conset.c_constraints_obj,
+                         st_constraints=self.conset.st_constraints_obj,
                          max_iter=self.max_iter)
 
     def _check_refset_limits(self):

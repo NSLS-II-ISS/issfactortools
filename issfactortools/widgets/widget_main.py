@@ -396,7 +396,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
             elif this_type == float:
                 v = float(actual_value)
             else:
-                v = actual_value
+                v = int(actual_value)
 
             actual_parameters[this_key] = v
         constr_dict['constraint_kwargs'] = actual_parameters
