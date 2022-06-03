@@ -414,26 +414,47 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
 
 
     def showMenu(self, pos):
+        # datasets
         if (pos.x() >= 12 and pos.x() <= 310) and (pos.y() >= 32 and pos.y() <= 440):
             menu = QMenu(self)
-
             menuAction1 = QAction("Inspect", menu)
+            menuAction2 = QAction("Rename", menu)
             menu.addAction(menuAction1)
+            menu.addAction(menuAction2)
             print(self.model_datasets.rowCount())
             print(self.model_datasets.columnCount())
             print(self.model_datasets.item(0, 0).checkState())
-
             menuAction1.triggered.connect(self.inspectData)
-            # menuAction1.triggered.connect(self.verticalLines)
-            # menuAction2.triggered.connect(self.clearplot2)
-            # menuAction3.triggered.connect(self.normalizedLines)
-
+            menuAction2.triggered.connect(self.renameData)
             menu.exec_(self.mapToGlobal(pos))
+
+        # references
+        elif (pos.x() >= 341 and pos.x() <= 637) and (pos.y() >= 32 and pos.y() <= 440):
+            menu = QMenu(self)
+            menuAction1 = QAction("Rename", menu)
+            menuAction2 = QAction("Delete", menu)
+            menuAction3 = QAction("Duplicate", menu)
+            menuAction4 = QAction("Set curve as fixed", menu)
+            menuAction5 = QAction("Set curve as variable", menu)
+            menu.addAction(menuAction1)
+            menu.addAction(menuAction2)
+            menu.addAction(menuAction3)
+            menu.addAction(menuAction4)
+            menu.addAction(menuAction5)
+            menuAction1.triggered.connect(self.renameReference)
+            menuAction2.triggered.connect(self.deleteReference)
+            menuAction3.triggered.connect(self.duplicateReference)
+            menuAction4.triggered.connect(self.fix_reference_curve)
+            menuAction5.triggered.connect(self.unfix_reference_curve)
+            menu.exec_(self.mapToGlobal(pos))
+
+        # constraints
         elif(pos.x() >= 683 and pos.x() <= 980) and (pos.y() >= 32 and pos.y()<=440):
             menu = QMenu(self)
             menuAction1 = QAction("Rename", menu)
             menuAction2 = QAction("Delete", menu)
             menuAction3 = QAction("Duplicate", menu)
+
             menu.addAction(menuAction1)
             menu.addAction(menuAction2)
             menu.addAction(menuAction3)
@@ -442,17 +463,15 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
             menuAction3.triggered.connect(self.duplicateConstraint)
             menu.exec_(self.mapToGlobal(pos))
 
-        elif(pos.x() >= 341 and pos.x() <= 637) and (pos.y() >= 32 and pos.y() <= 440):
+        # mcr projects
+        elif (pos.x() >= 1151 and pos.x() <= 1451) and (pos.y() >= 32 and pos.y() <= 440):
             menu = QMenu(self)
             menuAction1 = QAction("Rename", menu)
             menuAction2 = QAction("Delete", menu)
-            menuAction3 = QAction("Duplicate", menu)
             menu.addAction(menuAction1)
             menu.addAction(menuAction2)
-            menu.addAction(menuAction3)
-            menuAction1.triggered.connect(self.renameReference)
-            menuAction2.triggered.connect(self.deleteReference)
-            menuAction3.triggered.connect(self.duplicateReference)
+            menuAction1.triggered.connect(self.renameMCRProject)
+            menuAction2.triggered.connect(self.deleteMCRProject)
             menu.exec_(self.mapToGlobal(pos))
         print("POS: ", pos.x(), pos.y())
 
@@ -489,8 +508,8 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         except Exception as e:
             self.model_references.removeRow(index.row())
 
-    def removeFromReferenceSet(self, dict, key):
-        dict.pop(key)
+    def removeFromReferenceSet(self, input_dict, key):
+        input_dict.pop(key)
 
     def duplicateConstraint(self):
         index = self.treeView_constraints.selectedIndexes()[0]
@@ -535,19 +554,34 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
               self.model_constraints.removeRow(index.row())
 
 
-
-    def renameConstraint(self):
-        text, ok = QInputDialog.getText(self, 'Rename Item', 'Enter the new name:')
-        selected = self.treeView_constraints.currentIndex().row()
-
-        item = self.model_constraints.item(selected, 0)
+    def renameData(self):
+        index = self.listView_datasets.currentIndex()
+        item = self.model_datasets.itemFromIndex(index)
+        text, ok = QInputDialog.getText(self, 'Rename Dataset', 'Enter the new name:', text=item.text())
         item.setText(text)
+        item.dataset.name = text
 
     def renameReference(self):
-        text, ok = QInputDialog.getText(self, 'Rename Item', 'Enter the new name:')
-        selected = self.treeView_references.currentIndex().row()
+        index = self.treeView_references.currentIndex()
+        item = self.model_references.itemFromIndex(index)
+        if hasattr(item, 'reference'):
+            text, ok = QInputDialog.getText(self, 'Rename Reference', 'Enter the new name:', text=item.text())
+            item.setText(text)
+            item.reference.name = text
+        else:
+            print('Changing reference curve label is not implemented yet')
 
-        item = self.model_references.item(selected, 0)
+
+    def renameConstraint(self):
+        index = self.treeView_constraints.currentIndex()
+        item = self.model_constraints.itemFromIndex(index)
+        text, ok = QInputDialog.getText(self, 'Rename Constraint', 'Enter the new name:', text=item.text())
+        item.setText(text)
+
+    def renameMCRProject(self):
+        index = self.listView_datasets_2.currentIndex()
+        item = self.model_mcrprojects.itemFromIndex(index)
+        text, ok = QInputDialog.getText(self, 'Rename MCR project', 'Enter the new name:', text=item.text())
         item.setText(text)
 
     def get_selected_reference_set_index(self):
@@ -559,6 +593,29 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
             QMessageBox.about(self, "ERROR", "More than one reference set selected")
             return
         return self.treeView_references.selectedIndexes()[0]
+
+    def _set_fix_state_of_ref_curve(self, state:bool):
+        index = self.treeView_references.selectedIndexes()[0]
+        ref_curve_item = self.model_references.itemFromIndex(index)
+        ref_set_item = ref_curve_item.parent
+        label = ref_set_item.reference.labels[index.row()]
+        if state:
+            text = f'{label} fixed'
+        else:
+            text = f'{label}'
+        ref_curve_item.setText(text)
+        ref_set_item.reference.reference_dict[label]['fixed'] = state
+
+    def fix_reference_curve(self):
+        self._set_fix_state_of_ref_curve(True)
+
+    def unfix_reference_curve(self):
+        self._set_fix_state_of_ref_curve(False)
+
+
+    def deleteMCRProject(self):
+        index = self.listView_datasets_2.currentIndex()
+        self.model_mcrprojects.removeRow(index.row())
 
     def add_references_to_set(self, x_list, data_list, label_list, index=None):
         if index is None:
