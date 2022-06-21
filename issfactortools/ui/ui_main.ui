@@ -202,8 +202,8 @@ Constraint</string>
   <widget class="QPushButton" name="createMCRProject">
    <property name="geometry">
     <rect>
-     <x>1020</x>
-     <y>210</y>
+     <x>1010</x>
+     <y>300</y>
      <width>111</width>
      <height>41</height>
     </rect>
@@ -239,8 +239,8 @@ MCR project</string>
   <widget class="QPushButton" name="fitMCRProject">
    <property name="geometry">
     <rect>
-     <x>1020</x>
-     <y>280</y>
+     <x>1170</x>
+     <y>460</y>
      <width>111</width>
      <height>41</height>
     </rect>
@@ -253,14 +253,15 @@ MCR project</string>
   <widget class="QPushButton" name="plotMCRProject">
    <property name="geometry">
     <rect>
-     <x>1020</x>
-     <y>350</y>
+     <x>1310</x>
+     <y>460</y>
      <width>111</width>
      <height>41</height>
     </rect>
    </property>
    <property name="text">
-    <string>Plot MCR Results</string>
+    <string>Plot
+MCR Results</string>
    </property>
   </widget>
   <widget class="QPushButton" name="pushButton_save_workspace">
@@ -289,6 +290,63 @@ workspace</string>
    <property name="text">
     <string>Load
 workspace</string>
+   </property>
+  </widget>
+  <widget class="QWidget" name="gridLayoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>1000</x>
+     <y>190</y>
+     <width>131</width>
+     <height>71</height>
+    </rect>
+   </property>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="QLabel" name="label_2">
+      <property name="text">
+       <string>max iter</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QLineEdit" name="lineEdit_tol_increase">
+      <property name="text">
+       <string>0</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="label_3">
+      <property name="text">
+       <string>tol increase</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QLineEdit" name="lineEdit_max_iter">
+      <property name="text">
+       <string>1000</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QLabel" name="label_5">
+   <property name="geometry">
+    <rect>
+     <x>1010</x>
+     <y>140</y>
+     <width>121</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>MCR
+parameters</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
    </property>
   </widget>
  </widget>

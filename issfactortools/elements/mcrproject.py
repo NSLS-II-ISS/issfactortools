@@ -305,6 +305,7 @@ class MCRProject:
                  conset : ConstraintSet,
                  optimizer : Optimizer,
                  max_iter : int = 1000,
+                 tol_increase: float = 1e-3,
                  name : str = 'MCR project'):
 
         self.dataset = dataset
@@ -312,6 +313,7 @@ class MCRProject:
         self.conset = conset
         self.optimizer = optimizer
         self.max_iter = max_iter
+        self.tol_increase = tol_increase
         self.name = name
 
         self._interp_refset()
@@ -320,7 +322,8 @@ class MCRProject:
                          st_regr=self.optimizer.st_optmizer,
                          c_constraints=self.conset.c_constraints_obj,
                          st_constraints=self.conset.st_constraints_obj,
-                         max_iter=self.max_iter)
+                         max_iter=self.max_iter,
+                         tol_increase=tol_increase)
 
     def _check_refset_limits(self):
         bad_labels = ''
@@ -359,23 +362,30 @@ class MCRProject:
         self.data_fit = (self.data_ref_fit @ self.c_fit)
 
 
-    def plot_results(self, fig=None):
+    def plot_results(self, fig=None, offset=0.5):
         if fig is None:
             fig = plt.figure()
         plt.figure(fig.number)
         plt.subplot(121)
         plt.plot(self.dataset.x, self.dataset.data, 'k')
         plt.plot(self.dataset.x, self.data_fit, 'r')
-        plt.title('Data Fit')
+        plt.title(f'Data Fit ({self.dataset.name})')
 
         plt.subplot(222)
-        plt.plot(self.dataset.x, self.data_ref, 'k')
-        plt.plot(self.dataset.x, self.data_ref_fit, 'r')
-        plt.title('Refined References')
+        n_curves = self.data_ref.shape[1]
+        for i in range(n_curves):
+            plt.plot(self.dataset.x, self.data_ref[:, i] - i*offset, 'k')
+            plt.plot(self.dataset.x, self.data_ref_fit[:, i] - i*offset)
+            plt.text(self.dataset.x[0], self.data_ref[0, i] - i*offset + 0.1, self.refset.labels[i], va='center', ha='center')
+        plt.title(f'Refined References ({self.refset.name})')
+
 
         plt.subplot(224)
-        plt.plot(self.dataset.t, self.c_fit.T)
+        for i in range(n_curves):
+            plt.plot(self.dataset.t, self.c_fit[i, :], label=self.refset.labels[i])
+        plt.plot(self.dataset.t, np.sum(self.c_fit, axis=0), 'k:', label='total')
         plt.title('Refined concentrations')
+        plt.legend()
         plt.show()
 
     def to_dict(self):
@@ -384,6 +394,7 @@ class MCRProject:
         output['refset'] = self.refset.to_dict()
         output['conset'] = self.conset.constraints_without_objects
         output['max_iter'] = self.max_iter
+        output['tol_increase'] = self.tol_increase
         output['name'] = self.name
         return {'kind' : 'mcrproj', 'data' : output}
 
