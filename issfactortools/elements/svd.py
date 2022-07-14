@@ -407,3 +407,39 @@ def fullFTest(sValues, m, n):
     plt.show()
     return ans
 
+def compute_efa(dataset):
+    nx, nt = dataset.data.shape
+    ss_forward = np.zeros((nt, nt - 1))
+    ss_backward = np.zeros((nt, nt - 1))
+    for i in range(1, nt):
+        _u, _s, _v, _, _, _ = dataset._compute_svd(dataset.data[:, :i])
+        n_i = _s.size
+        ss_forward[:n_i, i - 1] = _s
+
+        _u, _s, _v, _, _, _ = dataset._compute_svd(dataset.data[:, -i-1:])
+        n_i = _s.size
+        ss_backward[:n_i, -(i)] = _s
+    return ss_forward, ss_backward
+
+ss_forward, ss_backward = compute_efa(ds)
+
+n_cmp = 3
+plt.figure()
+plt.semilogy(ss_forward.T[:, :n_cmp], '')
+plt.gca().set_prop_cycle(None)
+plt.semilogy(ss_backward.T[:, :n_cmp], '--')
+
+
+def compute_fwefa(dataset, w=5):
+    ss = []
+    nx, nt = dataset.data.shape
+    for i in range(w, nt-w):
+        _d = dataset.data[:, i:(i + w)]
+        print(i, _d.shape)
+        _u, _s, _v, _, _, _ = dataset._compute_svd(_d)
+        ss.append(_s)
+    return np.array(ss)
+
+ss_fwefa = compute_fwefa(ds, w=10)
+plt.figure()
+plt.semilogy(ss_fwefa[:, :n_cmp], '')

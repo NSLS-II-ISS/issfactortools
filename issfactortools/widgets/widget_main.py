@@ -749,8 +749,9 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         refset = ReferenceSet.from_dict(mcrproj_dict['refset']['data'])
         conset = self.constraint_set_from_dict(mcrproj_dict['conset'])
         max_iter = mcrproj_dict['max_iter']
-        ctol_inc = mcrproj_dict['ctol_inc']
-        stol_inc = mcrproj_dict['stol_inc']
+
+        tol_increase = mcrproj_dict['tol_increase']
+
         name = mcrproj_dict['name']
 
         optimize = self._make_item("Optimizer")
@@ -761,7 +762,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         project.item_type = "MCR Project"
 
         project.mcrproject = MCRProject(dataset, refset, conset, optimize.optimizer,
-                                        max_iter=max_iter, ctol_inc = ctol_inc, stol_inc = stol_inc,
+                                        max_iter=max_iter, tol_increase = tol_increase,
                                         name=name)
         self._append_item_to_model(self.model_mcrprojects, project)
         self.listView_datasets_2.setModel(self.model_mcrprojects)

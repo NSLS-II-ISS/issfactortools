@@ -83,7 +83,19 @@ class DataSet:
         return self.t_mask.tolist()
 
     def compute_svd(self):
-        self.u, self.s, self.v, self.lra_chisq, self.ac_u, self.ac_v = doSVD(self.data)
+        self.u, self.s, self.v, self.lra_chisq, self.ac_u, self.ac_v = self._compute_svd(self.data)
+
+    def _compute_svd(self, data):
+        return doSVD(data)
+
+    # def compute_efa(self):
+    #     nx, nt = self.data.shape
+    #     ss_forward = np.zeros((nt, nt-1))
+    #     for i in range(1, nt):
+    #         _u, _s, _v, _, _, _ = self.compute_svd(self.data[:, :i])
+    #         n_i = _s.size
+    #         ss[:n_i, i - 1] = _s
+    #     return ss
 
 
     def plot_data(self, ax=None):
