@@ -421,13 +421,13 @@ def compute_efa(dataset):
         ss_backward[:n_i, -(i)] = _s
     return ss_forward, ss_backward
 
-ss_forward, ss_backward = compute_efa(ds)
-
-n_cmp = 3
-plt.figure()
-plt.semilogy(ss_forward.T[:, :n_cmp], '')
-plt.gca().set_prop_cycle(None)
-plt.semilogy(ss_backward.T[:, :n_cmp], '--')
+# ss_forward, ss_backward = compute_efa(ds)
+#
+# n_cmp = 3
+# plt.figure()
+# plt.semilogy(ss_forward.T[:, :n_cmp], '')
+# plt.gca().set_prop_cycle(None)
+# plt.semilogy(ss_backward.T[:, :n_cmp], '--')
 
 
 def compute_fwefa(dataset, w=5):
@@ -440,6 +440,6 @@ def compute_fwefa(dataset, w=5):
         ss.append(_s)
     return np.array(ss)
 
-ss_fwefa = compute_fwefa(ds, w=10)
-plt.figure()
-plt.semilogy(ss_fwefa[:, :n_cmp], '')
+# ss_fwefa = compute_fwefa(ds, w=10)
+# plt.figure()
+# plt.semilogy(ss_fwefa[:, :n_cmp], '')
