@@ -405,6 +405,12 @@ class MCRProject:
         output['dataset'] = self.dataset.to_dict()
         output['refset'] = self.refset.to_dict()
         output['conset'] = self.conset.constraints_without_objects
+        if hasattr(self, 'data_ref_fit'):
+            output['data_ref_fit'] = {'data_ref_fit' : self.data_ref_fit.tolist(), 'x' : self.dataset.x.tolist()}
+        if hasattr(self, 'data_fit'):
+            output['data_fit'] = {'data_fit' : self.data_fit.tolist(), 'x' : self.dataset.x.tolist()}
+        if hasattr(self, 'c_fit'):
+            output['c_fit'] = {'c_fit' : self.data_fit.tolist(), 't' : self.dataset.t.tolist()}
         output['max_iter'] = self.max_iter
         output['tol_increase'] = self.tol_increase
         output['name'] = self.name
