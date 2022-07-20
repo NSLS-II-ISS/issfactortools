@@ -410,7 +410,7 @@ class MCRProject:
         if hasattr(self, 'data_fit'):
             output['data_fit'] = {'data_fit' : self.data_fit.tolist(), 'x' : self.dataset.x.tolist()}
         if hasattr(self, 'c_fit'):
-            output['c_fit'] = {'c_fit' : self.data_fit.tolist(), 't' : self.dataset.t.tolist()}
+            output['c_fit'] = {'c_fit' : self.c_fit.tolist(), 't' : self.dataset.t.tolist()}
         output['max_iter'] = self.max_iter
         output['tol_increase'] = self.tol_increase
         output['name'] = self.name
