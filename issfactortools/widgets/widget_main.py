@@ -342,7 +342,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
 
 
 
-        self.constraintT.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
+        self.constraintT.setEditTriggers(QtWidgets.QTableWidget.DoubleClicked)
         self.constraintT.setRowCount(len(parameters))
         self.constraintT.setColumnCount(2)
 
