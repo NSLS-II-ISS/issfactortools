@@ -12,6 +12,7 @@ recursive-include docs *.rst conf.py Makefile make.bat
 include versioneer.py
 include issfactortools/_version.py
 include issfactortools/ui/*.ui
+include issfactortools/dialogs/*.ui
 
 # If including data files in the package, add them like:
 # include path/to/data_file
