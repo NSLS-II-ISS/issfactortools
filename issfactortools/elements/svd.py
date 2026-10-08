@@ -10,27 +10,22 @@ def exponentialDecay(time, amplitude, tau):
     return amplitude * np.exp(-time / tau)
 
 
-def creategraph(matrix, t, x, y, *args,
-                fig=None):  # takes in matrix, title, xlabel, ylabel, and potenteial args to make plot
-    plt.xlabel(x)
-    plt.ylabel(y)
-    plt.title(t)
-    plt.plot(matrix)
-    if args:  # potential args are number of data points to plot, oriented by colums or rows, and a label
-        num, orientation, lab = args
-        if fig is not None:
-            plt.figure(fig.numner)
-        if (orientation == "c"):
-            i = 0
-            for i in range(num):
-                plt.plot(matrix[:, i], label=(lab + str(i + 1)))
-        elif (orientation == "r"):
-            i = 0
-            for i in range(num):
-                plt.plot(matrix[i, :], label=(lab + str(i + 1)))
-        plt.legend()
+def creategraph(matrix, t, x, y, *args, fig=None):
+    """Plot a matrix or a labeled selection of its rows or columns."""
+    if fig is None:
+        _, ax = plt.subplots()
     else:
-        plt.plot(matrix)
+        ax = fig.gca()
+    ax.set(xlabel=x, ylabel=y, title=t)
+    if args:
+        num, orientation, label = args
+        if orientation not in ("c", "r"):
+            raise ValueError("orientation must be 'c' or 'r'")
+        data = matrix[:, :num] if orientation == "c" else matrix[:num, :].T
+        ax.plot(data, label=[label + str(i + 1) for i in range(data.shape[1])])
+        ax.legend()
+    else:
+        ax.plot(matrix)
     plt.show()
 
 
@@ -52,97 +47,37 @@ def getResiduals(uN, sN, vN, A):
 
 
 def getChiSqS(S):
-    return np.sum((S ** 2))
+    return np.sum((S**2))
 
 
 def getChiSq(x):
-    return np.sum((x ** 2))
+    return np.sum((x**2))
 
 
-def plot_data(x=None, data=None, ax=None, fmt='ks-', limits=None,
-              yscale='log', labels=None, plot_title='', font = None):
-
+def plot_data(
+    x=None,
+    data=None,
+    ax=None,
+    fmt="ks-",
+    limits=None,
+    yscale="log",
+    labels=None,
+    plot_title="",
+    font=None,
+):
+    """Plot each data column once, respecting coordinates and display limits."""
     if ax is None:
-        _, ax = plt.subplots(111)
-
+        _, ax = plt.subplots()
+    data = np.asarray(data)
     if x is None:
-        a, b = data.shape
-        x = np.arange(a)
-
-    ax.plot(data)
-
-
-
-    if ax is not None:
-        ax.set_title(plot_title, fontsize=font)
-        if yscale:
-            if limits is not None:
-                #matrix = matrix[0:limits]
-                print("L2: " + str(limits))
-                if labels is None:
-                    ax.semilogy(data[0:limits], fmt)
-                else:
-                    ax.semilogy(data[0:limits], fmt, label = labels)
-                    ax.legend()
-                ax.legend()
-            else:
-                if labels is None:
-                    ax.semilogy(data, fmt)
-                else:
-                    ax.semilogy(data, fmt, label = labels)
-                    ax.legend()
-        else:
-            if x is None:
-                if limits is not None:
-                    #matrix = matrix[0:limits]
-                    print("L1: "+str(limits))
-                    if labels is None:
-                        ax.plot(data[0:limits], fmt)
-                    else:
-                        ax.plot(data[0:limits], fmt, label = labels)
-                        ax.legend()
-                    ax.legend()
-                else:
-                    if labels is None:
-                        ax.plot(data[0:limits], fmt)
-                    else:
-                        ax.plot(data[0:limits], fmt, label = labels)
-                        ax.legend()
-                    ax.plot(data, fmt)
-                    ax.legend()
-            else:
-                if limits is not None:
-                    #matrix = matrix[0:limits]
-                    print("L3: " + str(limits))
-                    if labels is None:
-                        ax.plot(data[0:limits], fmt)
-                    else:
-                        ax.plot(data[0:limits], fmt, label = labels)
-                        ax.legend()
-                    ax.legend()
-                else:
-                    if labels is None:
-                        ax.plot(x, data, fmt)
-                    else:
-                        ax.plot(x, data, fmt, label = labels)
-                        ax.legend()
-
-    else:
-        plt.figure()
-        plt.title(plot_title)
-        if yscale:
-
-            ax.semilogy(data, fmt)
-            ax.legend()
-        else:
-            if x is None:
-                ax.plot(data, fmt)
-                ax.legend()
-            else:
-                ax.plot(data, x, fmt)
-                ax.legend()
-        plt.show()
-
+        x = np.arange(data.shape[0])
+    x = np.asarray(x)
+    ax.plot(x[:limits], data[:limits], fmt, label=labels)
+    ax.set_yscale("log" if yscale is True else (yscale or "linear"))
+    ax.set_title(plot_title, fontsize=font)
+    if labels is not None:
+        ax.legend()
+    return ax
 
 
 def getPicture(name, matrix, fig=None, font=None):
@@ -162,69 +97,50 @@ def getSubset(startcolumns, endcolumns, matrix):
 
 def SVDNoise(A, noiseLevel, noise):
     noiseA = A + (noiseLevel * noise)
-    u, s, v, = np.linalg.svd(noiseA)
+    (
+        u,
+        s,
+        v,
+    ) = np.linalg.svd(noiseA)
     return noiseA, u, s, v
 
 
 def LRA(uMatrix, sMatrix, vMatrix, n, A, noiseLevel=None, fig=None, font=None):
-    chiSq = []
-    chiSqS = []
-    placeholder = np.copy(sMatrix)
-    i = 1
-    while i < n:
-        uN = getRankedMatrices(i, uMatrix, "c")
-        sN = getRankedMatrices(i, sMatrix, "d")
-        vN = getRankedMatrices(i, vMatrix, "r")
+    """Plot residual sums for ranks 1 through n-1 using incremental updates.
 
-        temp = np.diag(sMatrix)
-        num = 0
-        for num in range(i):
-            placeholder[num] = 0
-
-        chiSqS.append(getChiSqS(placeholder))
-        An, residuals = getResiduals(uN, sN, vN, A)
-        chiSq.append(getChiSq(residuals))
-
-        i = i + 1
-    nArr = np.arange(1, len(chiSq) + 1)
-    if fig is not None:
-        fig.plot(nArr, chiSq, ".-", label="Residuals")
-        fig.plot(nArr, chiSqS, ".-", label="Singular Values")
-        fig.legend()
-        fig.set_xlabel("Rank(n)", fontsize=font)
-        fig.set_ylabel("Chi Squared", fontsize=font)
-        if noiseLevel is not None:
-            fig.set_title("Rank vs Chi Squared for a noise level of " + str(noiseLevel), fontsize=font)
-    else:
-        plt.figure()
-        plt.plot(nArr, chiSq, ".-", label="Residuals")
-        plt.plot(nArr, chiSqS, ".-", label="Singular Values")
-        plt.legend()
-        plt.xlabel("Rank(n)")
-        plt.ylabel("Chi Squared")
-        if noiseLevel is not None:
-            plt.title("Rank vs Chi Squared for a noise level of " + str(noiseLevel))
-
-        else:
-            # plt.set_text("Rank vs Chi Squared")
-            pass
-
-
-
-    return np.array(chiSqS), np.array(chiSq)
+    vMatrix follows NumPy's Vh convention (unlike the V returned by doSVD).
+    The explicit residual is retained so this also works with approximate
+    factors, where the singular-value tail alone need not equal the residual.
+    """
+    if not isinstance(n, (int, np.integer)) or not 1 <= n <= len(sMatrix) + 1:
+        raise ValueError("n must be between 1 and the number of singular values + 1")
+    chiSqS = _get_lra_chisq(sMatrix)[: n - 1]
+    chiSq = np.empty(n - 1)
+    residual = np.array(A, dtype=np.result_type(A, uMatrix, sMatrix, vMatrix), copy=True)
+    for i in range(n - 1):
+        residual -= sMatrix[i] * np.outer(uMatrix[:, i], vMatrix[i])
+        chiSq[i] = getChiSq(residual)
+    if fig is None:
+        _, fig = plt.subplots()
+    ranks = np.arange(1, n)
+    fig.plot(ranks, chiSq, ".-", label="Residuals")
+    fig.plot(ranks, chiSqS, ".-", label="Singular Values")
+    fig.legend()
+    fig.set_xlabel("Rank(n)", fontsize=font)
+    fig.set_ylabel("Chi Squared", fontsize=font)
+    if noiseLevel is not None:
+        fig.set_title("Rank vs Chi Squared for a noise level of " + str(noiseLevel), fontsize=font)
+    return chiSqS, chiSq
 
 
 def plotsingvalues(s, fig=None, font=None):  # plot a matrix of singular values
-    nArr = np.arange(1, len(s + 1))
     if fig is not None:  # if the user has passed in their own figure, use that
-        print("HERE!")
         fig.semilogy(s, ".-", label="sN")
         fig.set_xlabel("Index", fontsize=font)
         fig.set_ylabel("Singular Value", fontsize=font)
         fig.legend()
         fig.set_title("Singular Values vs Index", fontsize=font)
     else:  # otherwise design a new plot for them
-        print(s)
         plt.figure()
         plt.plot(s, "o-", label="sN")
         plt.xlabel("Index")
@@ -234,62 +150,58 @@ def plotsingvalues(s, fig=None, font=None):  # plot a matrix of singular values
 
 
 def _getAutocorrelation(matrix, lag=1):
-    autocorrelation = []
-    rows, cols = np.shape(matrix)
-    for i in range(cols):
-        vec = matrix[:, i]
-        x1 = vec[lag:]
-        x2 = vec[:-lag]
-        ac = np.sum(x1 * x2)
-        autocorrelation.append(ac)
-    return np.array(autocorrelation)
+    """Return the unnormalized lagged product sum for each column."""
+    matrix = np.asarray(matrix)
+    if matrix.ndim != 2:
+        raise ValueError("matrix must be two-dimensional")
+    if not isinstance(lag, (int, np.integer)) or lag < 1:
+        raise ValueError("lag must be a positive integer")
+    return np.sum(matrix[lag:] * matrix[:-lag], axis=0)
+
 
 def getAutocorrelation(matrix, lag=1, title=None, fig=None, font=None):
     autocorrelation = _getAutocorrelation(matrix, lag=lag)
-    rows, cols = np.shape(matrix)
-    k = lag
-    for i in range(cols):
-        vec = matrix[:, i]
-        x1 = vec[k:]
-        x2 = vec[:-k]
-        ac = np.sum(x1 * x2)
-        autocorrelation.append(ac)
-
-    if fig is not None:
-        fig.plot(autocorrelation, "k.-")
-        if title is not None:
-            fig.set_title("Autocorrelation of " + title, fontsize=font)
-        fig.plot([0, cols], [0.8, 0.8], color='r', linestyle='dashed')
-    else:
-        plt.figure()
-        plt.plot(autocorrelation, "k.-")
-        plt.plot([0, cols], [0.8, 0.8], color='r', linestyle='dashed')
-        if title is not None:
-            plt.title("Autocorrelation of " + title)
+    if fig is None:
+        _, fig = plt.subplots()
+    fig.plot(autocorrelation, "k.-")
+    fig.axhline(0.8, color="r", linestyle="dashed")
+    if title is not None:
+        fig.set_title("Autocorrelation of " + title, fontsize=font)
 
 
 def _get_lra_chisq(s):
-    chisq = (np.cumsum((s ** 2)[::-1])[::-1])[1:]
-    return np.hstack((chisq, 0))
+    chisq = (np.cumsum((s**2)[::-1])[::-1])[1:]
+    return np.concatenate((chisq, np.zeros(min(1, np.size(s)))))
 
 
+def doSVD(A, full_matrices=False):
+    """Compute SVD and rank diagnostics using compact factors by default.
 
-def doSVD(A):
-    u, s, vT = np.linalg.svd(A)
+    For an (m, n) matrix, U and V have min(m, n) columns. Set
+    full_matrices=True when the complete orthonormal bases are needed.
+    V is returned transposed relative to NumPy's Vh, as in earlier releases.
+    """
+    u, s, vT = np.linalg.svd(A, full_matrices=full_matrices)
     v = vT.T
-
-    lra_chisq = _get_lra_chisq(s)
-    ac_u = _getAutocorrelation(u)
-    ac_v = _getAutocorrelation(v)
-
-    # more methods for significance testing
-    # F test etc
-
-    return u, s, v, lra_chisq, ac_u, ac_v
+    return u, s, v, _get_lra_chisq(s), _getAutocorrelation(u), _getAutocorrelation(v)
 
 
-
-def plot_svd_results(x, t, u, s, v, lra_chisq, ac_u, ac_v, figure1, figure2, energy = None, n_cmp_show=3, n_val_show = 25, font=8):
+def plot_svd_results(
+    x,
+    t,
+    u,
+    s,
+    v,
+    lra_chisq,
+    ac_u,
+    ac_v,
+    figure1,
+    figure2,
+    energy=None,
+    n_cmp_show=3,
+    n_val_show=25,
+    font=8,
+):
 
     ax_u = figure1.add_subplot(2, 1, 1)
     ax_v = figure1.add_subplot(2, 1, 2)
@@ -297,54 +209,61 @@ def plot_svd_results(x, t, u, s, v, lra_chisq, ac_u, ac_v, figure1, figure2, ene
     ax_s = figure2.add_subplot(2, 1, 1)
     ax_ac = figure2.add_subplot(2, 1, 2)
 
-
     subsetu = getSubset(0, n_cmp_show, u)
     subsetv = getSubset(0, n_cmp_show, v)
 
-    plot_data(x, subsetu, ax_u, fmt='-', plot_title="subset of U", font=font)  #, lab = "Componenets")  # 2
-    plot_data(t, subsetv, ax_v, fmt='-', plot_title="subset of V", font=font)  #, lab = "Comp")  # 3
+    plot_data(
+        x, subsetu, ax_u, fmt="-", yscale=False, plot_title="subset of U", font=font
+    )  # , lab = "Componenets")  # 2
+    plot_data(
+        t, subsetv, ax_v, fmt="-", yscale=False, plot_title="subset of V", font=font
+    )  # , lab = "Comp")  # 3
 
-    plot_data(data=s, ax=ax_s, fmt='k.-', limits=n_val_show, yscale=True, labels="Singular Values",
-              plot_title="Singular values", font=font)  # 7
-    plot_data(data=lra_chisq, ax=ax_s, fmt='bs-', limits=n_val_show, yscale=True, labels="Chi Squared",
-              plot_title="Singular values", font=font)  # 7
+    plot_data(
+        data=s,
+        ax=ax_s,
+        fmt="k.-",
+        limits=n_val_show,
+        yscale=True,
+        labels="Singular Values",
+        plot_title="Singular values",
+        font=font,
+    )  # 7
+    plot_data(
+        data=lra_chisq,
+        ax=ax_s,
+        fmt="bs-",
+        limits=n_val_show,
+        yscale=True,
+        labels="Chi Squared",
+        plot_title="Singular values",
+        font=font,
+    )  # 7
 
-    plot_data(data=ac_u, ax=ax_ac, fmt='ks-', limits=n_val_show, labels="AC_U", plot_title="", font=font)  # 3
-    plot_data(data=ac_v, ax=ax_ac, fmt='r.-', limits=n_val_show, labels="AC_V", plot_title="autocorrelation",
-              font=font)  # 3
-
-    # plt.tight_layout()
-
-
-    #
-    #     # getAutocorrelation(noiseu, 1, "u", ax4, font)  # 4
-    #     # getAutocorrelation(noisev.T, 1, "v", ax5, font)  # 5
-    #     LRA(noiseu, noises, noisev, len(noises) + 1, noiseA, noiseLevel, ax6, font)  # 6
-    #
-    # else:
-    #     noiseA, noiseu, noises, noisev = SVDNoise(A, noiseLevel, noiseArray)
-    #     noiseAx, u, s, v = SVDNoise(A, 0, noiseArray)
-    #     print("XXXX")
-    #     print(noises.shape)
-    #     fullFTest(np.diag(noises), 647, 209)
-    #
-    #     plots("Representation of Matrix A", A)  # 1
-    #
-    #     subsetu = getSubset(0, 3, u)
-    #     subsetnu = getSubset(0, 3, noiseu)
-    #     plots("Representations of Subset of Matrix U", subsetu)
-    #
-    #     subsetv = getSubset(0, 3, v.T)
-    #     subnoisev = getSubset(0, 3, noisev.T)
-    #     plots("Representation of subset V", subsetv)
-    #     getAutocorrelation(noiseu, 1, "u")
-    #     getAutocorrelation(noisev.T, 1, "v")
-    #     LRA(noiseu, noises, noisev, len(noises) + 1, noiseA, noiseLevel)
-    #     plotsingvalues(noises)
+    plot_data(
+        data=ac_u,
+        ax=ax_ac,
+        fmt="ks-",
+        limits=n_val_show,
+        labels="AC_U",
+        yscale=False,
+        plot_title="",
+        font=font,
+    )  # 3
+    plot_data(
+        data=ac_v,
+        ax=ax_ac,
+        fmt="r.-",
+        limits=n_val_show,
+        labels="AC_V",
+        yscale=False,
+        plot_title="autocorrelation",
+        font=font,
+    )  # 3
 
 
 def eigen(sValue, m):
-    covariance = (sValue ** 2) / (m - 1)
+    covariance = (sValue**2) / (m - 1)
     return covariance
 
 
@@ -407,39 +326,39 @@ def fullFTest(sValues, m, n):
     plt.show()
     return ans
 
+
 def compute_efa(dataset):
-    nx, nt = dataset.data.shape
+    """Compute forward/backward EFA spectra, preserving legacy window alignment.
+
+    The forward windows are data[:, :i], and the backward windows are
+    data[:, -i-1:] for i in range(1, nt). Only singular values are needed.
+    """
+    data = dataset.data
+    _, nt = data.shape
+    if nt == 0:
+        raise ValueError("EFA requires at least one spectrum")
     ss_forward = np.zeros((nt, nt - 1))
     ss_backward = np.zeros((nt, nt - 1))
     for i in range(1, nt):
-        _u, _s, _v, _, _, _ = dataset._compute_svd(dataset.data[:, :i])
-        n_i = _s.size
-        ss_forward[:n_i, i - 1] = _s
-
-        _u, _s, _v, _, _, _ = dataset._compute_svd(dataset.data[:, -i-1:])
-        n_i = _s.size
-        ss_backward[:n_i, -(i)] = _s
+        forward = np.linalg.svd(data[:, :i], compute_uv=False)
+        backward = np.linalg.svd(data[:, -i - 1 :], compute_uv=False)
+        ss_forward[: forward.size, i - 1] = forward
+        ss_backward[: backward.size, -i] = backward
     return ss_forward, ss_backward
-
-# ss_forward, ss_backward = compute_efa(ds)
-#
-# n_cmp = 3
-# plt.figure()
-# plt.semilogy(ss_forward.T[:, :n_cmp], '')
-# plt.gca().set_prop_cycle(None)
-# plt.semilogy(ss_backward.T[:, :n_cmp], '--')
 
 
 def compute_fwefa(dataset, w=5):
-    ss = []
-    nx, nt = dataset.data.shape
-    for i in range(w, nt-w):
-        _d = dataset.data[:, i:(i + w)]
-        print(i, _d.shape)
-        _u, _s, _v, _, _, _ = dataset._compute_svd(_d)
-        ss.append(_s)
-    return np.array(ss)
+    """Compute singular values for the legacy fixed-width EFA windows.
 
-# ss_fwefa = compute_fwefa(ds, w=10)
-# plt.figure()
-# plt.semilogy(ss_fwefa[:, :n_cmp], '')
+    Window starts run from w to nt-w (exclusive). An empty selection returns
+    an array with zero rows and min(number of energy points, w) columns.
+    """
+    if not isinstance(w, (int, np.integer)) or w < 1:
+        raise ValueError("w must be a positive integer")
+    data = dataset.data
+    nx, nt = data.shape
+    starts = range(w, nt - w)
+    ss = np.empty((len(starts), min(nx, w)))
+    for row, start in enumerate(starts):
+        ss[row] = np.linalg.svd(data[:, start : start + w], compute_uv=False)
+    return ss

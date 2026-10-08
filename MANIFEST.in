@@ -8,9 +8,9 @@ recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
 
 recursive-include docs *.rst conf.py Makefile make.bat
+recursive-include issfactortools/tests *.py
+recursive-include benchmarks *.py
 
-include versioneer.py
-include issfactortools/_version.py
 include issfactortools/ui/*.ui
 include issfactortools/dialogs/*.ui
 

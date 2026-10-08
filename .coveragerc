@@ -3,11 +3,8 @@ source =
     issfactortools
 [report]
 omit =
-    */python?.?/*
-    */site-packages/nose/*
-    # ignore _version.py and versioneer.py
-    .*version.*
-    *_version.py
+    */tests/*
+    */_generated_version.py
 
 exclude_lines =
     if __name__ == '__main__':

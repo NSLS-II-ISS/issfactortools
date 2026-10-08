@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=77", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "issfactortools"
+dynamic = ["version", "dependencies"]
+description = "Factor analysis tools for spectroscopy at the ISS beamline and beyond"
+readme = "README.rst"
+requires-python = ">=3.10"
+license = "BSD-3-Clause"
+authors = [{name = "NSLS-II ISS beamline", email = "dleshchev@bnl.gov"}]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+]
+
+[project.urls]
+Homepage = "https://github.com/dleshchev/issfactortools"
+
+[project.optional-dependencies]
+gui = ["PyQt5>=5.15.11,<6"]
+test = ["pytest>=8", "pytest-cov>=5"]
+dev = ["issfactortools[test]", "build>=1.2", "ruff>=0.11", "twine>=6"]
+docs = [
+    "sphinx>=8", "ipython>=8", "numpydoc>=1.8",
+    "sphinx-copybutton>=0.5", "sphinx-rtd-theme>=3",
+]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
+[tool.setuptools]
+include-package-data = false
+
+[tool.setuptools.packages.find]
+include = ["issfactortools*"]
+exclude = ["issfactortools.tests*"]
+
+[tool.setuptools.package-data]
+issfactortools = ["ui/*.ui", "dialogs/*.ui"]
+
+[tool.setuptools_scm]
+version_file = "issfactortools/_generated_version.py"
+fallback_version = "0+unknown"
+
+[tool.pytest.ini_options]
+testpaths = ["issfactortools/tests"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+extend-exclude = ["issfactortools/_generated_version.py"]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]

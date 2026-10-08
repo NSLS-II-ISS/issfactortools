@@ -21,6 +21,9 @@ parts/
 sdist/
 var/
 venv/
+.venv/
+.ruff_cache/
+issfactortools/_generated_version.py
 *.egg-info/
 .installed.cfg
 *.egg

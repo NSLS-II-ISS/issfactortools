@@ -1,31 +1,17 @@
-import inspect
-import re
-import sys
 import numpy as np
-import matplotlib.pyplot as plt
-import pkg_resources
-import traceback
-import math
+from importlib.resources import files
 import issfactortools.widgets.QDialog
-import pymcr.constraints
-import isstools.widgets
-from PyQt5 import uic, QtWidgets, QtGui, QtCore
-from PyQt5.QtCore import QThread, QSettings, QPoint
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QCursor, QMouseEvent
-from PyQt5.QtWidgets import QMessageBox, QApplication, QWidget, QPushButton, QVBoxLayout, QMenu, QAction, QRadioButton, \
-    QInputDialog, QFormLayout, QLineEdit, QTableWidgetItem, QTableWidget, QHeaderView, QDialogButtonBox, QHBoxLayout, \
-    QComboBox, QButtonGroup, QLabel
+from PyQt5 import uic, QtWidgets, QtCore
+from PyQt5.QtWidgets import QMessageBox, QTableWidgetItem, QTableWidget, QHeaderView, QHBoxLayout
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas, \
     NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
 
 
-from issfactortools.elements.svd import plot_svd_results, doSVD
 
 
-ui_path = pkg_resources.resource_filename('issfactortools', 'ui/ui_main.ui')
+ui_path = str(files('issfactortools').joinpath('ui/ui_main.ui'))
 
 class UIDataOverview(*uic.loadUiType(ui_path)):
     def __init__(self, *args, **kwargs):
@@ -191,7 +177,7 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         msgBox.gui_init(self.num_cols, self.columnNames)
 
         while num == 0:
-            result = msgBox.exec()
+            msgBox.exec()
             tab = msgBox.row_4
             checks = self.saveSelections(tab)
             print("Here: "+str(tab))

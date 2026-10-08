@@ -1,1 +1,4 @@
-# List required packages in this file, one per line.
+numpy>=1.26
+scipy>=1.11
+matplotlib>=3.8
+pymcr>=0.5.1,<0.6

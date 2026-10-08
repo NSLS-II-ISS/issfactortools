@@ -1,31 +1,31 @@
 import copy
-import re
 import sys
 import numpy as np
-import pkg_resources
+from importlib.resources import files
 import inspect
-import math
 import os
 import json
-from pymcr.constraints import *
+from pymcr.constraints import (
+    ConstraintNonneg, ConstraintCumsumNonneg, ConstraintZeroEndPoints,
+    ConstraintZeroCumSumEndPoints, ConstraintNorm, ConstraintCutBelow,
+    ConstraintCutAbove, ConstraintCompressBelow, ConstraintCompressAbove,
+    ConstraintReplaceZeros, ConstraintPlanarize,
+)
 from PyQt5 import uic, QtGui, QtCore, QtWidgets
-from PyQt5.QtCore import QThread, QSettings, Qt
-from PyQt5.QtGui import QStandardItem
+from PyQt5.QtCore import Qt
 
 from PyQt5.QtWidgets import QApplication, QTableWidgetItem, QHeaderView, QRadioButton, QTableWidget, QHBoxLayout, \
     QLabel, QButtonGroup, QComboBox, QMenu, QAction, QMessageBox, QInputDialog
 from PyQt5.QtCore import QTimer
-import sys
 
 import issfactortools
-from issfactortools.widgets import widget_data_overview, widget_mcr_overview
 from issfactortools.elements.mcrproject import DataSet, ReferenceSet, ConstraintSet, Optimizer, MCRProject
 import issfactortools.widgets.QDialog
 
 from issfactortools.dialogs.AddReferenceDialog import AddReferenceDialog
 
 
-ui_path = pkg_resources.resource_filename('issfactortools', 'ui/ui_main.ui')
+ui_path = str(files('issfactortools').joinpath('ui/ui_main.ui'))
 
 
 constraints_obj_dict = { 'ConstraintNonneg' : ConstraintNonneg,
@@ -121,7 +121,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
     #     try:
     #         index = self.treeView_constraints.selectedIndexes()[0]
     #         crawler = index.model().itemFromIndex(index)
-    #     except:
+    #     except Exception:
     #         pass
     #     try:
     #         constraint = crawler.text()
@@ -132,7 +132,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
     #                 comboIndex = i
     #                 break
     #         self.combo.setCurrentIndex(i)
-    #     except:
+    #     except Exception:
     #         pass
 
 
@@ -224,12 +224,11 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
     def append_Constraint(self):
         index = self.treeView_constraints.selectedIndexes()[0]
         crawler = index.model().itemFromIndex(index)
-        constr_params = None
         try:
             print(crawler.parent.text())
             QMessageBox.about(self, "ERROR", "Invalid Constraint Set Selected")
-        except:
-            if(self.c_clicked == False and self.s_clicked == False):
+        except Exception:
+            if(not self.c_clicked and not self.s_clicked):
                 QMessageBox.about(self, "ERROR", "No Vector Selected")
             else:
                 selected = self.treeView_constraints.currentIndex().row()
@@ -325,7 +324,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         row1.addWidget(radioC)
         row1.addWidget(radioS)
 
-        if self.gridFilled == True:
+        if self.gridFilled:
             self.verticalLayout.removeWidget(self.constraintT)
             row0.removeWidget(text)
             row1.removeWidget(radioS)
@@ -387,13 +386,13 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
             this_type = parameter['type']
             this_key = parameter['name']
             actual_value = current_table_parameters[this_key]
-            if this_type == str:
+            if this_type is str:
                 v = str(actual_value)
-            elif this_type == bool:
+            elif this_type is bool:
                 v = (actual_value == 'True')
-            elif this_type == int:
+            elif this_type is int:
                 v = int(actual_value)
-            elif this_type == float:
+            elif this_type is float:
                 v = float(actual_value)
             else:
                 if actual_value == 'None':
@@ -497,17 +496,15 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
         try:
             print(crawler.parent.text())
             parentAt = None
-            arrIndex = -1
             for i in range(0, self.model_references.rowCount()):
                 x = self.model_references.item(i, 0)
                 if (x == crawler.parent):
                     parentAt = i
                     referenceItem = self.model_references.item(parentAt)
-                    numChildren = referenceItem.rowCount()
-                    item = self.model_references.item(parentAt, 0).takeRow(index.row())
+                    self.model_references.item(parentAt, 0).takeRow(index.row())
                     self.removeFromReferenceSet(referenceItem.reference.reference_dict, referenceItem.reference.labels[index.row()])
                     break
-        except Exception as e:
+        except Exception:
             self.model_references.removeRow(index.row())
 
     def removeFromReferenceSet(self, input_dict, key):
@@ -548,11 +545,11 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
                             arrIndex = arrIndex+1
                             if(child == crawler):
                                 break
-                    item = self.model_constraints.item(parentAt, 0).takeRow(index.row())
+                    self.model_constraints.item(parentAt, 0).takeRow(index.row())
 
                     self.unAppend_Constraint(constraintItem.constraint, arrIndex, vector)
                     break
-        except:
+        except Exception:
               self.model_constraints.removeRow(index.row())
 
 
@@ -650,7 +647,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
             # print(ret)
             if ret:
                 idx = self.dialog.get_value()
-                if idx == None:
+                if idx is None:
                     self.add_references_to_specific_set(x_list, data_list, label_list, make_new_set=True)
                 index = self.model_references.item(idx).index()
                 self.add_references_to_set(x_list, data_list, label_list, index=index)
@@ -686,8 +683,6 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
 
 
     def inspectData(self):#, Dialog):
-        rows = self.model_datasets.rowCount()
-        cols = self.model_datasets.columnCount()
         # filename = ""
         selected = self.listView_datasets.currentIndex().row()
         item = self.model_datasets.item(selected, 0)
@@ -715,7 +710,7 @@ class FactorAnalysisGUI(*uic.loadUiType(ui_path)):
                 constraintset = self.model_constraints.item(i,0).constraint
                 break
 
-        if (dataset == None) or (referenceset == None) or (constraintset == None):
+        if (dataset is None) or (referenceset is None) or (constraintset is None):
             QMessageBox.about(self, "ERROR", "Must select a data set, reference set, and constraint set")
         else:
             optimize = self._make_item("Optimizer")
@@ -895,7 +890,3 @@ if __name__ == '__main__':
 
     QTimer.singleShot(1, xfactor)  # call startApp only after the GUI is ready
     sys.exit(app.exec_())
-
-    sys.stdout = xlive_gui.emitstream_out
-    sys.stderr = xlive_gui.emitstream_err
-

@@ -1,11 +1,7 @@
+"""Factor analysis tools for spectroscopy."""
 
-from . import _version
-__version__ = _version.get_versions()['version']
-
-
-def dialogs():
-    return None
-
-
-def dialogs():
-    return None
+try:
+    from ._generated_version import __version__
+except ImportError:
+    # An unbuilt source checkout has no generated version module yet.
+    __version__ = "0+unknown"

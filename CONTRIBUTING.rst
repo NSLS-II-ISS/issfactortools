@@ -65,7 +65,7 @@ Ready to contribute? Here's how to set up `issfactortools` for local development
 
     $ mkvirtualenv issfactortools
     $ cd issfactortools/
-    $ python setup.py develop
+    $ python -m pip install -e '.[dev,gui]'
 
 4. Create a branch for local development::
 
@@ -73,13 +73,11 @@ Ready to contribute? Here's how to set up `issfactortools` for local development
 
    Now you can make your changes locally.
 
-5. When you're done making changes, check that your changes pass flake8 and the tests, including testing other Python versions with tox::
+5. Run lint, regression tests, and the package build::
 
-    $ flake8 issfactortools tests
-    $ python setup.py test
-    $ tox
-
-   To get flake8 and tox, just pip install them into your virtualenv.
+    $ ruff check issfactortools
+    $ pytest
+    $ python -m build
 
 6. Commit your changes and push your branch to GitHub::
 
@@ -98,7 +96,5 @@ Before you submit a pull request, check that it meets these guidelines:
 2. If the pull request adds functionality, the docs should be updated. Put
    your new functionality into a function with a docstring, and add the
    feature to the list in README.rst.
-3. The pull request should work for Python 2.7, 3.3, 3.4, 3.5 and for PyPy. Check
-   https://travis-ci.org/dleshchev/issfactortools/pull_requests
-   and make sure that the tests pass for all supported Python versions.
-
+3. The pull request should work for Python 3.10 and newer. Check the
+   GitHub Actions test matrix for all supported Python versions.

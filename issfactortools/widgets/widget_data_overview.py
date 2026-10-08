@@ -1,26 +1,16 @@
-import copy
-import re
-import sys
 import numpy as np
-import matplotlib.pyplot as plt
-import pkg_resources
-import traceback
-import math
+from importlib.resources import files
 
-import isstools.widgets
-from PyQt5 import uic, QtWidgets, QtGui, QtCore
-from PyQt5.QtCore import QThread, QSettings, QPoint
+from PyQt5 import uic, QtCore
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QCursor, QMouseEvent
-from PyQt5.QtWidgets import QMessageBox, QApplication, QWidget, QPushButton, QVBoxLayout, QMenu, QAction, QRadioButton, QListWidgetItem
+from PyQt5.QtWidgets import QMessageBox, QMenu, QAction, QListWidgetItem
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas, \
     NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
 
-from issfactortools.elements.svd import plot_svd_results, doSVD
 
-ui_path = pkg_resources.resource_filename('issfactortools', 'ui/ui_data_overview.ui')
+ui_path = str(files('issfactortools').joinpath('ui/ui_data_overview.ui'))
 
 class UIDataOverview(*uic.loadUiType(ui_path)):
 
@@ -65,7 +55,6 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
                 num = self.findclosest(self.dataset._x, self.mouseCoords[0])
                 i= np.where(self.dataset._x == num)
                 #print("Index: ", i[0])
-                shape = self.dataset._data[i[0], :].shape
                 arr1d = self.dataset._data[i[0], 1:].flatten()
                 #print(arr1d)
                 if self.offset_text == "":
@@ -99,7 +88,6 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
                 num = self.findclosest(self.dataset._x, self.mouseCoords[0])
                 i= np.where(self.dataset._x == num)
                 print("Index: ", i[0])
-                shape = self.dataset._data[i[0], :].shape
                 arr1d = self.dataset._data[i[0], 1:].flatten()
                 max = np.max(arr1d)
                 min = np.min(arr1d)
@@ -234,11 +222,9 @@ class UIDataOverview(*uic.loadUiType(ui_path)):
         return closest
 
     def validate_parameters(self):
-        cols_text = self.columnsText.toPlainText()
         components_text = self.componentsText.toPlainText()
         energy_text = self.energyText.toPlainText()
         svdauto_text = self.svd_auto_limits.toPlainText()
-        singval_text = self.svd_sing_limits.toPlainText()
         offsetD = self.dataOffsetWhole.toPlainText()
         if offsetD == "":
             offsetD = 0
