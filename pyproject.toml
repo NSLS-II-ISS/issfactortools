@@ -7,7 +7,7 @@ name = "issfactortools"
 dynamic = ["version", "dependencies"]
 description = "Factor analysis tools for spectroscopy at the ISS beamline and beyond"
 readme = "README.rst"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 license = "BSD-3-Clause"
 authors = [{name = "NSLS-II ISS beamline", email = "dleshchev@bnl.gov"}]
 classifiers = [
@@ -49,7 +49,7 @@ fallback_version = "0+unknown"
 testpaths = ["issfactortools/tests"]
 
 [tool.ruff]
-target-version = "py310"
+target-version = "py312"
 line-length = 100
 extend-exclude = ["issfactortools/_generated_version.py"]
 
